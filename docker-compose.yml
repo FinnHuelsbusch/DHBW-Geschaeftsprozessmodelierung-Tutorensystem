@@ -20,6 +20,8 @@ services:
       - CHOKIDAR_USEPOLLING=true
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+    networks:
+      - default
 
   backend:
     container_name: backend
@@ -31,4 +33,21 @@ services:
     ports:
       - 8080:8080
     command: sleep infinity
+    networks:
+      - default
 
+  db:
+    image: 'postgres:latest'
+    restart: unless-stopped
+    volumes:
+      - /var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: tutorensystem-dhbw
+    ports:
+      - "5432:5432"   
+    networks:
+      - default
+networks:
+  default:
