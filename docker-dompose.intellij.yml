@@ -1,0 +1,4 @@
+version: '3.7'
+services:
+    backend:
+        command: mvn -f /workspace/ spring-boot:run
