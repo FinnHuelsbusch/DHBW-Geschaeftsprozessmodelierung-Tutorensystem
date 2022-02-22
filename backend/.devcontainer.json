@@ -1,5 +1,5 @@
 {
-	"name": "backen-tutorensystem",
+	"name": "backend-tutorensystem",
 	"dockerComposeFile": "../docker-compose.yml",
 	"service": "backend",
 	"workspaceFolder": "/workspace",
