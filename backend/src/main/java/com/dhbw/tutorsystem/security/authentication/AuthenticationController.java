@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.validation.Valid;
 import java.util.HashSet;
@@ -28,51 +29,60 @@ public class AuthenticationController {
     final UserRepository userRepository;
     final RoleRepository roleRepository;
     final JwtUtils jwtUtils;
+    final PasswordEncoder encoder;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, JwtUtils jwtUtils) {
+    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository,
+            RoleRepository roleRepository, JwtUtils jwtUtils, PasswordEncoder encoder) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.jwtUtils = jwtUtils;
+        this.encoder = encoder;
     }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUserId(), userDetails.getEmailAddress(), roles));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        User user = new User(signUpRequest.getFirstname(), signUpRequest.getLastname(), signUpRequest.getEmail(), signUpRequest.getPassword());
+        // encode user's password, do not save it in plain text
+        String encodedPassword = encoder.encode(signUpRequest.getPassword());
+        User user = new User(signUpRequest.getFirstname(), signUpRequest.getLastname(), signUpRequest.getEmail(),
+                encodedPassword);
 
         Set<Role> roles = new HashSet<>();
-        if(user.isStudentMail()) {
-            Role studentRole = roleRepository.findByName(ERole.ROLE_STUDENT).orElseThrow(() -> new RuntimeException("Error: Role was not found."));
+        if (user.isStudentMail()) {
+            Role studentRole = roleRepository.findByName(ERole.ROLE_STUDENT)
+                    .orElseThrow(() -> new RuntimeException("Error: Role was not found."));
             roles.add(studentRole);
-        } else if(user.isDirectorMail()) {
-            Role directorRole = roleRepository.findByName(ERole.ROLE_DIRECTOR).orElseThrow(() -> new RuntimeException("Error: Role was not found."));
+        } else if (user.isDirectorMail()) {
+            Role directorRole = roleRepository.findByName(ERole.ROLE_DIRECTOR)
+                    .orElseThrow(() -> new RuntimeException("Error: Role was not found."));
             roles.add(directorRole);
         } else {
             throw new RuntimeException("Error: Email is invalid.");
         }
-
         user.setRoles(roles);
         userRepository.save(user);
-        JwtResponse jwtResponse = (JwtResponse) authenticateUser(new LoginRequest(user.getEmail(), user.getPassword())).getBody();
 
-        // TODO: user direkt auch einloggen und JwtResponse mit Token zurücksenden
+        // issue a token so that the user is directly logged in, using the plain text password
+        JwtResponse jwtResponse = (JwtResponse) authenticateUser(new LoginRequest(user.getEmail(), signUpRequest.getPassword()))
+                .getBody();
+
         return ResponseEntity.ok(new SignupResponse(user.getEmail(), jwtResponse.getAccessToken()));
     }
 }
-
-
