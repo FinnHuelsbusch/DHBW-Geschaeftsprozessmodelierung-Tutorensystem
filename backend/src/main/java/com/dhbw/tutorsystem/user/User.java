@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -41,6 +42,9 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
+    private final String studentMailEnding = "@student.dhbw-mannheim.de";
+    private final String directorMailEnding = "@dhbw-mannheim.de";
+
     public User() {
 
     }
@@ -51,4 +55,14 @@ public class User {
         this.email = email;
         this.password = password;
     }
+
+    public boolean isStudentMail() {
+        return StringUtils.isNotBlank(this.email) && this.email.endsWith(studentMailEnding);
+    }
+
+    public boolean isDirectorMail() {
+        return StringUtils.isNotBlank(this.email) && this.email.endsWith(directorMailEnding);
+    }
+
+
 }

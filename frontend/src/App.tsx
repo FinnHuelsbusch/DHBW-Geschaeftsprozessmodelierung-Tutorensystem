@@ -19,7 +19,8 @@ function App() {
           <div style={{ textAlign: 'center', marginTop: '36px' }}>
             <Button onClick={e => {
               ping().then(
-                res => message.success(res)
+                res => message.success(res),
+                err => message.error("Axios error")
               );
             }}>
               Ping backend

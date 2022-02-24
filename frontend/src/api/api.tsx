@@ -8,6 +8,5 @@ const api = axios.create({
 
 export const ping = (): Promise<string> => {
     return api.get('/ping')
-        .then(res => res.data)
-        .catch(err => 'Axios error');
+        .then(res => res.data);
 }
