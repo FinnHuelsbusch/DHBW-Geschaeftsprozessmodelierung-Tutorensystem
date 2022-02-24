@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { Button, Layout, message } from 'antd';
 import { Content, Header } from 'antd/lib/layout/layout';
