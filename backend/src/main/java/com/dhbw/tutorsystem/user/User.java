@@ -42,7 +42,9 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
     private final String studentMailEnding = "@student.dhbw-mannheim.de";
+    @JsonIgnore
     private final String directorMailEnding = "@dhbw-mannheim.de";
 
     public User() {

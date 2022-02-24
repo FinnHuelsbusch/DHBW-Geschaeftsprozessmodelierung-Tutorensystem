@@ -1,19 +1,18 @@
 package com.dhbw.tutorsystem.security.authentication;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@AllArgsConstructor
 public class SignupResponse {
 
+    @Getter
+    @Setter
     private String emailAddress;
 
-    public SignupResponse(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
+    @Getter
+    @Setter
+    private String accessToken;
 }
 

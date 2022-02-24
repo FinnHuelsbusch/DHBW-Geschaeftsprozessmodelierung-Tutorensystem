@@ -68,9 +68,10 @@ public class AuthenticationController {
 
         user.setRoles(roles);
         userRepository.save(user);
+        JwtResponse jwtResponse = (JwtResponse) authenticateUser(new LoginRequest(user.getEmail(), user.getPassword())).getBody();
 
         // TODO: user direkt auch einloggen und JwtResponse mit Token zurücksenden
-        return ResponseEntity.ok(new SignupResponse(user.getEmail()));
+        return ResponseEntity.ok(new SignupResponse(user.getEmail(), jwtResponse.getAccessToken()));
     }
 }
 
