@@ -34,10 +34,12 @@ function App() {
       <Router >
       <Layout>
 
-        <Header>
-          <Navigation />
-        </Header>
-
+        {/* only render the header if a user is logged in */}
+        {loggedUser &&
+          <Header>
+            <Navigation />
+          </Header>
+        }
         <Content style={{ padding: '50px' }}>
               <ConfigProvider renderEmpty={() =>
                 <Empty
@@ -71,7 +73,7 @@ function App() {
             </Content>
 
             <Footer>
-              <CopyrightOutlined /> 2021 Gemeindeportal
+              <CopyrightOutlined /> 2021
             </Footer>
 
       </Layout>
