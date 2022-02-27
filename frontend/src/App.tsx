@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './App.css';
-import { ConfigProvider, Empty, Layout } from 'antd';
+import './App.scss';
+import { ConfigProvider, Empty, Layout, message } from 'antd';
 import { Content, Footer, Header } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation/Navigation';
 import ProtectedRoute from './components/routes/ProtectedRoute';
@@ -13,11 +13,17 @@ import Overview from './components/overview/Overview';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
+import { AuthContext } from './context/UserContext';
 
 const App: React.FC = () => {
 
   const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
-
+  const login = (user: User) => setLoggedUser(user);
+  const logout = () => {
+    // removeLogin()
+    setLoggedUser(undefined);
+    message.info("Sie wurden ausgeloggt");
+  }
   const hasRoles = (roles: Array<UserRole>): boolean => {
     if (loggedUser) {
       // has to include all requested roles
@@ -32,49 +38,59 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Router >
-        <Layout>
+        <AuthContext.Provider
+          value={{
+            loggedUser: loggedUser,
+            login: login,
+            logout: logout,
+            hasRoles: hasRoles
+          }}>
 
-          <Header>
-            <Navigation />
-          </Header>
+          <Layout>
 
-          <Content style={{ padding: '50px' }}>
-            <ConfigProvider renderEmpty={() =>
-              <Empty
-                description="Keine Daten verfügbar">
-              </Empty>
-            }>
+            <Header>
+              <Navigation />
+            </Header>
 
-              <div className="site-layout-content">
-                <Routes>
+            <Content style={{ padding: '50px' }}>
+              <ConfigProvider renderEmpty={() =>
+                <Empty
+                  description="Keine Daten verfügbar">
+                </Empty>
+              }>
 
-                  <Route path={AppRoutes.Login} element={<Login />} />
-                  <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
-                  <Route path={AppRoutes.Home} element={<Overview />} />
-                  <Route
-                    path={AppRoutes.AdminOverview}
-                    element={
-                      <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                        <AdminOverview />
-                      </ProtectedRoute>} />
-                  <Route
-                    path={AppRoutes.DirectorOverview}
-                    element={
-                      <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                        <DirectorOverview />
-                      </ProtectedRoute>} />
-                  <Route path="/*" element={<Unauthorized />} />
-                </Routes>
-              </div>
+                <div className="site-layout-content">
+                  <Routes>
 
-            </ConfigProvider>
-          </Content>
+                    <Route path={AppRoutes.Login} element={<Login />} />
+                    <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
+                    <Route path={AppRoutes.Home} element={<Overview />} />
+                    <Route
+                      path={AppRoutes.AdminOverview}
+                      element={
+                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                          <AdminOverview />
+                        </ProtectedRoute>} />
+                    <Route
+                      path={AppRoutes.DirectorOverview}
+                      element={
+                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                          <DirectorOverview />
+                        </ProtectedRoute>} />
+                    <Route path="/*" element={<Unauthorized />} />
+                  </Routes>
+                </div>
 
-          <Footer>
-            <CopyrightOutlined /> 2021
-          </Footer>
+              </ConfigProvider>
+            </Content>
 
-        </Layout>
+            <Footer>
+              <CopyrightOutlined /> 2021
+            </Footer>
+
+          </Layout>
+        </AuthContext.Provider>
+
       </Router>
     </div>
   );

@@ -1,28 +1,27 @@
 import { Button, Form, Input, message, } from 'antd';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../api/api';
+import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 
 const Login: React.FC = () => {
 
     const navigate = useNavigate();
+    const authContext = useContext(AuthContext);
 
     const onSubmit = (values: any) => {
         login(values.email, values.password)
             .then(user => {
-                // TODO: authContext.login
+                authContext.login(user);
                 message.success("Login erfolgreich");
                 navigate(AppRoutes.Home);
             }, err => message.error("Login fehlgeschlagen"));
     }
 
-    // const [loginForm] = useForm();
-
     return (
         <>
             <Form
-                // form={loginForm}
                 name="login"
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 10 }}

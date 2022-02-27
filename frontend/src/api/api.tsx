@@ -13,7 +13,8 @@ export const ping = (): Promise<string> => {
 }
 
 const applyJwt = (jwt: string) => {
-    localStorage.setItem("jwt", jwt);
+    // TODO: decide between persistent or non-persistent login
+    // localStorage.setItem("jwt", jwt);
     api.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 }
 
@@ -28,6 +29,7 @@ export const login = (email: string, password: string): Promise<User> => {
             if (!res.data.accessToken) Promise.reject();
             const user = {
                 email: data.email,
+                roles: data.roles,
                 jwt: data.accessToken
             } as User;
             applyJwt(user.jwt);
