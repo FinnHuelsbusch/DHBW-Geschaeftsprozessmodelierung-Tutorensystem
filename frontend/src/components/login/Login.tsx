@@ -1,65 +1,50 @@
-import { Button, Form, Input, Modal } from 'antd';
-import { useForm } from 'antd/lib/form/Form';
-import { format } from 'path/posix';
-import React, { useState } from 'react';
+import { Button, Form, Input, message, } from 'antd';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login } from '../../api/api';
-import { User } from '../../types/User';
+import { AppRoutes } from '../../types/AppRoutes';
 
-type Props = {
-    isVisible: boolean,
-    onCancel: () => void,
-    onSuccess: () => void
-}
+const Login: React.FC = () => {
 
-const Login: React.FC<Props> = ({ isVisible, onCancel, onSuccess }) => {
-
-    // const [isModalVisible, setIsModalVisible] = useState(isVisible);
+    const navigate = useNavigate();
 
     const onSubmit = (values: any) => {
         login(values.email, values.password)
             .then(user => {
                 // TODO: authContext.login
-                onSuccess();
-            });
+                message.success("Login erfolgreich");
+                navigate(AppRoutes.Home);
+            }, err => message.error("Login fehlgeschlagen"));
     }
 
-    const [loginForm] = useForm();
+    // const [loginForm] = useForm();
 
     return (
         <>
-            <Modal
-                title="Login"
-                afterClose={() => loginForm.resetFields()}
-                visible={isVisible}
-                onCancel={e => onCancel()}
-                footer={[
-                    <Button key="back" onClick={onCancel}>
-                        Abbrechen
-                    </Button>,
-                    <Button key="submit" type='primary' onClick={e => loginForm.submit()}>
+            <Form
+                // form={loginForm}
+                name="login"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 10 }}
+                onFinish={onSubmit}>
+                <Form.Item
+                    label="E-Mail"
+                    name="email"
+                    rules={[{ required: true, message: 'Pflichtfeld' }]}>
+                    <Input type={'email'} />
+                </Form.Item>
+                <Form.Item
+                    label="Passwort"
+                    name="password"
+                    rules={[{ required: true, message: 'Pflichtfeld' }]}>
+                    <Input.Password />
+                </Form.Item>
+                <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
+                    <Button htmlType='submit' type='primary'>
                         Anmelden
                     </Button>
-                ]}>
-                <Form
-                    form={loginForm}
-                    name="login"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                    onFinish={onSubmit}>
-                    <Form.Item
-                        label="E-Mail"
-                        name="email"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Passwort"
-                        name="password"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input.Password />
-                    </Form.Item>
-                </Form>
-            </Modal>
+                </Form.Item>
+            </Form>
         </>
     )
 }

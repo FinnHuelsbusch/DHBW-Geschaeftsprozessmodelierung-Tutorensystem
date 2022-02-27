@@ -2,7 +2,6 @@ package com.dhbw.tutorsystem.user;
 
 import com.dhbw.tutorsystem.role.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
