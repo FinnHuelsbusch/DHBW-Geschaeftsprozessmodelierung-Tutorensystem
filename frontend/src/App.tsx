@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { Button, Layout, message } from 'antd';
 import { Content, Header } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation/Navigation';
 import { ping } from './api/api';
+import { User } from './types/User';
 
-function App() {
+const App: React.FC = () => {
+
+  const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
+
   return (
     <div className="App">
       <Layout>

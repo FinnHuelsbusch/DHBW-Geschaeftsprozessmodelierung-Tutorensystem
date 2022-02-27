@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.security.jwt;
 
-
 import com.dhbw.tutorsystem.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
@@ -15,17 +14,19 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-//    @Value("${backend.app.jwtSecret}")
+    // @Value("${backend.app.jwtSecret}")
     private final String jwtSecret = "1234";
 
-//    @Value("${backend.app.jwtExpirationMs}")
+    // @Value("${backend.app.jwtExpirationMs}")
     private final int jwtExpirationMs = 600000000;
 
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
-        return Jwts.builder().setSubject((userPrincipal.getUsername())).setIssuedAt(new Date()).setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)).signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+        return Jwts.builder().setSubject((userPrincipal.getUsername())).setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, "ABC".getBytes()).compact();
     }
 
     public String getUserNameFromJwtToken(String token) {
@@ -49,4 +50,3 @@ public class JwtUtils {
         return false;
     }
 }
-
