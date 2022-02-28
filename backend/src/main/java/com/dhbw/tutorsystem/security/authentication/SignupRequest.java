@@ -7,15 +7,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 public class SignupRequest {
-    @NotBlank
-    @Getter
-    @Setter
-    private String firstname;
-
-    @NotBlank
-    @Getter
-    @Setter
-    private String lastname;
 
     @NotBlank
     @Getter
@@ -29,4 +20,3 @@ public class SignupRequest {
     private String password;
 
 }
-

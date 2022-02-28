@@ -13,6 +13,11 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User {
+    @JsonIgnore
+    private static final String studentMailEnding = "@student.dhbw-mannheim.de";
+    @JsonIgnore
+    private static final String directorMailEnding = "@dhbw-mannheim.de";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -41,11 +46,6 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
-    @JsonIgnore
-    private final String studentMailEnding = "@student.dhbw-mannheim.de";
-    @JsonIgnore
-    private final String directorMailEnding = "@dhbw-mannheim.de";
-
     public User() {
 
     }
@@ -57,6 +57,11 @@ public class User {
         this.password = password;
     }
 
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public boolean isStudentMail() {
         return StringUtils.isNotBlank(this.email) && this.email.endsWith(studentMailEnding);
     }
@@ -64,6 +69,5 @@ public class User {
     public boolean isDirectorMail() {
         return StringUtils.isNotBlank(this.email) && this.email.endsWith(directorMailEnding);
     }
-
 
 }

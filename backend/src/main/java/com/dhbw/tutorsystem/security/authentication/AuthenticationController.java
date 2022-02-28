@@ -46,8 +46,6 @@ public class AuthenticationController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -59,10 +57,14 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        // TODO: first send email, then upon email accept: save user in DB 
+        
+        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.badRequest().body("Error: Email already exists.");
+        }
         // encode user's password, do not save it in plain text
         String encodedPassword = encoder.encode(signUpRequest.getPassword());
-        User user = new User(signUpRequest.getFirstname(), signUpRequest.getLastname(), signUpRequest.getEmail(),
-                encodedPassword);
+        User user = new User(signUpRequest.getEmail(), encodedPassword);
 
         Set<Role> roles = new HashSet<>();
         if (user.isStudentMail()) {
@@ -79,9 +81,11 @@ public class AuthenticationController {
         user.setRoles(roles);
         userRepository.save(user);
 
-        // issue a token so that the user is directly logged in, using the plain text password
-        JwtResponse jwtResponse = (JwtResponse) authenticateUser(new LoginRequest(user.getEmail(), signUpRequest.getPassword()))
-                .getBody();
+        // issue a token so that the user is directly logged in, using the plain text
+        // password
+        JwtResponse jwtResponse = (JwtResponse) authenticateUser(
+                new LoginRequest(user.getEmail(), signUpRequest.getPassword()))
+                        .getBody();
 
         return ResponseEntity.ok(new SignupResponse(user.getEmail(), jwtResponse.getAccessToken()));
     }

@@ -27,6 +27,7 @@ public class TutorsystemApplication {
 	private void initDatabaseForDevelopment(RoleRepository roleRepository) {
 		Role rStudent = roleRepository.save(new Role(ERole.ROLE_STUDENT));
 		Role rDirector = roleRepository.save(new Role(ERole.ROLE_DIRECTOR));
+		Role rAdmin = roleRepository.save(new Role(ERole.ROLE_ADMIN));
 	}
 
 }
