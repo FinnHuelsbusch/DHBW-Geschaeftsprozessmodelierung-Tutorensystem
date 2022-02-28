@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { Button, Checkbox, ConfigProvider, Empty, Layout, message } from 'antd';
+import React, { useState } from 'react';
+import './App.scss';
+import { ConfigProvider, Empty, Layout, message } from 'antd';
 import { Content, Footer, Header } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation/Navigation';
 import ProtectedRoute from './components/routes/ProtectedRoute';
@@ -12,12 +11,19 @@ import Login from './components/login/Login';
 import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
+import { AuthContext } from './context/UserContext';
 
-function App() {
+const App: React.FC = () => {
 
   const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
-
+  const login = (user: User) => setLoggedUser(user);
+  const logout = () => {
+    // removeLogin()
+    setLoggedUser(undefined);
+    message.info("Sie wurden ausgeloggt");
+  }
   const hasRoles = (roles: Array<UserRole>): boolean => {
     if (loggedUser) {
       // has to include all requested roles
@@ -32,15 +38,21 @@ function App() {
   return (
     <div className="App">
       <Router >
-      <Layout>
+        <AuthContext.Provider
+          value={{
+            loggedUser: loggedUser,
+            login: login,
+            logout: logout,
+            hasRoles: hasRoles
+          }}>
 
-        {/* only render the header if a user is logged in */}
-        {loggedUser &&
-          <Header>
-            <Navigation />
-          </Header>
-        }
-        <Content style={{ padding: '50px' }}>
+          <Layout>
+
+            <Header>
+              <Navigation />
+            </Header>
+
+            <Content style={{ padding: '50px' }}>
               <ConfigProvider renderEmpty={() =>
                 <Empty
                   description="Keine Daten verfügbar">
@@ -49,23 +61,23 @@ function App() {
 
                 <div className="site-layout-content">
                   <Routes>
-                    
-                    <Route path="/login" element={<Login/>} />
-                    <Route path="/unauthorized" element={<Unauthorized/>} />
-                    <Route path="/" element={<Overview/>} />
+
+                    <Route path={AppRoutes.Login} element={<Login />} />
+                    <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
+                    <Route path={AppRoutes.Home} element={<Overview />} />
                     <Route
-                      path="/adminOverview"
+                      path={AppRoutes.AdminOverview}
                       element={
                         <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                          <AdminOverview/>
-                        </ProtectedRoute>} /> 
+                          <AdminOverview />
+                        </ProtectedRoute>} />
                     <Route
-                      path="/directorOverview"
+                      path={AppRoutes.DirectorOverview}
                       element={
-                      <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                        <DirectorOverview/>
-                      </ProtectedRoute>} />
-                    <Route path="/*" element={<Unauthorized/>} /> 
+                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                          <DirectorOverview />
+                        </ProtectedRoute>} />
+                    <Route path="/*" element={<Unauthorized />} />
                   </Routes>
                 </div>
 
@@ -76,7 +88,9 @@ function App() {
               <CopyrightOutlined /> 2021
             </Footer>
 
-      </Layout>
+          </Layout>
+        </AuthContext.Provider>
+
       </Router>
     </div>
   );
