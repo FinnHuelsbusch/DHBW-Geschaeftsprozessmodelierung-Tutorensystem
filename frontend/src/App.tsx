@@ -1,33 +1,83 @@
-import React from 'react';
+import { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Button, Layout, message } from 'antd';
-import { Content, Header } from 'antd/lib/layout/layout';
+import { Button, Checkbox, ConfigProvider, Empty, Layout, message } from 'antd';
+import { Content, Footer, Header } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation/Navigation';
-import { ping } from './api/api';
+import ProtectedRoute from './components/routes/ProtectedRoute';
+import { User, UserRole } from './types/User';
+import AdminOverview from './components/adminOverview/AdminOverview';
+import DirectorOverview from './components/directorOverview/DirectorOverview';
+import Login from './components/login/Login';
+import Unauthorized from './components/routes/Unauthorized';
+import Overview from './components/overview/Overview';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { CopyrightOutlined } from '@ant-design/icons';
 
 function App() {
+
+  const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
+
+  const hasRoles = (roles: Array<UserRole>): boolean => {
+    if (loggedUser) {
+      // has to include all requested roles
+      return roles
+        .map(role => loggedUser.roles.includes(role))
+        .reduce((prev, curr) => prev && curr);
+    } else {
+      return false;
+    }
+  }
+
   return (
     <div className="App">
+      <Router >
       <Layout>
 
-        <Header>
-          <Navigation />
-        </Header>
+        {/* only render the header if a user is logged in */}
+        {loggedUser &&
+          <Header>
+            <Navigation />
+          </Header>
+        }
+        <Content style={{ padding: '50px' }}>
+              <ConfigProvider renderEmpty={() =>
+                <Empty
+                  description="Keine Daten verfügbar">
+                </Empty>
+              }>
 
-        <Content style={{ minHeight: '100vh' }}>
-          <div style={{ textAlign: 'center', marginTop: '36px' }}>
-            <Button onClick={e => {
-              ping().then(
-                res => message.success(res)
-              );
-            }}>
-              Ping backend
-            </Button>
-          </div>
-        </Content>
+                <div className="site-layout-content">
+                  <Routes>
+                    
+                    <Route path="/login" element={<Login/>} />
+                    <Route path="/unauthorized" element={<Unauthorized/>} />
+                    <Route path="/" element={<Overview/>} />
+                    <Route
+                      path="/adminOverview"
+                      element={
+                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                          <AdminOverview/>
+                        </ProtectedRoute>} /> 
+                    <Route
+                      path="/directorOverview"
+                      element={
+                      <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                        <DirectorOverview/>
+                      </ProtectedRoute>} />
+                    <Route path="/*" element={<Unauthorized/>} /> 
+                  </Routes>
+                </div>
+
+              </ConfigProvider>
+            </Content>
+
+            <Footer>
+              <CopyrightOutlined /> 2021
+            </Footer>
 
       </Layout>
+      </Router>
     </div>
   );
 }
