@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,28 +58,27 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        // TODO: first send email, then upon email accept: save user in DB 
-        
-        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
+        // TODO: first send email, then upon email accept: save user in DB
+
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity.badRequest().body("Error: Email already exists.");
         }
         // encode user's password, do not save it in plain text
         String encodedPassword = encoder.encode(signUpRequest.getPassword());
         User user = new User(signUpRequest.getEmail(), encodedPassword);
 
-        Set<Role> roles = new HashSet<>();
+        Optional<Role> role = null;
         if (user.isStudentMail()) {
-            Role studentRole = roleRepository.findByName(ERole.ROLE_STUDENT)
-                    .orElseThrow(() -> new RuntimeException("Error: Role was not found."));
-            roles.add(studentRole);
+            role = roleRepository.findByName(ERole.ROLE_STUDENT);
         } else if (user.isDirectorMail()) {
-            Role directorRole = roleRepository.findByName(ERole.ROLE_DIRECTOR)
-                    .orElseThrow(() -> new RuntimeException("Error: Role was not found."));
-            roles.add(directorRole);
+            role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
         } else {
-            throw new RuntimeException("Error: Email is invalid.");
+            return ResponseEntity.badRequest().body("Error: Email is invalid.");
         }
-        user.setRoles(roles);
+        if (!role.isPresent()) {
+            return ResponseEntity.badRequest().body("Error: No corresponding role could be found.");
+        }
+        user.setRoles(Set.of(role.get()));
         userRepository.save(user);
 
         // issue a token so that the user is directly logged in, using the plain text
@@ -87,6 +87,6 @@ public class AuthenticationController {
                 new LoginRequest(user.getEmail(), signUpRequest.getPassword()))
                         .getBody();
 
-        return ResponseEntity.ok(new SignupResponse(user.getEmail(), jwtResponse.getAccessToken()));
+        return ResponseEntity.ok(new SignupResponse(user.getEmail(), jwtResponse.getToken()));
     }
 }
