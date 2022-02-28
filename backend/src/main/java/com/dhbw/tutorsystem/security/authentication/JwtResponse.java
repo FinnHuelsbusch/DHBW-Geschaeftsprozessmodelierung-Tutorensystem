@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+@AllArgsConstructor
 public class JwtResponse {
     @Getter
     @Setter
@@ -15,8 +16,6 @@ public class JwtResponse {
     @Setter
     private String token;
 
-    private static final String type = "Bearer";
-
     @Getter
     @Setter
     private Integer userId;
@@ -24,12 +23,5 @@ public class JwtResponse {
     @Getter
     @Setter
     private String email;
-
-    public JwtResponse(String accessToken, Integer userId, String email, List<String> roles) {
-        this.token = accessToken;
-        this.userId = userId;
-        this.email = email;
-        this.roles = roles;
-    }
 
 }
