@@ -10,19 +10,19 @@ import DirectorOverview from './components/directorOverview/DirectorOverview';
 import Login from './components/login/Login';
 import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext } from './context/UserContext';
+import Settings from './components/settings/Settings';
 
 const App: React.FC = () => {
 
   const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
   const login = (user: User) => setLoggedUser(user);
   const logout = () => {
-    // removeLogin()
     setLoggedUser(undefined);
-    message.info("Sie wurden ausgeloggt");
+    message.info("Sie wurden ausgeloggt", 2);
   }
   const hasRoles = (roles: Array<UserRole>): boolean => {
     if (loggedUser) {
@@ -68,7 +68,7 @@ const App: React.FC = () => {
                     <Route
                       path={AppRoutes.AdminOverview}
                       element={
-                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_ADMIN])}>
                           <AdminOverview />
                         </ProtectedRoute>} />
                     <Route
@@ -76,6 +76,12 @@ const App: React.FC = () => {
                       element={
                         <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
                           <DirectorOverview />
+                        </ProtectedRoute>} />
+                    <Route
+                      path={AppRoutes.Settings}
+                      element={
+                        <ProtectedRoute hasAccess={loggedUser ? true : false}>
+                          <Settings />
                         </ProtectedRoute>} />
                     <Route path="/*" element={<Unauthorized />} />
                   </Routes>

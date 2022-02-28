@@ -3,5 +3,6 @@ export const AppRoutes = {
     Unauthorized: "/unauthorized",
     AdminOverview: "/adminOverview",
     DirectorOverview: "/directorOverview",
-    Home: "/"
+    Home: "/",
+    Settings: "/settings"
 }

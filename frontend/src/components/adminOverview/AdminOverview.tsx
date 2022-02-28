@@ -3,11 +3,11 @@ import React from 'react';
 
 const AdminOverview: React.FC = () => {
     return (
-        <div>
-            <Title level={2}>
-                Admin Overview
+        <>
+            <Title level={1}>
+                Übersicht Administrator
             </Title>
-        </div>
+        </>
     )
 };
 

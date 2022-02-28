@@ -13,8 +13,7 @@ export const ping = (): Promise<string> => {
 }
 
 const applyJwt = (jwt: string) => {
-    // TODO: decide between persistent or non-persistent login
-    // localStorage.setItem("jwt", jwt);
+    // do not persist jwt beyond the browser session
     api.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 }
 
@@ -26,11 +25,12 @@ export const login = (email: string, password: string): Promise<User> => {
         }).then(res => {
             const data = res.data;
             // handle missing token as error case
-            if (!res.data.accessToken) Promise.reject();
+            if (!res.data.token) Promise.reject();
             const user = {
                 email: data.email,
                 roles: data.roles,
-                jwt: data.accessToken
+                jwt: data.token,
+                loginExpirationDate: data.expirationDate
             } as User;
             applyJwt(user.jwt);
             return user;
