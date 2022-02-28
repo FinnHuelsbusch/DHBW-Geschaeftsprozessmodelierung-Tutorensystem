@@ -1,10 +1,17 @@
 package com.dhbw.tutorsystem.module;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import lombok.Getter;
 import lombok.Setter;
 
-public class Module {
+@Entity
+@Table(name="hui") 
+public class eieieieieiei {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

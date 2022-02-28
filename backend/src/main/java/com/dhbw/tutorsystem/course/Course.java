@@ -1,21 +1,17 @@
-package com.dhbw.tutorsystem.request;
+package com.dhbw.tutorsystem.course;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import com.dhbw.tutorsystem.module.eieieieieiei;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name="request") 
-public class Request {
+@Table(name="course") 
+public class Course {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +19,23 @@ public class Request {
     @Setter
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private eieieieieiei module;
+    private String description; 
 
+    @Getter
+    @Setter
+    private int year; 
+
+    @Getter
+    @Setter
+    private String 	specialization; 
+
+    @Getter
+    @Setter
+    private String 	courseOfDegree;
+
+    @Getter
+    @Setter
+    private char block;
 }
