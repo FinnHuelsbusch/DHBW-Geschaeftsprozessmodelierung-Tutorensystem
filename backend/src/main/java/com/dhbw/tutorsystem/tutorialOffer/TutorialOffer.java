@@ -1,21 +1,17 @@
-package com.dhbw.tutorsystem.request;
+package com.dhbw.tutorsystem.tutorialOffer;
+
+import java.time.LocalDate;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import com.dhbw.tutorsystem.module.Module;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "request")
-public class Request {
+public class TutorialOffer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +19,16 @@ public class Request {
     @Setter
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Module module;
+    private LocalDate start;
+
+    @Getter
+    @Setter
+    private LocalDate end;
+
+    @Getter
+    @Setter
+    private String appointments;
 
 }
