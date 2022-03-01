@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRequestError, register } from '../../api/api';
 import { AppRoutes } from '../../types/AppRoutes';
+import EmailFormInput from '../inputs/EmailFormInput';
 
 const Register: React.FC = () => {
 
@@ -34,12 +35,7 @@ const Register: React.FC = () => {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 10 }}
             onFinish={onRegister}>
-            <Form.Item
-                label="E-Mail"
-                name="email"
-                rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                <Input type={'email'} />
-            </Form.Item>
+            <EmailFormInput />
             <Form.Item
                 label="Passwort"
                 name="password"
@@ -62,7 +58,7 @@ const Register: React.FC = () => {
                     anmelden.
                 </a>
             </Form.Item>
-        </Form>
+        </Form >
     );
 
     const RegisterMessage = () => (

@@ -10,8 +10,11 @@ public class RegisterRequest {
 
     @NotBlank
     @Getter
-    @Setter
     private String email;
+
+    public void setEmail(String email) {
+        this.email = email.trim();
+    }
 
     @NotBlank
     @Size(min = 6, max = 40)

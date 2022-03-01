@@ -5,6 +5,7 @@ import { LockOutlined } from '@ant-design/icons';
 import { Course } from '../../types/Course';
 import { useNavigate } from 'react-router-dom';
 import { AppRoutes } from '../../types/AppRoutes';
+import EmailFormInput from '../inputs/EmailFormInput';
 
 const ChangePassword: React.FC = () => {
 
@@ -18,12 +19,7 @@ const ChangePassword: React.FC = () => {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 10 }}
             onFinish={onSubmit}>
-            <Form.Item
-                label="E-Mail"
-                name="email"
-                rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                <Input type={'email'} />
-            </Form.Item>
+            <EmailFormInput />
             <Form.Item
                 label="Passwort"
                 name="password"
@@ -87,8 +83,7 @@ const Settings: React.FC = () => {
                 wrapperCol={{ span: 10 }}>
                 <Form.Item
                     label="E-Mail"
-                    name="email"
-                    rules={[{ required: true, message: 'Pflichtfeld' }]}>
+                    name="email">
                     <Input disabled style={{ color: 'black' }} type={'email'} />
                 </Form.Item>
                 <Form.Item

@@ -30,7 +30,7 @@ const applyJwt = (jwt: string) => {
 export const login = (email: string, password: string): Promise<User> => {
     return api.post('/authentication/login',
         {
-            email: email,
+            email: email.trim(),
             password: password
         }).then(res => {
             const data = res.data;
@@ -50,7 +50,7 @@ export const login = (email: string, password: string): Promise<User> => {
 export const register = (email: string, password: string): Promise<string> => {
     return api.post('/authentication/register',
         {
-            email: email,
+            email: email.trim(),
             password: password
         }).then(res => {
             console.log("success", res);
@@ -68,4 +68,10 @@ export const verifyAccount = (hash: string | null, email: string | null): Promis
         .then(res => {
             return "ok";
         });
+}
+
+export const resetPassword = (email: string): Promise<string> => {
+    return api.post('/authentication/resetPassword', {
+        email: email.trim()
+    }).then(res => "ok")
 }

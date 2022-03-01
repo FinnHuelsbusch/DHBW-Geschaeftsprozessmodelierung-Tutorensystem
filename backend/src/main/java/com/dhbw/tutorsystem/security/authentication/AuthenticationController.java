@@ -29,6 +29,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
@@ -65,39 +66,11 @@ public class AuthenticationController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new JwtResponse(roles, jwt, jwtUtils.getExpirationDateFromJwtToken(jwt),
-                userDetails.getUserId(), userDetails.getEmailAddress()));
-    }
-
-    @PostMapping("/enableAccount")
-    public ResponseEntity<?> enableUserAccount(@Valid @RequestBody VerifyRequest verifyRequest) {
-        // find user by email and check the hash
-        Optional<User> optionalUser = userRepository.findByEmail(verifyRequest.getEmail());
-        if (!optionalUser.isPresent() || optionalUser.get().isEnabled()) {
-            // intentionally do not give details about why the hash could not be verified
-            return ResponseEntity.badRequest().body("");
-        }
-        User user = optionalUser.get();
-        try {
-            String hashBase64Expected = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction());
-            if (!StringUtils.equals(hashBase64Expected, verifyRequest.getHash())) {
-                return ResponseEntity.badRequest().body("");
-            } else {
-                return ResponseEntity.ok("Ok");
-            }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("");
-        }
+                userDetails.getEmailAddress()));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        // 1. receive email & password
-        // 2. save user with lastPasswordAction, enabled = false
-        // 3. hash lastPasswordAction and email to form link /register/hash
-        // 4. check account /signup/enable?h=hash
-        // 5. reroute to login OR create JWT
-
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             return ResponseEntity.badRequest().body("Email existiert bereits");
         }
@@ -127,18 +100,44 @@ public class AuthenticationController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Hashing-Verfahren nicht gefunden");
         }
-
         userRepository.save(user);
-
         try {
             emailSenderService.sendRegistrationMail(user.getEmail(), hashBase64);
         } catch (MessagingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Mail konnte nicht versendet werden");
         }
 
         return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping("/enableAccount")
+    public ResponseEntity<?> enableUserAccount(@Valid @RequestBody VerifyRequest verifyRequest) {
+        // find user by email and check the hash
+        Optional<User> optionalUser = userRepository.findByEmail(verifyRequest.getEmail());
+        if (!optionalUser.isPresent() || optionalUser.get().isEnabled()) {
+            // intentionally do not give details about why the hash could not be verified
+            return ResponseEntity.badRequest().body("");
+        }
+        User user = optionalUser.get();
+        try {
+            String hashBase64Expected = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction());
+            if (!StringUtils.equals(hashBase64Expected, verifyRequest.getHash())) {
+                return ResponseEntity.badRequest().body("");
+            } else {
+                // enable user and update the record
+                user.setEnabled(true);
+                user.setLastPasswordAction(LocalDateTime.now());
+                user = userRepository.save(user);
+                String jwt = jwtUtils.generateJwtTokenAfterRegistration(user.getEmail());
+                return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
+                        jwtUtils.getExpirationDateFromJwtToken(jwt),
+                        user.getEmail()));
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("");
+        }
     }
 
     private String createBase64VerificationHash(String email, LocalDateTime timestamp) throws NoSuchAlgorithmException {

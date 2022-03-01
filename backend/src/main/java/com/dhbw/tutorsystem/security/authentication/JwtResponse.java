@@ -23,10 +23,6 @@ public class JwtResponse {
 
     @Getter
     @Setter
-    private Integer userId;
-
-    @Getter
-    @Setter
     private String email;
 
 }

@@ -1,6 +1,6 @@
 import { Button, Dropdown, Menu } from 'antd';
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import { User, UserRole } from '../../types/User';
@@ -10,8 +10,13 @@ import { UserOutlined } from '@ant-design/icons'
 const Navigation: React.FC = () => {
 
     const authContext = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const ProfileButton = (user: User) => {
+        const onLogoutClick = () => {
+            authContext.logout();
+            navigate(AppRoutes.Home);
+        }
         const profileDropdown = (
             <Menu>
                 <Menu.Item key="settings">
@@ -19,7 +24,7 @@ const Navigation: React.FC = () => {
                         Einstellungen
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="logout" onClick={e => authContext.logout()}>
+                <Menu.Item key="logout" onClick={onLogoutClick}>
                     Logout
                 </Menu.Item>
             </Menu>

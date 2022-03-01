@@ -31,21 +31,29 @@ public class TutorsystemApplication {
 		};
 	}
 
-	private void initDatabaseForDevelopment(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder encoder) {
+	private void initDatabaseForDevelopment(RoleRepository roleRepository, UserRepository userRepository,
+			PasswordEncoder encoder) {
 		Role rStudent = roleRepository.save(new Role(ERole.ROLE_STUDENT));
 		Role rDirector = roleRepository.save(new Role(ERole.ROLE_DIRECTOR));
 		Role rAdmin = roleRepository.save(new Role(ERole.ROLE_ADMIN));
 
-		User uAdmin = new User("sAdmin@dhbw-mannheim.de", "1234");
+		User uAdmin = new User("adam.admin@dhbw-mannheim.de", "1234");
 		uAdmin.setRoles(Set.of(rAdmin));
 		uAdmin.setPassword(encoder.encode(uAdmin.getPassword()));
+		uAdmin.setEnabled(true);
 		uAdmin = userRepository.save(uAdmin);
 
-		User uDirector = new User("sDirector@dhbw-mannheim.de", "1234");
+		User uDirector = new User("dirk.director@dhbw-mannheim.de", "1234");
 		uDirector.setRoles(Set.of(rDirector));
 		uDirector.setPassword(encoder.encode(uDirector.getPassword()));
+		uDirector.setEnabled(true);
 		uDirector = userRepository.save(uDirector);
 
+		User uStudent = new User("s111111@student.dhbw-mannheim.de", "1234");
+		uStudent.setRoles(Set.of(rStudent));
+		uStudent.setPassword(encoder.encode(uStudent.getPassword()));
+		uStudent.setEnabled(true);
+		uStudent = userRepository.save(uStudent);
 	}
 
 }

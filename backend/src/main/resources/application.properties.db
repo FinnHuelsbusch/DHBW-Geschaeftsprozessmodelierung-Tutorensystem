@@ -7,5 +7,14 @@ spring.jpa.properties.hibernate.auto_quote_keyword=true
 spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=create-drop
 
-backend.app.jwtSecret=1234
-backend.app.jwtExpirationMs=60000000
+// Add yourself to run the app
+backend.app.jwtSecret=
+backend.app.jwtExpirationMs=
+backend.app.frontendUrl=
+
+spring.mail.host=
+spring.mail.port=
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=
+spring.mail.properties.mail.smtp.starttls.enable=
