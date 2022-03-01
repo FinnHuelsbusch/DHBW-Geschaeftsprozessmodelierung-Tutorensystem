@@ -40,7 +40,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -55,9 +55,23 @@ public class AuthenticationController {
                 userDetails.getUserId(), userDetails.getEmailAddress()));
     }
 
+    @GetMapping("/signup/enable")
+    public ResponseEntity<?> enableUserAccount(@RequestParam(name = "h") String hash) {
+        return ResponseEntity.ok("Enabled");
+    }
+
+    @PostMapping("/signup/{hash}")
+    public ResponseEntity<?> registerWithPassword(@Valid @RequestBody SignupRequest signupRequest) {
+        return ResponseEntity.ok("");
+    }
+
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        // TODO: first send email, then upon email accept: save user in DB
+    public ResponseEntity<?> register(@Valid @RequestBody SignupRequest signUpRequest) {
+        // 1. receive email & password
+        // 2. save user with lastPasswordAction, enabled = false
+        // 3. hash lastPasswordAction and email to form link /register/hash
+        // 4. check account /signup/enable?h=hash
+        // 5. reroute to login OR create JWT
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity.badRequest().body("Email existiert bereits");
@@ -72,17 +86,17 @@ public class AuthenticationController {
         } else if (user.isDirectorMail()) {
             role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
         } else {
-            return ResponseEntity.badRequest().body("Error: Email is invalid.");
+            return ResponseEntity.badRequest().body("Email ist ungültig");
         }
         if (!role.isPresent()) {
-            return ResponseEntity.badRequest().body("Error: No corresponding role could be found.");
+            return ResponseEntity.badRequest().body("Keine zugehörige Nutzerrolle gefunden");
         }
         user.setRoles(Set.of(role.get()));
         userRepository.save(user);
 
         // issue a token so that the user is directly logged in, using the plain text
         // password
-        JwtResponse jwtResponse = (JwtResponse) authenticateUser(
+        JwtResponse jwtResponse = (JwtResponse) login(
                 new LoginRequest(user.getEmail(), signUpRequest.getPassword()))
                         .getBody();
 
