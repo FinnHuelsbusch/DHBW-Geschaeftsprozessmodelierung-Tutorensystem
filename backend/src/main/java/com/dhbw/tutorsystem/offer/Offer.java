@@ -1,4 +1,5 @@
 package com.dhbw.tutorsystem.offer;
+
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
@@ -11,7 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name="offer") 
+@Table(name = "offer")
 public class Offer {
 
     @Id
@@ -31,5 +32,5 @@ public class Offer {
     @Getter
     @Setter
     private String appointments;
-    
+
 }

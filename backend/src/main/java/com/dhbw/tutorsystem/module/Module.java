@@ -5,13 +5,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 public class Module {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -20,5 +19,5 @@ public class Module {
 
     @Getter
     @Setter
-    private String title;    
+    private String title;
 }

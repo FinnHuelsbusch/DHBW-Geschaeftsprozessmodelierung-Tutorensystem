@@ -17,8 +17,7 @@ public class TutorsystemApplication {
 
 	@Bean
 	public CommandLineRunner init(
-			RoleRepository roleRepository
-	) {
+			RoleRepository roleRepository) {
 		return (args) -> {
 			initDatabaseForDevelopment(roleRepository);
 		};

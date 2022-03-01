@@ -19,9 +19,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name="tutorial") 
+@Table(name = "tutorial")
 public class Tutorial {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -30,23 +30,23 @@ public class Tutorial {
 
     @Getter
     @Setter
-    private String appointment; 
+    private String appointment;
 
     @Getter
     @Setter
-    private String description; 
+    private String description;
 
     @Getter
     @Setter
-    private int durationMinutes; 
+    private int durationMinutes;
 
     @Getter
     @Setter
-    private LocalDate start; 
+    private LocalDate start;
 
     @Getter
     @Setter
-    private LocalDate end; 
+    private LocalDate end;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter

@@ -10,9 +10,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name="course") 
+@Table(name = "course")
 public class Course {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -21,19 +21,19 @@ public class Course {
 
     @Getter
     @Setter
-    private String description; 
+    private String description;
 
     @Getter
     @Setter
-    private int year; 
+    private int year;
 
     @Getter
     @Setter
-    private String 	specialization; 
+    private String specialization;
 
     @Getter
     @Setter
-    private String 	courseOfDegree;
+    private String courseOfDegree;
 
     @Getter
     @Setter

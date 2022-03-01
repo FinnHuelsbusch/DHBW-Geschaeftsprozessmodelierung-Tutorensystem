@@ -15,4 +15,3 @@ public class SignupResponse {
     @Setter
     private String accessToken;
 }
-
