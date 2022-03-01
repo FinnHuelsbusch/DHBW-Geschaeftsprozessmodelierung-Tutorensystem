@@ -14,13 +14,14 @@ const VerifyAccount: React.FC = () => {
 
     useEffect(() => {
         const hash = searchParams.get("h");
-        // verifyAccount(hash)
-        //     .then(res => {
-
-        //     }).catch(err => {
-        //         message.error("Ein Fehler ist aufgetreten");
-        //         navigate(AppRoutes.Unauthorized);
-        //     });
+        const email = searchParams.get("e");
+        verifyAccount(hash, email)
+            .then(res => {
+                setLoading(false);
+            }).catch(err => {
+                message.error("Ein Fehler ist aufgetreten");
+                navigate(AppRoutes.Unauthorized);
+            });
     }, []);
 
     return (

@@ -122,7 +122,7 @@ public class AuthenticationController {
 
         String hashBase64;
         try {
-            hashBase64 = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction())
+            hashBase64 = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Hashing-Verfahren nicht gefunden");
@@ -145,7 +145,7 @@ public class AuthenticationController {
         String text = email + timestamp;
         byte[] hash = MessageDigest.getInstance("SHA-256").digest(
                 text.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encode(hash).toString();
+        return Base64.getEncoder().encodeToString(hash);
     }
 
 }

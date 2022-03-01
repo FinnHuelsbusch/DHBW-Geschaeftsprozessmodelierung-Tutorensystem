@@ -59,9 +59,12 @@ export const register = (email: string, password: string): Promise<string> => {
         });
 }
 
-export const verifyAccount = (hash: string | null): Promise<string> => {
-    if (!hash || hash == null) return Promise.reject();
-    return api.post(`/authentication/enableAccount?h=${hash}`)
+export const verifyAccount = (hash: string | null, email: string | null): Promise<string> => {
+    if (!hash || !email) return Promise.reject();
+    return api.post('/authentication/enableAccount', {
+        hash: hash,
+        email: email
+    })
         .then(res => {
             return "ok";
         });

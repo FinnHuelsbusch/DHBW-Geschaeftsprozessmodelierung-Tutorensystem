@@ -44,7 +44,7 @@ public class EmailSenderService {
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
         helper.setSubject("Registrierung Tutorensystem");
-        String linkUrl = frontendUrl + "/verify?h=" + hashBase64;
+        String linkUrl = frontendUrl + "/verify?h=" + hashBase64 + "&e=" + mailTo;
         helper.setText(
                 "<p>Hallo,</p>" +
                         "<p>Sie haben sich im Tutorensystem registriert.</p>" +
@@ -53,7 +53,9 @@ public class EmailSenderService {
                         linkUrl +
                         "''>" +
                         linkUrl +
-                        "</a></p>",
+                        "</a></p>" +
+                        "<p>Mit freundlichen Grüßen</p>" +
+                        "<p>Ihr Tutorsystem</p>",
                 true);
         sendMimeMessage(helper.getMimeMessage());
     }
