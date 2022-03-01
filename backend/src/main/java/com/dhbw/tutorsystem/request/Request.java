@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.dhbw.tutorsystem.module.eieieieieiei;
+import com.dhbw.tutorsystem.module.Module;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +26,6 @@ public class Request {
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private eieieieieiei module;
+    private Module module;
 
 }

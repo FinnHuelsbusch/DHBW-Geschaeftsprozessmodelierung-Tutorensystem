@@ -12,7 +12,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.dhbw.tutorsystem.module.eieieieieiei;
+import com.dhbw.tutorsystem.module.Module;
 import com.dhbw.tutorsystem.user.User;
 
 import lombok.Getter;
@@ -61,5 +61,5 @@ public class Tutorial {
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private eieieieieiei module;
+    private Module module;
 }
