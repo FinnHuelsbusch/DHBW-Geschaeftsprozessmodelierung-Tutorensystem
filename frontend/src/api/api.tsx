@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 
 const backendUrl = 'http://localhost:8080';
@@ -8,7 +9,7 @@ const api = axios.create({
 });
 
 export const ping = (): Promise<string> => {
-    return api.get('/ping')
+    return api.get('/ping/auth-student')
         .then(res => res.data);
 }
 
@@ -26,13 +27,22 @@ export const login = (email: string, password: string): Promise<User> => {
         }).then(res => {
             const data = res.data;
             // handle missing token as error case
-            if (!res.data.accessToken) Promise.reject();
+            if (!res.data.token) Promise.reject();
             const user = {
                 email: data.email,
                 roles: data.roles,
-                jwt: data.accessToken
+                jwt: data.token
             } as User;
             applyJwt(user.jwt);
             return user;
+        });
+}
+
+export const createTutorialOffer = (tutorialOffer: TutorialOffer ): Promise<string> => {
+    return api.post('/tutorialoffer',
+        {
+            ...tutorialOffer
+        }).then(res => {
+            return "ok";
         });
 }

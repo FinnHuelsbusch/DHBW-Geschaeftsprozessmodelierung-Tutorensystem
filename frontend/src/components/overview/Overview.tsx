@@ -1,8 +1,11 @@
 import { Button, message } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { ping } from '../../api/api';
+import TutorialOfferModal from '../tutorialOfferModal/TutorialOfferModal';
 
 const Overview: React.FC = () => {
+  const [isTutorialOfferModalVisible, setIsTutorialOfferModalVisible] = useState(false);
+
   return (
     <div>
       <Button onClick={e => {
@@ -13,6 +16,13 @@ const Overview: React.FC = () => {
       }}>
         Ping backend
       </Button>
+      <Button type="link" onClick={() => { setIsTutorialOfferModalVisible(true) }}>
+          OfferModal
+            </Button>
+        <TutorialOfferModal
+          isModalVisible={isTutorialOfferModalVisible}
+          setIsTutorialOfferModalVisible={setIsTutorialOfferModalVisible}
+        />
     </div>
 
   )
