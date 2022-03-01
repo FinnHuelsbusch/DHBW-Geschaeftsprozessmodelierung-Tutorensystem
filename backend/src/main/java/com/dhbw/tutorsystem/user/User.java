@@ -1,5 +1,7 @@
 package com.dhbw.tutorsystem.user;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,6 +54,14 @@ public class User {
     @Getter
     @Setter
     private String email;
+
+    @Getter
+    @Setter
+    private LocalDateTime lastPasswordAction;
+
+    @Getter
+    @Setter
+    private boolean enabled;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter

@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { ok } from 'assert';
 import axios from 'axios';
 import { RequestError } from '../types/RequestError';
 import { User } from '../types/User';
@@ -27,7 +28,7 @@ const applyJwt = (jwt: string) => {
 }
 
 export const login = (email: string, password: string): Promise<User> => {
-    return api.post('/authentication/signin',
+    return api.post('/authentication/login',
         {
             email: email,
             password: password
@@ -47,7 +48,7 @@ export const login = (email: string, password: string): Promise<User> => {
 }
 
 export const register = (email: string, password: string): Promise<string> => {
-    return api.post('/authentication/signup',
+    return api.post('/authentication/register',
         {
             email: email,
             password: password
@@ -55,5 +56,13 @@ export const register = (email: string, password: string): Promise<string> => {
             console.log("success", res);
             const data = res.data;
             return data;
+        });
+}
+
+export const verifyAccount = (hash: string | null): Promise<string> => {
+    if (!hash || hash == null) return Promise.reject();
+    return api.post(`/authentication/enableAccount?h=${hash}`)
+        .then(res => {
+            return "ok";
         });
 }

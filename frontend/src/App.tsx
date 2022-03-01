@@ -16,6 +16,7 @@ import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext } from './context/UserContext';
 import Settings from './components/settings/Settings';
 import Register from './components/register/Register';
+import VerifyAccount from './components/verify/VerifyAccount';
 
 const App: React.FC = () => {
 
@@ -65,6 +66,7 @@ const App: React.FC = () => {
 
                     <Route path={AppRoutes.Login} element={<Login />} />
                     <Route path={AppRoutes.Register} element={<Register />} />
+                    <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
                     <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
                     <Route path={AppRoutes.Home} element={<Overview />} />
                     <Route
