@@ -1,10 +1,11 @@
 spring.datasource.url=jdbc:postgresql://localhost:5432/tutorensystem-dhbw
 spring.datasource.username=postgres
 spring.datasource.password=postgres
-spring.jpa.show-sql=true
+spring.datasource.platform=postgres
 
+spring.jpa.properties.hibernate.auto_quote_keyword=true
+spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=create-drop
-spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
 
 backend.app.jwtSecret=1234
 backend.app.jwtExpirationMs=60000000
