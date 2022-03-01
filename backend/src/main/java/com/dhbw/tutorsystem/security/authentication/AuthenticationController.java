@@ -60,7 +60,7 @@ public class AuthenticationController {
         // TODO: first send email, then upon email accept: save user in DB
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body("Error: Email already exists.");
+            return ResponseEntity.badRequest().body("Email existiert bereits");
         }
         // encode user's password, do not save it in plain text
         String encodedPassword = encoder.encode(signUpRequest.getPassword());

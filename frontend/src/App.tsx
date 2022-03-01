@@ -10,11 +10,12 @@ import DirectorOverview from './components/directorOverview/DirectorOverview';
 import Login from './components/login/Login';
 import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
-import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext } from './context/UserContext';
 import Settings from './components/settings/Settings';
+import Register from './components/register/Register';
 
 const App: React.FC = () => {
 
@@ -63,6 +64,7 @@ const App: React.FC = () => {
                   <Routes>
 
                     <Route path={AppRoutes.Login} element={<Login />} />
+                    <Route path={AppRoutes.Register} element={<Register />} />
                     <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
                     <Route path={AppRoutes.Home} element={<Overview />} />
                     <Route

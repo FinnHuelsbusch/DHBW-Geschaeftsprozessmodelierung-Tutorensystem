@@ -44,6 +44,7 @@ const Navigation: React.FC = () => {
         );
     }
 
+
     return (
         <Menu mode='horizontal' theme='dark'
             defaultSelectedKeys={['1']}>
@@ -65,10 +66,8 @@ const Navigation: React.FC = () => {
                     Übersicht Studiengangsleiter
                 </Menu.Item>}
             <li className='navbar-profile'>
-                {authContext.loggedUser ?
-                    <ProfileButton {...authContext.loggedUser} />
-                    : <LoginButton />
-                }
+                {authContext.loggedUser && <ProfileButton {...authContext.loggedUser} />}
+                {!authContext.loggedUser && <LoginButton />}
             </li>
 
         </Menu >
