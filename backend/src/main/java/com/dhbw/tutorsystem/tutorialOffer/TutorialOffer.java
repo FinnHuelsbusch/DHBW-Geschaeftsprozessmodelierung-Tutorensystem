@@ -6,11 +6,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+import com.dhbw.tutorsystem.user.User;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@NoArgsConstructor
 public class TutorialOffer {
 
     @Id
@@ -29,6 +34,11 @@ public class TutorialOffer {
 
     @Getter
     @Setter
-    private String appointments;
+    private String description;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    private User user; 
 
 }
