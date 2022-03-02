@@ -6,7 +6,10 @@ spring.datasource.platform=postgres
 spring.jpa.properties.hibernate.auto_quote_keyword=true
 spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=create-drop
+
 server.error.include-stacktrace=never
+
+spring.thymeleaf.prefix=classpath:/mail-templates/
 
 // Add yourself to run the app
 backend.app.jwtSecret=

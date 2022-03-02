@@ -1,14 +1,21 @@
 package com.dhbw.tutorsystem.security.authentication;
 
+import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSServerError;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
+import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
-import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
+import com.dhbw.tutorsystem.security.authentication.exception.InvalidHashException;
+import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.MailSendException;
-import com.dhbw.tutorsystem.security.authentication.exception.RegistrationMailAlreadySentException;
+import com.dhbw.tutorsystem.security.authentication.exception.ResetPasswordAccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
+import com.dhbw.tutorsystem.security.authentication.exception.UserAlreadyEnabledException;
+import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
+import com.dhbw.tutorsystem.security.authentication.exception.HashGenerationException;
+import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
 import com.dhbw.tutorsystem.security.authentication.payload.LoginRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.RegisterRequest;
@@ -30,8 +37,11 @@ import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+// import io.swagger.v3.oas.annotations.responses.ApiResponses;
+// import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -45,6 +55,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,8 +83,8 @@ public class AuthenticationController {
 
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login was successful"),
-            @ApiResponse(responseCode = "401", description = "Login was not successful")
+            @ApiResponse(responseCode = "200", description = "Login was successful. User will be logged in using the token in the response."),
+            @ApiResponse(responseCode = "401", description = "Login was not successful.")
     })
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -94,38 +105,43 @@ public class AuthenticationController {
     @Operation(summary = "Create a not-enabled account for a user using email and password and send registration email with activation link.", tags = {
             "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Registration email was sent successfully"),
-            @ApiResponse(responseCode = "400", description = "User already exists or existing registration request is pending since less than 15 minutes")
+            @ApiResponse(responseCode = "200", description = "Registration email was sent successfully."),
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        // check for duplicate registration, then send mail and update or save user
         Optional<User> optionalUser = userRepository.findByEmail(registerRequest.getEmail());
-        User user;
         if (optionalUser.isPresent()) {
-            user = optionalUser.get();
+            // same email address as an existing user was provided for registration
+            User user = optionalUser.get();
             if (user.isEnabled()) {
-                throw new InvalidEmailException();
+                throw new EmailAlreadyExistsException();
             }
             if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
-                throw new RegistrationMailAlreadySentException();
+                throw new LastPasswordActionTooRecentException();
             } else {
-                // existing, not-enabled user that re-registered 15min after first registration:
-                // update last changed and re-send email
+                // existing non-enabled user re-registered after 15minutes: re-send email and
+                // update last changed
                 user.setLastPasswordAction(LocalDateTime.now());
-                userRepository.save(user);
+                try {
+                    sendRegisterMail(user.getEmail(), user.getLastPasswordAction());
+                } catch (HashGenerationException | MailSendException e) {
+                    throw e;
+                }
+                user = userRepository.save(user);
             }
         } else {
-            // encode user's password, do not save it in plain text
+            // new email address was provided for registration: encode password and save new
+            // user
             String encodedPassword = encoder.encode(registerRequest.getPassword());
-            user = new User(registerRequest.getEmail(), encodedPassword);
+            User user = new User(registerRequest.getEmail(), encodedPassword);
 
-            Optional<Role> role = null;
+            Optional<Role> role = Optional.empty();
             if (user.isStudentMail()) {
                 role = roleRepository.findByName(ERole.ROLE_STUDENT);
             } else if (user.isDirectorMail()) {
                 role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
-            } else {
-                throw new InvalidEmailException();
             }
             if (role.isEmpty()) {
                 throw new RoleNotFoundException();
@@ -133,42 +149,34 @@ public class AuthenticationController {
             user.setRoles(Set.of(role.get()));
             user.setEnabled(false);
             user.setLastPasswordAction(LocalDateTime.now());
+            try {
+                sendRegisterMail(user.getEmail(), user.getLastPasswordAction());
+            } catch (HashGenerationException | MailSendException e) {
+                throw e;
+            }
+            user = userRepository.save(user);
         }
-
-        String hashBase64;
-        try {
-            hashBase64 = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new TSServerError();
-        }
-        try {
-            emailSenderService.sendRegistrationMail(user.getEmail(), hashBase64);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            throw new MailSendException();
-        }
-        userRepository.save(user);
         return ResponseEntity.ok(null);
     }
 
     @Operation(summary = "Enable an account using a hash value from an activation link after registration.", tags = {
             "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Account was activated successfully"),
-            @ApiResponse(responseCode = "400", description = "Account was not activated because the supplied hash claim is not valid")
+            @ApiResponse(responseCode = "200", description = "Account was activated successfully. User will be directly logged in using token in response."),
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/enableAccount")
     public ResponseEntity<?> enableUserAccount(@Valid @RequestBody VerifyRequest verifyRequest) {
-        // find user by email and check the hash
+        // find user by email and enable if hash is valid
         Optional<User> optionalUser = userRepository.findByEmail(verifyRequest.getEmail());
-        if (optionalUser.isEmpty() || optionalUser.get().isEnabled()) {
-            // intentionally do not give details about why the hash could not be verified
-            return ResponseEntity.badRequest().body("");
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        if (optionalUser.get().isEnabled()) {
+            throw new UserAlreadyEnabledException();
         }
         User user = optionalUser.get();
         if (isHashClaimValid(verifyRequest.getHash(), user.getEmail(), user.getLastPasswordAction())) {
-            // enable user and update the record
             user.setEnabled(true);
             user.setLastPasswordAction(LocalDateTime.now());
             user = userRepository.save(user);
@@ -177,75 +185,53 @@ public class AuthenticationController {
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
         } else {
-            // intentionally do not give details about why the hash could not be verified
-            return ResponseEntity.badRequest().body("");
-        }
-    }
-
-    public boolean isHashClaimValid(String hashClaim, String userEmail, LocalDateTime userLastPasswordAction) {
-        try {
-            String hashBase64Expected = createBase64VerificationHash(userEmail, userLastPasswordAction);
-            return StringUtils.equals(hashBase64Expected, hashClaim);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return false;
+            throw new InvalidHashException();
         }
     }
 
     @Operation(summary = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
             "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Password reset email was sent successfully"),
-            @ApiResponse(responseCode = "400", description = "User does not exist or has recently reset the password or the email could not be sent")
+            @ApiResponse(responseCode = "200", description = "Password reset email was sent successfully."),
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/requestPasswordReset")
-    public ResponseEntity<String> resetPasswordRequest(
+    public ResponseEntity<?> resetPasswordRequest(
             @Valid @RequestBody RequestPasswordResetRequest requestResetPasswordRequest) {
+        // find user and send hash via email for password reset
         Optional<User> optionalUser = userRepository.findByEmail(requestResetPasswordRequest.getEmail());
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.badRequest().body("Zu dieser E-Mail existiert kein Konto");
+            throw new UserNotFoundException();
         }
         User user = optionalUser.get();
         if (!user.isEnabled()) {
-            return ResponseEntity.badRequest()
-                    .body("Konto wurde noch nicht aktiviert, bitte prüfen Sie ihr E-Mail Postfach");
+            throw new ResetPasswordAccountNotEnabledException();
         }
         if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
-            return ResponseEntity.badRequest()
-                    .body("Passwort wurde in den letzten 15 Minuten bereits zurückgesetzt");
-        }
-
-        String hashBase64;
-        try {
-            hashBase64 = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Hashing-Verfahren nicht gefunden");
+            throw new LastPasswordActionTooRecentException();
         }
         try {
-            emailSenderService.sendResetPasswordMail(user.getEmail(), hashBase64);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Mail konnte nicht versendet werden");
+            sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction());
+            user.setLastPasswordAction(LocalDateTime.now());
+            userRepository.save(user);
+        } catch (HashGenerationException | MailSendException e) {
+            throw e;
         }
-        user.setLastPasswordAction(LocalDateTime.now());
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Ok");
+        return ResponseEntity.ok(null);
     }
 
     @Operation(summary = "Reset the password using a hash value from a link received after a password reset request.", tags = {
             "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Password was reset successfully"),
-            @ApiResponse(responseCode = "400", description = "Password could not be reset because hash claim was not valid")
+            @ApiResponse(responseCode = "200", description = "Password was reset successfully. User will be logged in directly using token in response."),
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/resetPassword")
-    public ResponseEntity<?> resetUserPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+    public ResponseEntity<JwtResponse> resetUserPassword(
+            @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
         Optional<User> optionalUser = userRepository.findByEmail(resetPasswordRequest.getEmail());
         if (optionalUser.isEmpty() || optionalUser.get().isEnabled()) {
-            // intentionally do not give details about why the hash could not be verified
-            return ResponseEntity.badRequest().body("");
+            throw new UserNotFoundException();
         }
         User user = optionalUser.get();
         if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(), user.getLastPasswordAction())) {
@@ -256,8 +242,47 @@ public class AuthenticationController {
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
         } else {
-            // intentionally do not give details about why the hash could not be verified
-            return ResponseEntity.badRequest().body("");
+            throw new InvalidHashException();
+        }
+    }
+
+    private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction)
+            throws HashGenerationException, MailSendException {
+        try {
+            String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
+            emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of("hashBase64", hashBase64));
+        } catch (NoSuchAlgorithmException | MessagingException e) {
+            e.printStackTrace();
+            if (e instanceof NoSuchAlgorithmException) {
+                throw new HashGenerationException();
+            } else if (e instanceof MessagingException) {
+                throw new MailSendException();
+            }
+        }
+    }
+
+    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction)
+            throws HashGenerationException, MailSendException {
+        try {
+            String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
+            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of("hashBase64", hashBase64));
+        } catch (NoSuchAlgorithmException | MessagingException e) {
+            e.printStackTrace();
+            if (e instanceof NoSuchAlgorithmException) {
+                throw new HashGenerationException();
+            } else if (e instanceof MessagingException) {
+                throw new MailSendException();
+            }
+        }
+    }
+
+    public boolean isHashClaimValid(String hashClaim, String userEmail, LocalDateTime userLastPasswordAction) {
+        try {
+            String hashBase64Expected = createBase64VerificationHash(userEmail, userLastPasswordAction);
+            return StringUtils.equals(hashBase64Expected, hashClaim);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

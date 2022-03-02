@@ -48,8 +48,8 @@ const App: React.FC = () => {
             hasRoles: hasRoles
           }}>
 
-          <Layout>
 
+          <Layout>
             <Header>
               <Navigation />
             </Header>
@@ -63,10 +63,11 @@ const App: React.FC = () => {
 
                 <div className="site-layout-content">
                   <Routes>
+                    <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
 
                     <Route path={AppRoutes.Login} element={<Login />} />
                     <Route path={AppRoutes.Register} element={<Register />} />
-                    <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
+                    {/* <Route path={AppRoutes.Verify} element={<VerifyAccount />} /> */}
                     <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
                     <Route path={AppRoutes.Home} element={<Overview />} />
                     <Route

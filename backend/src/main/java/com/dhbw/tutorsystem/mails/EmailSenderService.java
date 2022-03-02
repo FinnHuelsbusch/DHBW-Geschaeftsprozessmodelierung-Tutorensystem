@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.mails;
 
-import java.util.Base64;
 import java.util.Map;
 
 import javax.mail.MessagingException;
@@ -8,7 +7,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -24,10 +22,12 @@ public class EmailSenderService {
     private String frontendUrl;
 
     private final JavaMailSender javaMailSender;
+    private final SpringTemplateEngine thymeTemplateEngine;
 
     @Autowired
-    public EmailSenderService(JavaMailSender javaMailSender) {
+    public EmailSenderService(JavaMailSender javaMailSender, SpringTemplateEngine thymeTemplateEngine) {
         this.javaMailSender = javaMailSender;
+        this.thymeTemplateEngine = thymeTemplateEngine;
     }
 
     @Async
@@ -44,14 +44,26 @@ public class EmailSenderService {
         return javaMailSender.createMimeMessage();
     }
 
-    @Autowired
-    private SpringTemplateEngine thymleafTemplateEngine;
+    public void sendMail(String mailTo, MailType mailType) throws MessagingException {
+        sendMail(mailTo, mailType, null);
+    }
 
-    public void sendRegistrationMail(String mailTo, String hashBase64) throws MessagingException {
+    public void sendMail(String mailTo, MailType mailType, Map<String, Object> arguments) throws MessagingException {
+        if (mailType == MailType.REGISTRATION) {
+            sendRegistrationMail(mailTo, arguments);
+        } else if (mailType == MailType.RESET_PASSWORD) {
+            sendResetPasswordMail(mailTo, arguments);
+        } else {
+            throw new IllegalArgumentException("MailType is not known.");
+        }
+    }
+
+    public void sendRegistrationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        String hashBase64 = (String) arguments.get("hashBase64");
         Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/verify?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
-        String htmlBody = thymleafTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
+        String htmlBody = thymeTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
@@ -60,11 +72,12 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-    public void sendResetPasswordMail(String mailTo, String hashBase64) throws MessagingException {
+    public void sendResetPasswordMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        String hashBase64 = (String) arguments.get("hashBase64");
         Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/resetPassword?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
-        String htmlBody = thymleafTemplateEngine.process("resetPasswordMail.html", thymeleafContext);
+        String htmlBody = thymeTemplateEngine.process("resetPasswordMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);

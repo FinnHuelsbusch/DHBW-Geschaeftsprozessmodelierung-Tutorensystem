@@ -34,7 +34,6 @@ export const login = (email: string, password: string): Promise<User> => {
             password: password
         }).then(res => {
             const data = res.data;
-            // handle missing token as error case
             if (!res.data.token) Promise.reject();
             const user = {
                 email: data.email,
@@ -58,14 +57,25 @@ export const register = (email: string, password: string): Promise<string> => {
         });
 }
 
-export const verifyAccount = (hash: string | null, email: string | null): Promise<string> => {
+export const verifyAccount = (hash: string | null, email: string | null): Promise<User> => {
     if (!hash || !email) return Promise.reject();
     return api.post('/authentication/enableAccount', {
-        hash: hash,
+        // + signs will be removed from urlParams but must be part of the hash
+        // so re-add them here
+        hash: hash.replaceAll(" ","+"),
         email: email
     })
         .then(res => {
-            return "ok";
+            const data = res.data;
+            if (!res.data.token) Promise.reject();
+            const user = {
+                email: data.email,
+                roles: data.roles,
+                jwt: data.token,
+                loginExpirationDate: data.expirationDate
+            } as User;
+            applyJwt(user.jwt);
+            return user;
         });
 }
 
