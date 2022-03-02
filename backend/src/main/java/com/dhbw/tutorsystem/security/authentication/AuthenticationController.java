@@ -41,6 +41,8 @@ public class AuthenticationController {
         this.encoder = encoder;
     }
 
+
+    // TODO add documentation. 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -56,6 +58,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(new JwtResponse(roles, jwt, userDetails.getUserId(), userDetails.getEmailAddress()));
     }
 
+    // TODO add documentation. 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         // TODO: first send email, then upon email accept: save user in DB
