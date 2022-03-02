@@ -10,7 +10,7 @@ import DirectorOverview from './components/directorOverview/DirectorOverview';
 import Login from './components/login/Login';
 import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext } from './context/UserContext';
@@ -37,72 +37,82 @@ const App: React.FC = () => {
     }
   }
 
+  const MainLayout = () => {
+    return (
+      <Layout>
+        <Header>
+          <Navigation />
+        </Header>
+
+        <Content style={{ padding: '50px' }}>
+          <ConfigProvider renderEmpty={() =>
+            <Empty
+              description="Keine Daten verfügbar">
+            </Empty>
+          }>
+
+            <div className="site-layout-content">
+              <Outlet />
+            </div>
+
+          </ConfigProvider>
+        </Content>
+
+        <Footer>
+          <CopyrightOutlined /> 2021
+        </Footer>
+
+      </Layout>
+    );
+  }
+
   return (
     <div className="App">
-      <Router >
-        <AuthContext.Provider
-          value={{
-            loggedUser: loggedUser,
-            login: login,
-            logout: logout,
-            hasRoles: hasRoles
-          }}>
 
+      <AuthContext.Provider
+        value={{
+          loggedUser: loggedUser,
+          login: login,
+          logout: logout,
+          hasRoles: hasRoles
+        }}>
 
-          <Layout>
-            <Header>
-              <Navigation />
-            </Header>
+        <Router >
+          <Routes>
 
-            <Content style={{ padding: '50px' }}>
-              <ConfigProvider renderEmpty={() =>
-                <Empty
-                  description="Keine Daten verfügbar">
-                </Empty>
-              }>
+            <Route path={AppRoutes.Main.Path} element={<MainLayout />}>
+              <Route path={AppRoutes.Main.Path} element={<Overview />} />
+              <Route path={AppRoutes.Main.Subroutes.Login} element={<Login />} />
+              <Route path={AppRoutes.Main.Subroutes.Register} element={<Register />} />
+              <Route
+                path={AppRoutes.Main.Subroutes.AdminOverview}
+                element={
+                  <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_ADMIN])}>
+                    <AdminOverview />
+                  </ProtectedRoute>} />
+              <Route
+                path={AppRoutes.Main.Subroutes.DirectorOverview}
+                element={
+                  <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                    <DirectorOverview />
+                  </ProtectedRoute>} />
+              <Route
+                path={AppRoutes.Main.Subroutes.Settings}
+                element={
+                  <ProtectedRoute hasAccess={loggedUser ? true : false}>
+                    <Settings />
+                  </ProtectedRoute>} />
+            </Route>
 
-                <div className="site-layout-content">
-                  <Routes>
-                    <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
+            <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
+            <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
 
-                    <Route path={AppRoutes.Login} element={<Login />} />
-                    <Route path={AppRoutes.Register} element={<Register />} />
-                    {/* <Route path={AppRoutes.Verify} element={<VerifyAccount />} /> */}
-                    <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
-                    <Route path={AppRoutes.Home} element={<Overview />} />
-                    <Route
-                      path={AppRoutes.AdminOverview}
-                      element={
-                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_ADMIN])}>
-                          <AdminOverview />
-                        </ProtectedRoute>} />
-                    <Route
-                      path={AppRoutes.DirectorOverview}
-                      element={
-                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                          <DirectorOverview />
-                        </ProtectedRoute>} />
-                    <Route
-                      path={AppRoutes.Settings}
-                      element={
-                        <ProtectedRoute hasAccess={loggedUser ? true : false}>
-                          <Settings />
-                        </ProtectedRoute>} />
-                    <Route path="/*" element={<Unauthorized />} />
-                  </Routes>
-                </div>
+            <Route path="*" element={<Unauthorized />} />
 
-              </ConfigProvider>
-            </Content>
+          </Routes>
+        </Router>
 
-            <Footer>
-              <CopyrightOutlined /> 2021
-            </Footer>
-
-          </Layout>
-        </AuthContext.Provider>
-
-      </Router>
+      </AuthContext.Provider>
     </div>
   );
 }

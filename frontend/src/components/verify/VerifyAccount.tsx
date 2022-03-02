@@ -18,16 +18,16 @@ const VerifyAccount: React.FC = () => {
         const hash = searchParams.get("h");
         const email = searchParams.get("e");
         console.log("hash ", hash);
-        // verifyAccount(hash, email)
-        //     .then(user => {
-        //         setLoading(false);
-        //         authContext.login(user);
-        //         message.success("Login erfolgreich", 2);
-        //         navigate(AppRoutes.Home);
-        //     }).catch(err => {
-        //         message.error("Ein Fehler ist aufgetreten");
-        //         navigate(AppRoutes.Unauthorized);
-        //     });
+        verifyAccount(hash, email)
+            .then(user => {
+                setLoading(false);
+                authContext.login(user);
+                message.success("Login erfolgreich", 2);
+                navigate(AppRoutes.Main.Path);
+            }).catch(err => {
+                message.error("Ein Fehler ist aufgetreten");
+                navigate(AppRoutes.Unauthorized);
+            });
     }, []);
 
     return (

@@ -54,7 +54,7 @@ const Register: React.FC = () => {
                     Registrieren
                 </Button>
                 <Divider />
-                Oder <a onClick={e => navigate(AppRoutes.Login, { replace: true })}>
+                Oder <a onClick={e => navigate(AppRoutes.Main.Subroutes.Login, { replace: true })}>
                     anmelden.
                 </a>
             </Form.Item>

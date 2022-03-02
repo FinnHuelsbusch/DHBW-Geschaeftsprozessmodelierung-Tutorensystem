@@ -15,12 +15,12 @@ const Navigation: React.FC = () => {
     const ProfileButton = (user: User) => {
         const onLogoutClick = () => {
             authContext.logout();
-            navigate(AppRoutes.Home);
+            navigate(AppRoutes.Main.Path);
         }
         const profileDropdown = (
             <Menu>
                 <Menu.Item key="settings">
-                    <Link to={AppRoutes.Settings}>
+                    <Link to={AppRoutes.Main.Subroutes.Settings}>
                         Einstellungen
                     </Link>
                 </Menu.Item>
@@ -43,7 +43,7 @@ const Navigation: React.FC = () => {
 
     const LoginButton = () => {
         return (
-            <Link to={AppRoutes.Login}>
+            <Link to={AppRoutes.Main.Subroutes.Login}>
                 Anmelden
             </Link>
         );
@@ -53,7 +53,7 @@ const Navigation: React.FC = () => {
         <Menu mode='horizontal' theme='dark'
             defaultSelectedKeys={['1']}>
             <Menu.Item key="1">
-                <Link to={AppRoutes.Home}>
+                <Link to={AppRoutes.Main.Path}>
                     <div className='app-home'>
                         <i>Tutorensystem</i>
                     </div>
@@ -61,7 +61,7 @@ const Navigation: React.FC = () => {
             </Menu.Item>
             {authContext.hasRoles([UserRole.ROLE_ADMIN])
                 && <Menu.Item key="2">
-                    <Link to={AppRoutes.AdminOverview}>
+                    <Link to={AppRoutes.Main.Subroutes.AdminOverview}>
                         Übersicht Administrator
                     </Link>
                 </Menu.Item>}

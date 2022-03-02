@@ -29,7 +29,7 @@ const Login: React.FC = () => {
                 .then(user => {
                     authContext.login(user);
                     message.success("Login erfolgreich", 2);
-                    navigate(AppRoutes.Home);
+                    navigate(AppRoutes.Main.Path);
                 }).catch(err => {
                     message.error("Login fehlgeschlagen");
                     setLoading(false);
@@ -59,7 +59,7 @@ const Login: React.FC = () => {
                         Anmelden
                     </Button>
                     <Divider />
-                    Oder <a onClick={e => navigate(AppRoutes.Register, { replace: true })}>
+                    Oder <a onClick={e => navigate(AppRoutes.Main.Subroutes.Register, { replace: true })}>
                         registrieren.
                     </a>
                 </Form.Item>
