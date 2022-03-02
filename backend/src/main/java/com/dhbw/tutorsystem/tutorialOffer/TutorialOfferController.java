@@ -6,7 +6,9 @@ import com.dhbw.tutorsystem.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +22,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.AllArgsConstructor;
 
 @RestController
+@RequestMapping("/tutorialoffer")
 @AllArgsConstructor
 @SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
 public class TutorialOfferController {
@@ -39,9 +42,8 @@ public class TutorialOfferController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Succesful creation"),
     })
-    
-    @PostMapping("/tutorialoffer")
-    public ResponseEntity<Void> createTutorialOffer(@RequestBody TutorialOfferRequest tutorialOfferRequest) {
+    @PutMapping
+    public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialOfferRequest tutorialOfferRequest) {
         TutorialOffer tutorialOffer = new TutorialOffer(); 
         tutorialOffer.setDescription(tutorialOfferRequest.getDescription());
         tutorialOffer.setStart(tutorialOfferRequest.getStart());
@@ -56,6 +58,6 @@ public class TutorialOfferController {
 
         tutorialOfferRepository.save(tutorialOffer);
 
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
 }

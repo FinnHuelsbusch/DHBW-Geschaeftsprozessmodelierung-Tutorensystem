@@ -39,7 +39,7 @@ export const login = (email: string, password: string): Promise<User> => {
 }
 
 export const createTutorialOffer = (tutorialOffer: TutorialOffer ): Promise<string> => {
-    return api.post('/tutorialoffer',
+    return api.put('/tutorialoffer',
         {
             ...tutorialOffer
         }).then(res => {
