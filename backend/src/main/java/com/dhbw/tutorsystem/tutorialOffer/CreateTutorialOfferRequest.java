@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-public class TutorialOfferRequest {
+public class CreateTutorialOfferRequest {
 
     @Getter
     @Setter
