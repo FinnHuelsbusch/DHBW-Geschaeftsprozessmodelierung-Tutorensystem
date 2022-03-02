@@ -1,5 +1,6 @@
 package com.dhbw.tutorsystem.security;
 
+import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.security.jwt.AuthEntryPointJwt;
 import com.dhbw.tutorsystem.security.jwt.AuthTokenFilter;
 import com.dhbw.tutorsystem.security.services.UserDetailsServiceImpl;
@@ -57,8 +58,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/ping").permitAll()
                 .antMatchers("/authentication/**").permitAll()
-                .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/swagger-ui/**").permitAll()
+                .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
+                .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
                 .anyRequest().authenticated();
 
         http.cors();
