@@ -1,9 +1,20 @@
 package com.dhbw.tutorsystem.security.authentication;
 
+import com.dhbw.tutorsystem.exception.TSServerError;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
+import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
+import com.dhbw.tutorsystem.security.authentication.exception.MailSendException;
+import com.dhbw.tutorsystem.security.authentication.exception.RegistrationMailAlreadySentException;
+import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
+import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
+import com.dhbw.tutorsystem.security.authentication.payload.LoginRequest;
+import com.dhbw.tutorsystem.security.authentication.payload.RegisterRequest;
+import com.dhbw.tutorsystem.security.authentication.payload.RequestPasswordResetRequest;
+import com.dhbw.tutorsystem.security.authentication.payload.ResetPasswordRequest;
+import com.dhbw.tutorsystem.security.authentication.payload.VerifyRequest;
 import com.dhbw.tutorsystem.security.jwt.JwtUtils;
 import com.dhbw.tutorsystem.security.services.UserDetailsImpl;
 import com.dhbw.tutorsystem.user.User;
@@ -17,8 +28,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -32,7 +47,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
@@ -56,13 +70,18 @@ public class AuthenticationController {
         this.emailSenderService = emailSenderService;
     }
 
+    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login was successful"),
+            @ApiResponse(responseCode = "401", description = "Login was not successful")
+    })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        String jwt = jwtUtils.generateJwtTokenFromAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
@@ -72,18 +91,23 @@ public class AuthenticationController {
                 userDetails.getEmailAddress()));
     }
 
+    @Operation(summary = "Create a not-enabled account for a user using email and password and send registration email with activation link.", tags = {
+            "authentication" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Registration email was sent successfully"),
+            @ApiResponse(responseCode = "400", description = "User already exists or existing registration request is pending since less than 15 minutes")
+    })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
         Optional<User> optionalUser = userRepository.findByEmail(registerRequest.getEmail());
         User user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
             if (user.isEnabled()) {
-                return ResponseEntity.badRequest().body("Email existiert bereits");
+                throw new InvalidEmailException();
             }
             if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
-                return ResponseEntity.badRequest()
-                        .body("Konto wurde bereits registriert, überprüfen Sie zur Aktivierung ihr E-Mail Postfach");
+                throw new RegistrationMailAlreadySentException();
             } else {
                 // existing, not-enabled user that re-registered 15min after first registration:
                 // update last changed and re-send email
@@ -101,10 +125,10 @@ public class AuthenticationController {
             } else if (user.isDirectorMail()) {
                 role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
             } else {
-                return ResponseEntity.badRequest().body("Email ist ungültig");
+                throw new InvalidEmailException();
             }
             if (role.isEmpty()) {
-                return ResponseEntity.badRequest().body("Keine zugehörige Nutzerrolle gefunden");
+                throw new RoleNotFoundException();
             }
             user.setRoles(Set.of(role.get()));
             user.setEnabled(false);
@@ -116,19 +140,24 @@ public class AuthenticationController {
             hashBase64 = createBase64VerificationHash(user.getEmail(), user.getLastPasswordAction());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Hashing-Verfahren nicht gefunden");
+            throw new TSServerError();
         }
         try {
             emailSenderService.sendRegistrationMail(user.getEmail(), hashBase64);
         } catch (MessagingException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Mail konnte nicht versendet werden");
+            throw new MailSendException();
         }
         userRepository.save(user);
-
-        return ResponseEntity.ok("Ok");
+        return ResponseEntity.ok(null);
     }
 
+    @Operation(summary = "Enable an account using a hash value from an activation link after registration.", tags = {
+            "authentication" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Account was activated successfully"),
+            @ApiResponse(responseCode = "400", description = "Account was not activated because the supplied hash claim is not valid")
+    })
     @PostMapping("/enableAccount")
     public ResponseEntity<?> enableUserAccount(@Valid @RequestBody VerifyRequest verifyRequest) {
         // find user by email and check the hash
@@ -143,7 +172,7 @@ public class AuthenticationController {
             user.setEnabled(true);
             user.setLastPasswordAction(LocalDateTime.now());
             user = userRepository.save(user);
-            String jwt = jwtUtils.generateJwtTokenAfterRegistration(user.getEmail());
+            String jwt = jwtUtils.generateJwtTokenFromUsername(user.getEmail());
             return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
@@ -163,8 +192,14 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
+            "authentication" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset email was sent successfully"),
+            @ApiResponse(responseCode = "400", description = "User does not exist or has recently reset the password or the email could not be sent")
+    })
     @PostMapping("/requestPasswordReset")
-    public ResponseEntity<?> resetPasswordRequest(
+    public ResponseEntity<String> resetPasswordRequest(
             @Valid @RequestBody RequestPasswordResetRequest requestResetPasswordRequest) {
         Optional<User> optionalUser = userRepository.findByEmail(requestResetPasswordRequest.getEmail());
         if (optionalUser.isEmpty()) {
@@ -199,6 +234,12 @@ public class AuthenticationController {
         return ResponseEntity.ok("Ok");
     }
 
+    @Operation(summary = "Reset the password using a hash value from a link received after a password reset request.", tags = {
+            "authentication" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password was reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Password could not be reset because hash claim was not valid")
+    })
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetUserPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
         Optional<User> optionalUser = userRepository.findByEmail(resetPasswordRequest.getEmail());
@@ -210,7 +251,10 @@ public class AuthenticationController {
         if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(), user.getLastPasswordAction())) {
             user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
             user.setLastPasswordAction(LocalDateTime.now());
-            return ResponseEntity.ok("");
+            String jwt = jwtUtils.generateJwtTokenFromUsername(user.getEmail());
+            return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
+                    jwtUtils.getExpirationDateFromJwtToken(jwt),
+                    user.getEmail()));
         } else {
             // intentionally do not give details about why the hash could not be verified
             return ResponseEntity.badRequest().body("");

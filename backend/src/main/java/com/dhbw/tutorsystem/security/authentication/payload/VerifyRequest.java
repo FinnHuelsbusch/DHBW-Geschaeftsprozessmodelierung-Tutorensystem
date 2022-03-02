@@ -1,4 +1,4 @@
-package com.dhbw.tutorsystem.security.authentication;
+package com.dhbw.tutorsystem.security.authentication.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
