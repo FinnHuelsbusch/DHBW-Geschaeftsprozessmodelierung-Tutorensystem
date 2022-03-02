@@ -9,7 +9,7 @@ const api = axios.create({
 });
 
 export const ping = (): Promise<string> => {
-    return api.get('/ping/auth-student')
+    return api.get('/ping')
         .then(res => res.data);
 }
 
@@ -38,11 +38,9 @@ export const login = (email: string, password: string): Promise<User> => {
         });
 }
 
-export const createTutorialOffer = (tutorialOffer: TutorialOffer ): Promise<string> => {
+export const createTutorialOffer = (tutorialOffer: TutorialOffer ): Promise<void> => {
     return api.put('/tutorialoffer',
         {
             ...tutorialOffer
-        }).then(res => {
-            return "ok";
         });
 }

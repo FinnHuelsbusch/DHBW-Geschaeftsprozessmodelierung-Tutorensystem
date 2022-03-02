@@ -30,24 +30,24 @@ public class TutorialOfferController {
     private final TutorialOfferRepository tutorialOfferRepository;
     private final UserService userService;
 
-
-
     @Operation(
         tags={"tutorialOffer"},
-        summary = "Create new TutorialOffer", 
-        description = "Creates a new TutorialOffer for the logged in user as tutor.", 
-        operationId = "getWithPayloadResponse",
+        summary = "Create new TutorialOffer.", 
+        description = "Creates a new TutorialOffer for the logged in user as tutor.",
         security = @SecurityRequirement(name = "jwt-auth")
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Succesful creation"),
+            @ApiResponse(responseCode = "201", description = "Successful creation."),
     })
     @PutMapping
     public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialOfferRequest tutorialOfferRequest) {
+
         TutorialOffer tutorialOffer = new TutorialOffer(); 
+        
         tutorialOffer.setDescription(tutorialOfferRequest.getDescription());
         tutorialOffer.setStart(tutorialOfferRequest.getStart());
         tutorialOffer.setEnd(tutorialOfferRequest.getEnd());
+
         // find out which user executes this operation
         User user = userService.getLoggedInUser();
         if (user != null) {
