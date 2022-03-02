@@ -2,6 +2,7 @@ import { Button, ConfigProvider, DatePicker, Form, message, Modal } from "antd"
 import { useForm } from "antd/lib/form/Form";
 import TextArea from "antd/lib/input/TextArea";
 import locale from 'antd/lib/locale/de_DE';
+import Title from "antd/lib/skeleton/Title";
 import 'moment/locale/de'
 import { useState } from "react";
 import { createTutorialOffer } from "../../api/api";
@@ -29,35 +30,53 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
         } as TutorialOffer).then( res => 
             {
                 setLoading(false); 
-                message.success("Tutorumsangebot erfolgreich erstellt."); 
+                message.success("Tutoriumsangebot erfolgreich erstellt."); 
                 setIsTutorialOfferModalVisible(false); 
+                form.resetFields()
             }, err => {
                 setLoading(false); 
-                message.error("Tutorumsangebot konnte nicht erstellt werden."); 
+                message.error("Tutoriumsangebot konnte nicht erstellt werden."); 
             }
             
         )
     };
+
+    const onCancel = () => {
+        setIsTutorialOfferModalVisible(false)
+        form.resetFields()
+    }
 
     return (
         <ConfigProvider locale={locale}>
             <Modal
                 destroyOnClose={true}
                 visible={isModalVisible}
-                footer={null}
-                onCancel={() => setIsTutorialOfferModalVisible(false)}
+                onCancel={onCancel}
+                title={"Tutoriumsangebot erstellen"}
+                width={600}
+                footer={[
+                    <Button loading={loading} type="primary" onClick={e => form.submit()}>
+                        Absenden
+                    </Button>
+                ]}
             >
                 <Form
                     onFinish={onFinish}
                     form={form}
+                    labelCol={{ span: 5 }}
+                    wrapperCol={{ span: 17 }}
+                    
                 >
+
                     <Form.Item
                         label="Zeitraum"
                         name="timerange"
+                        
                     >
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
+                            
                         />
 
                     </Form.Item>
@@ -66,12 +85,6 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                         name="description"
                     >
                         <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button loading={loading} type="primary" htmlType="submit" className="submit-form-button">
-                            Absenden
-                        </Button>
                     </Form.Item>
                 </Form>
             </Modal>
