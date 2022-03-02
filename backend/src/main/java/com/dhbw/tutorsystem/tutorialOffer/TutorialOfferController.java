@@ -1,55 +1,61 @@
 package com.dhbw.tutorsystem.tutorialOffer;
 
-import java.security.Principal;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.management.RuntimeErrorException;
-import javax.validation.Valid;
-
 import com.dhbw.tutorsystem.user.User;
-import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.UserService;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-import org.hibernate.annotations.SourceType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpStatusCodeException;
+
 import org.springframework.web.server.ResponseStatusException;
 
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
+@SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
 public class TutorialOfferController {
 
     private final TutorialOfferRepository tutorialOfferRepository;
-    private final UserService userService; 
+    private final UserService userService;
+
+
+
+    @Operation(
+        tags={"tutorialOffer"},
+        summary = "Create new TutorialOffer", 
+        description = "Creates a new TutorialOffer for the logged in user as tutor.", 
+        operationId = "getWithPayloadResponse",
+        security = @SecurityRequirement(name = "jwt-auth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Succesful creation"),
+    })
     
     @PostMapping("/tutorialoffer")
-    public ResponseEntity<Void> createTutorialOffer(@RequestBody TutorialOffer tutorialOffer) {
-        
+    public ResponseEntity<Void> createTutorialOffer(@RequestBody TutorialOfferRequest tutorialOfferRequest) {
+        TutorialOffer tutorialOffer = new TutorialOffer(); 
+        tutorialOffer.setDescription(tutorialOfferRequest.getDescription());
+        tutorialOffer.setStart(tutorialOfferRequest.getStart());
+        tutorialOffer.setEnd(tutorialOfferRequest.getEnd());
         // find out which user executes this operation
-        User user = userService.getLoggedInUser(); 
-        if(user != null){
+        User user = userService.getLoggedInUser();
+        if (user != null) {
             tutorialOffer.setUser(user);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED); 
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-        
+
         tutorialOfferRepository.save(tutorialOffer);
-        
-        return  new ResponseEntity<Void>(HttpStatus.OK);
+
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 }
