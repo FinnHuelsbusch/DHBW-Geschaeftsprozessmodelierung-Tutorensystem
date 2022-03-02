@@ -43,7 +43,6 @@
             <artifactId>jjwt</artifactId>
 			<version>0.9.1</version>
         </dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
@@ -60,7 +59,16 @@
             <artifactId>springdoc-openapi-ui</artifactId>
 			<version>1.6.6</version>
         </dependency>
-
+				<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-security</artifactId>
+			<version>1.6.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-data-rest</artifactId>
+			<version>1.6.6</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -100,5 +108,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
