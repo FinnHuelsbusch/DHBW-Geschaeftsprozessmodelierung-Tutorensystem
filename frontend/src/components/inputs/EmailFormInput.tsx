@@ -1,5 +1,4 @@
-import { Form } from 'antd';
-import TextArea from 'antd/lib/input/TextArea';
+import { Form, Input } from 'antd';
 import React from 'react';
 
 
@@ -30,7 +29,7 @@ const EmailFormInput: React.FC = () => {
                 required: true,
                 validator: validate
             }]}>
-            <TextArea />
+            <Input />
         </Form.Item>
     );
 }

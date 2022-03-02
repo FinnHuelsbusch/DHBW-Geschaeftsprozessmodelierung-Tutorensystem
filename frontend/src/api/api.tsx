@@ -53,7 +53,6 @@ export const register = (email: string, password: string): Promise<string> => {
             email: email.trim(),
             password: password
         }).then(res => {
-            console.log("success", res);
             const data = res.data;
             return data;
         });
@@ -70,8 +69,17 @@ export const verifyAccount = (hash: string | null, email: string | null): Promis
         });
 }
 
-export const resetPassword = (email: string): Promise<string> => {
-    return api.post('/authentication/resetPassword', {
+export const requestPasswordReset = (email: string): Promise<string> => {
+    return api.post('/authentication/requestPasswordReset', {
         email: email.trim()
+    }).then(res => "ok")
+}
+
+export const resetPassword = (hash: string | null, email: string | null, newPassword: string): Promise<string> => {
+    if (!hash || !email) return Promise.reject();
+    return api.post('/authentication/resetPassword', {
+        hash: hash,
+        email: email.trim(),
+        password: newPassword
     }).then(res => "ok")
 }

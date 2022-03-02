@@ -47,13 +47,24 @@ public class EmailSenderService {
     @Autowired
     private SpringTemplateEngine thymleafTemplateEngine;
 
-
     public void sendRegistrationMail(String mailTo, String hashBase64) throws MessagingException {
         Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/verify?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
-        thymeleafContext.setVariable("dhbw-logo", "dhbw-logo.png");
-        String htmlBody = thymleafTemplateEngine.process("registrationInfo.html", thymeleafContext);
+        String htmlBody = thymleafTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
+
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("Registrierung Tutorensystem");
+        helper.setText(htmlBody, true);
+        sendMimeMessage(helper.getMimeMessage());
+    }
+
+    public void sendResetPasswordMail(String mailTo, String hashBase64) throws MessagingException {
+        Context thymeleafContext = new Context();
+        String linkUrl = frontendUrl + "/resetPassword?h=" + hashBase64 + "&e=" + mailTo;
+        thymeleafContext.setVariable("link", linkUrl);
+        String htmlBody = thymleafTemplateEngine.process("resetPasswordMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);

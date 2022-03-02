@@ -1,14 +1,12 @@
 package com.dhbw.tutorsystem.security.authentication;
 
-import lombok.AllArgsConstructor;
+import javax.validation.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+public class ResetPasswordRequest {
 
-@AllArgsConstructor
-public class VerifyRequest {
-    
     @NotBlank
     @Getter
     @Setter
@@ -18,5 +16,10 @@ public class VerifyRequest {
     @Getter
     @Setter
     private String email;
+
+    @NotBlank
+    @Getter
+    @Setter
+    private String password;
 
 }

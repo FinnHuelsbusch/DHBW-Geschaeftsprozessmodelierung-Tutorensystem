@@ -4,7 +4,7 @@ import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, resetPassword } from '../../api/api';
+import { getRequestError, login, requestPasswordReset, resetPassword } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import EmailFormInput from '../inputs/EmailFormInput';
@@ -73,12 +73,13 @@ const Login: React.FC = () => {
 
         const onFormSubmit = (values: any) => {
             console.log(values);
-            resetPassword(values.email)
+            requestPasswordReset(values.email)
                 .then(res => {
                     message.success("E-Mail wurde zugesendet");
                     setShowForgotPasswordModal(false);
                 }, err => {
-                    message.error("E-Mail konnte nicht zugesendet werden");
+                    const reqErr = getRequestError(err);
+                    message.error(`${reqErr.reason}`);
                 });
         }
 
