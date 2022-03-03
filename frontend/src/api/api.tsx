@@ -2,6 +2,7 @@ import { message } from 'antd';
 import { ok } from 'assert';
 import axios from 'axios';
 import { RequestError } from '../types/RequestError';
+import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 
 const backendUrl = 'http://localhost:8080';
@@ -62,7 +63,7 @@ export const verifyAccount = (hash: string | null, email: string | null): Promis
     return api.post('/authentication/enableAccount', {
         // + signs will be removed from urlParams but must be part of the hash
         // so re-add them here
-        hash: hash.replaceAll(" ","+"),
+        hash: hash.replaceAll(" ", "+"),
         email: email
     })
         .then(res => {
@@ -92,4 +93,11 @@ export const resetPassword = (hash: string | null, email: string | null, newPass
         email: email.trim(),
         password: newPassword
     }).then(res => "ok")
+}
+
+export const createTutorialOffer = (tutorialOffer: TutorialOffer): Promise<void> => {
+    return api.put('/tutorialoffer',
+        {
+            ...tutorialOffer
+        });
 }
