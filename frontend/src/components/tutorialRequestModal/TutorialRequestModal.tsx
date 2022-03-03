@@ -3,7 +3,6 @@ import { useForm } from "antd/lib/form/Form";
 import { useState } from "react";
 import { createTutorialRequest } from "../../api/api";
 import { TutorialRequest } from "../../types/Tutorial";
-import { validateMessages} from "../../utils/Messages";
 
 interface Props {
     isModalVisible: boolean,
@@ -56,7 +55,6 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                 form={form}
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 17 }}
-                validateMessages={validateMessages}
             >
                 <Form.Item label="Modul" name="module" rules={[{ required: true },{whitespace: true}]}>
                     <Input placeholder="Programmieren I" allowClear />

@@ -7,7 +7,6 @@ import 'moment/locale/de'
 import { useState } from "react";
 import { createTutorialOffer } from "../../api/api";
 import { TutorialOffer } from "../../types/Tutorial";
-import { validateMessages} from "../../utils/Messages";
 
 
 
