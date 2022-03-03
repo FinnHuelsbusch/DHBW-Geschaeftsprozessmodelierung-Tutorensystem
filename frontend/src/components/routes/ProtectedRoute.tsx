@@ -12,7 +12,9 @@ const ProtectedRoute: React.FC<Props> = ({ children, hasAccess }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate(AppRoutes.Unauthorized, { replace: true });
+    if (!hasAccess) {
+      navigate(AppRoutes.Unauthorized, { replace: true });
+    }
   }, []);
 
   if (hasAccess) {

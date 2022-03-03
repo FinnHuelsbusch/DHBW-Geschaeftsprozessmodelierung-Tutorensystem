@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.scss';
 import { ConfigProvider, Empty, Layout, message } from 'antd';
 import { Content, Footer, Header } from 'antd/lib/layout/layout';
@@ -79,7 +79,6 @@ const App: React.FC = () => {
 
         <Router >
           <Routes>
-
             <Route path={AppRoutes.Main.Path} element={<MainLayout />}>
               <Route path={AppRoutes.Main.Path} element={<Overview />} />
               <Route path={AppRoutes.Main.Subroutes.Login} element={<Login />} />
@@ -108,7 +107,6 @@ const App: React.FC = () => {
             <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
 
             <Route path="*" element={<Unauthorized />} />
-
           </Routes>
         </Router>
 

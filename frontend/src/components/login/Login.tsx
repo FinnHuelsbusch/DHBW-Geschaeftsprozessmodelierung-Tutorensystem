@@ -1,4 +1,4 @@
-import { Button, Divider, Form, Input, message, Modal, } from 'antd';
+import { Button, Checkbox, Divider, Form, Input, message, Modal, } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
@@ -48,6 +48,9 @@ const Login: React.FC = () => {
                     name="password"
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
                     <Input.Password />
+                </Form.Item>
+                <Form.Item>
+                    <Checkbox />
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <a onClick={e => setShowForgotPasswordModal(true)}>
