@@ -10,6 +10,7 @@ import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidHashException;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
+import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
 import com.dhbw.tutorsystem.security.authentication.exception.MailSendException;
 import com.dhbw.tutorsystem.security.authentication.exception.ResetPasswordAccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
@@ -34,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +58,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,25 +89,31 @@ public class AuthenticationController {
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login was successful. User will be logged in using the token in the response."),
-            @ApiResponse(responseCode = "401", description = "Login was not successful.")
+            @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        if (!User.isValidEmail(loginRequest.getEmail())) {
+            throw new LoginFailedException();
+        }
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+            String jwt = jwtUtils.generateJwtTokenFromUsername(userPrincipal.getEmailAddress());
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
 
-        String jwt = jwtUtils.generateJwtTokenFromAuthentication(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(roles, jwt, jwtUtils.getExpirationDateFromJwtToken(jwt),
-                userDetails.getEmailAddress()));
+            return ResponseEntity.ok(new JwtResponse(roles, jwt, jwtUtils.getExpirationDateFromJwtToken(jwt),
+                    userDetails.getEmailAddress()));
+        } catch (AuthenticationException e) {
+            throw new LoginFailedException();
+        }
     }
 
-    @Operation(summary = "Create a not-enabled account for a user using email and password and send registration email with activation link.", tags = {
+    @Operation(summary = "Create user.", description = "Create a not-enabled account for a user using email and password and send registration email with activation link.", tags = {
             "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Registration email was sent successfully."),
@@ -130,7 +139,7 @@ public class AuthenticationController {
                 // update last changed
                 user.setLastPasswordAction(LocalDateTime.now());
                 try {
-                    sendRegisterMail(user.getEmail(), user.getLastPasswordAction());
+                    sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (HashGenerationException | MailSendException e) {
                     throw new TSInternalServerException();
                 }
@@ -151,12 +160,13 @@ public class AuthenticationController {
             // role might not be available in DB
             if (role.isEmpty()) {
                 throw new RoleNotFoundException();
+            } else {
+                user.setRoles(Set.of(role.get()));
             }
-            user.setRoles(Set.of(role.get()));
             user.setEnabled(false);
             user.setLastPasswordAction(LocalDateTime.now());
             try {
-                sendRegisterMail(user.getEmail(), user.getLastPasswordAction());
+                sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), true);
             } catch (HashGenerationException | MailSendException e) {
                 throw new TSInternalServerException();
             }
@@ -165,7 +175,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(null);
     }
 
-    @Operation(summary = "Enable an account using a hash value from an activation link after registration.", tags = {
+    @Operation(summary = "Enable user.", description = "Enable an account using a hash value from an activation link after registration.", tags = {
             "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Account was activated successfully. User will be directly logged in using token in response."),
@@ -195,7 +205,7 @@ public class AuthenticationController {
         }
     }
 
-    @Operation(summary = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
+    @Operation(summary = "Request a password reset.", description = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
             "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password reset email was sent successfully."),
@@ -220,13 +230,13 @@ public class AuthenticationController {
             sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction());
             user.setLastPasswordAction(LocalDateTime.now());
             userRepository.save(user);
+            return ResponseEntity.ok(null);
         } catch (HashGenerationException | MailSendException e) {
             throw new TSInternalServerException();
         }
-        return ResponseEntity.ok(null);
     }
 
-    @Operation(summary = "Reset the password using a hash value from a link received after a password reset request.", tags = {
+    @Operation(summary = "Reset a password.", description = "Reset the password using a hash value from a link received after a password reset request.", tags = {
             "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was reset successfully. User will be logged in directly using token in response."),
@@ -253,11 +263,13 @@ public class AuthenticationController {
         }
     }
 
-    private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction)
+    private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
             throws HashGenerationException, MailSendException {
         try {
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
-            emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of("hashBase64", hashBase64));
+            emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of(
+                    "hashBase64", hashBase64,
+                    "isFirstRegisterMail", isFirstRegisterMail));
         } catch (NoSuchAlgorithmException | MessagingException e) {
             e.printStackTrace();
             if (e instanceof NoSuchAlgorithmException) {
@@ -272,7 +284,8 @@ public class AuthenticationController {
             throws HashGenerationException, MailSendException {
         try {
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
-            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of("hashBase64", hashBase64));
+            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of(
+                    "hashBase64", hashBase64));
         } catch (NoSuchAlgorithmException | MessagingException e) {
             e.printStackTrace();
             if (e instanceof NoSuchAlgorithmException) {

@@ -49,8 +49,8 @@ const Login: React.FC = () => {
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
                     <Input.Password />
                 </Form.Item>
-                <Form.Item>
-                    <Checkbox />
+                <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
+                    <Checkbox>Anmeldung speichern</Checkbox>
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <a onClick={e => setShowForgotPasswordModal(true)}>

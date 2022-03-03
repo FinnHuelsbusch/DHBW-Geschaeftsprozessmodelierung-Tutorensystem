@@ -53,11 +53,14 @@ public class EmailSenderService {
         }
     }
 
-    public void sendRegistrationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+    private void sendRegistrationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         String hashBase64 = (String) arguments.get("hashBase64");
+        boolean isFirstRegisterMail = (boolean) arguments.get("isFirstRegisterMail");
+
         Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/verify?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
+        thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
         String htmlBody = thymeTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
@@ -67,8 +70,9 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-    public void sendResetPasswordMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+    private void sendResetPasswordMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         String hashBase64 = (String) arguments.get("hashBase64");
+
         Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/resetPassword?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);

@@ -13,8 +13,4 @@ public class ResetPasswordAccountNotEnabledException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "User account has not yet been enabled.");
     }
 
-    public ResetPasswordAccountNotEnabledException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

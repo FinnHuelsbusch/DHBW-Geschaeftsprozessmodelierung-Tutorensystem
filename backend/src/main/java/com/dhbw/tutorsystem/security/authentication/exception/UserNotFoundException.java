@@ -13,8 +13,4 @@ public class UserNotFoundException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "User could not be found.");
     }
 
-    public UserNotFoundException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

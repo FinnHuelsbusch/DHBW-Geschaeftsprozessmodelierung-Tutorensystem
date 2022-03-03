@@ -14,20 +14,24 @@ const VerifyAccount: React.FC = () => {
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
 
+    const handleVerifyError = () => {
+        message.error("Ein Fehler ist aufgetreten");
+        navigate(AppRoutes.Unauthorized);
+    };
+
     useEffect(() => {
         const hash = searchParams.get("h");
         const email = searchParams.get("e");
-        console.log("hash ", hash);
+        if (!hash || !email) {
+            handleVerifyError();
+        }
         verifyAccount(hash, email)
             .then(user => {
                 setLoading(false);
                 authContext.login(user);
                 message.success("Login erfolgreich", 2);
                 navigate(AppRoutes.Main.Path);
-            }).catch(err => {
-                message.error("Ein Fehler ist aufgetreten");
-                navigate(AppRoutes.Unauthorized);
-            });
+            }).catch(err => handleVerifyError());
     }, []);
 
     return (

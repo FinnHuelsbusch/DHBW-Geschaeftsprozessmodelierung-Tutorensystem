@@ -13,8 +13,4 @@ public class EmailAlreadyExistsException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "Email already exists.");
     }
 
-    public EmailAlreadyExistsException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

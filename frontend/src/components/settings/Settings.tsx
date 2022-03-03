@@ -1,45 +1,9 @@
 import { Button, Divider, Form, Input, Modal, Select } from 'antd';
 import Title from 'antd/lib/typography/Title';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
 import { Course } from '../../types/Course';
-import { useNavigate } from 'react-router-dom';
-import { AppRoutes } from '../../types/AppRoutes';
-import EmailFormInput from '../inputs/EmailFormInput';
-
-const ChangePassword: React.FC = () => {
-
-    const onSubmit = (values: any) => {
-
-    };
-
-    return (
-        <Form
-            name="login"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 10 }}
-            onFinish={onSubmit}>
-            <EmailFormInput />
-            <Form.Item
-                label="Passwort"
-                name="password"
-                rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                <Input.Password />
-            </Form.Item>
-            <Form.Item
-                label="Passwort (bestätigen)"
-                name="password"
-                rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                <Input.Password />
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
-                <Button htmlType='submit' type='primary'>
-                    Passwort ändern
-                </Button>
-            </Form.Item>
-        </Form>
-    );
-}
+import { AuthContext } from '../../context/UserContext';
 
 const Settings: React.FC = () => {
 
@@ -62,6 +26,7 @@ const Settings: React.FC = () => {
         },
     ];
 
+    const authContext = useContext(AuthContext);
     const [isChangePasswordModalVisible, setIsChangePasswordModalVisible] = useState(false);
 
     const onChangePassword = () => {
@@ -80,11 +45,15 @@ const Settings: React.FC = () => {
             <Form
                 name="login"
                 labelCol={{ span: 8 }}
+                initialValues={{ email: authContext.loggedUser?.email }}
                 wrapperCol={{ span: 10 }}>
                 <Form.Item
                     label="E-Mail"
                     name="email">
-                    <Input disabled style={{ color: 'black' }} type={'email'} />
+                    <Input
+                        disabled
+                        style={{ color: 'gray' }}
+                        contentEditable={true} />
                 </Form.Item>
                 <Form.Item
                     label="Passwort">

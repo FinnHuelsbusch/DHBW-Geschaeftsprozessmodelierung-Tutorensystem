@@ -13,8 +13,4 @@ public class UserAlreadyEnabledException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "User is already enabled.");
     }
 
-    public UserAlreadyEnabledException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

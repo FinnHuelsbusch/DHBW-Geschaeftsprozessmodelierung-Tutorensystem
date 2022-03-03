@@ -20,6 +20,7 @@ const ProtectedRoute: React.FC<Props> = ({ children, hasAccess }) => {
   if (hasAccess) {
     return children;
   } else {
+    // must wait for component to render, then navigate to unauthorized route
     return <></>;
   }
 };

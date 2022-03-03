@@ -19,7 +19,6 @@ const Register: React.FC = () => {
         register(values.email, values.password)
             .then(res => {
                 console.log("res", res);
-                message.success("Prüfen Sie ihr E-Mail Postfach");
                 setLoading(false);
                 setShowRegisterMessage(true);
             }, err => {

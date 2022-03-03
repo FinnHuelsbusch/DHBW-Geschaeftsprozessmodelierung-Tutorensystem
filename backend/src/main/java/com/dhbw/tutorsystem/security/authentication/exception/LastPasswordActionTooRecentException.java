@@ -13,8 +13,4 @@ public class LastPasswordActionTooRecentException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "Last password action is too recent. Please try again later.");
     }
 
-    public LastPasswordActionTooRecentException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

@@ -13,8 +13,4 @@ public class HashGenerationException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "Hash value could not be generated.");
     }
 
-    public HashGenerationException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

@@ -13,8 +13,4 @@ public class MailSendException extends TSBaseException {
         super(HttpStatus.INTERNAL_SERVER_ERROR, errorCode, "Email could not be sent.");
     }
 
-    public MailSendException(String message) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, errorCode, message);
-    }
-
 }

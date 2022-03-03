@@ -13,8 +13,4 @@ public class InvalidEmailException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "Email address is not valid.");
     }
 
-    public InvalidEmailException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }

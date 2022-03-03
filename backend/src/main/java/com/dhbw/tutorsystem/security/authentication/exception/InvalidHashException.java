@@ -13,8 +13,4 @@ public class InvalidHashException extends TSBaseException {
         super(HttpStatus.BAD_REQUEST, errorCode, "Supplied hash value is invalid.");
     }
 
-    public InvalidHashException(String message) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message);
-    }
-
 }
