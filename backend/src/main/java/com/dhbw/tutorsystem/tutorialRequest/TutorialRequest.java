@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 
 import com.dhbw.tutorsystem.module.Module;
 
+import com.dhbw.tutorsystem.user.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +22,13 @@ public class TutorialRequest {
     @Setter
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Module module;
+    private String description;
+
+    @ManyToOne(fetch =  FetchType.LAZY)
+    @Getter
+    @Setter
+    private User user;
 
 }

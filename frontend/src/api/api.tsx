@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TutorialOffer } from '../types/Tutorial';
+import { TutorialOffer, TutorialRequest } from '../types/Tutorial';
 import { User } from '../types/User';
 
 const backendUrl = 'http://localhost:8080';
@@ -42,5 +42,12 @@ export const createTutorialOffer = (tutorialOffer: TutorialOffer ): Promise<void
     return api.put('/tutorialoffer',
         {
             ...tutorialOffer
+        });
+}
+
+export const createTutorialRequest = (tutorialRequest: TutorialRequest ): Promise<void> => {
+    return api.put('/tutorialrequest',
+        {
+            ...tutorialRequest
         });
 }
