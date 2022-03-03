@@ -3,3 +3,7 @@ export interface TutorialOffer {
     start: Date, 
     end: Date
 }
+
+export interface TutorialRequest {
+    description: string
+}
