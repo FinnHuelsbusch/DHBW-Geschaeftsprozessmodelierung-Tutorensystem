@@ -7,6 +7,7 @@ import 'moment/locale/de'
 import { useState } from "react";
 import { createTutorialOffer } from "../../api/api";
 import { TutorialOffer } from "../../types/Tutorial";
+import { validateMessages} from "../../utils/messages";
 
 
 
@@ -19,25 +20,24 @@ interface Props {
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
     const [loading, setLoading] = useState(false);
-    const [form] = useForm(); 
+    const [form] = useForm();
 
     const onFinish = (values: any) => {
         setLoading(true);
         createTutorialOffer({
-            description : values.description,
-            start: values.timerange[0].toDate(), 
+            description: values.description,
+            start: values.timerange[0].toDate(),
             end: values.timerange[1].toDate()
-        } as TutorialOffer).then( res => 
-            {
-                setLoading(false); 
-                message.success("Tutoriumsangebot erfolgreich erstellt."); 
-                setIsTutorialOfferModalVisible(false); 
-                form.resetFields()
-            }, err => {
-                setLoading(false); 
-                message.error("Tutoriumsangebot konnte nicht erstellt werden."); 
-            }
-            
+        } as TutorialOffer).then(res => {
+            setLoading(false);
+            message.success("Tutoriumsangebot erfolgreich erstellt.");
+            setIsTutorialOfferModalVisible(false);
+            form.resetFields()
+        }, err => {
+            setLoading(false);
+            message.error("Tutoriumsangebot konnte nicht erstellt werden.");
+        }
+
         )
     };
 
@@ -65,26 +65,27 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     form={form}
                     labelCol={{ span: 5 }}
                     wrapperCol={{ span: 17 }}
-                    
+                    validateMessages={validateMessages}
                 >
 
                     <Form.Item
                         label="Zeitraum"
                         name="timerange"
-                        
+                        rules={[{required: true}]}
                     >
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
-                            
+
                         />
 
                     </Form.Item>
                     <Form.Item
                         label="Beschreibung"
                         name="description"
+                        rules={[{required: true}]}
                     >
-                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} />
+                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
                     </Form.Item>
                 </Form>
             </Modal>
