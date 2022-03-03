@@ -27,7 +27,7 @@ const Login: React.FC = () => {
             setLoading(true);
             login(values.email, values.password)
                 .then(user => {
-                    authContext.login(user);
+                    authContext.login(user, values.rememberLogin);
                     message.success("Login erfolgreich", 2);
                     navigate(AppRoutes.Main.Path);
                 }).catch(err => {
@@ -49,7 +49,11 @@ const Login: React.FC = () => {
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
                     <Input.Password />
                 </Form.Item>
-                <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
+                <Form.Item
+                    name="rememberLogin"
+                    initialValue={false}
+                    valuePropName="checked"
+                    wrapperCol={{ offset: 8, span: 10 }}>
                     <Checkbox>Anmeldung speichern</Checkbox>
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>

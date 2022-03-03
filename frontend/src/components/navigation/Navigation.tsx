@@ -1,4 +1,4 @@
-import { Button, Dropdown, Menu } from 'antd';
+import { Button, Dropdown, Menu, message } from 'antd';
 import React, { useContext } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/UserContext';
@@ -15,6 +15,7 @@ const Navigation: React.FC = () => {
     const ProfileButton = (user: User) => {
         const onLogoutClick = () => {
             authContext.logout();
+            message.info("Sie wurden ausgeloggt", 2);
             navigate(AppRoutes.Main.Path);
         }
         const profileDropdown = (

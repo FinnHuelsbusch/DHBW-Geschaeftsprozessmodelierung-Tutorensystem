@@ -1,6 +1,5 @@
-import { message } from 'antd';
-import { ok } from 'assert';
 import axios from 'axios';
+import moment from 'moment';
 import { RequestError } from '../types/RequestError';
 import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
@@ -23,12 +22,31 @@ export const ping = (): Promise<string> => {
         .then(res => res.data);
 }
 
-const applyJwt = (jwt: string) => {
-    // do not persist jwt beyond the browser session
-    api.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+export const applyUserLogin = (user: User, saveToLocalStorage: boolean = false) => {
+    if (saveToLocalStorage) {
+        localStorage.setItem("user", JSON.stringify(user));
+    }
+    api.defaults.headers.common['Authorization'] = `Bearer ${user.jwt}`;
 }
 
-export const login = (email: string, password: string): Promise<User> => {
+export const retrieveUserLocalStorage = (): User | undefined => {
+    const userString = localStorage.getItem("user");
+    if (userString) {
+        return JSON.parse(userString) as User;
+    }
+}
+
+export const isUserLoginExpired = (loginExpirationDate: Date) => {
+    return moment(loginExpirationDate).isBefore(moment.now());
+}
+
+export const removeUserLogin = () => {
+    localStorage.removeItem("user");
+    api.defaults.headers.common['Authorization'] = "";
+}
+
+
+export const login = (email: string, password: string, remember: boolean = false): Promise<User> => {
     return api.post('/authentication/login',
         {
             email: email.trim(),
@@ -42,7 +60,6 @@ export const login = (email: string, password: string): Promise<User> => {
                 jwt: data.token,
                 loginExpirationDate: data.expirationDate
             } as User;
-            applyJwt(user.jwt);
             return user;
         });
 }
@@ -75,7 +92,6 @@ export const verifyAccount = (hash: string | null, email: string | null): Promis
                 jwt: data.token,
                 loginExpirationDate: data.expirationDate
             } as User;
-            applyJwt(user.jwt);
             return user;
         });
 }
