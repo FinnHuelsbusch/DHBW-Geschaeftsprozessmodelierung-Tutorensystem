@@ -3,7 +3,7 @@ import { useForm } from "antd/lib/form/Form";
 import { useState } from "react";
 import { createTutorialRequest } from "../../api/api";
 import { TutorialRequest } from "../../types/Tutorial";
-import { validateMessages} from "../../utils/messages";
+import { validateMessages} from "../../utils/Messages";
 
 interface Props {
     isModalVisible: boolean,
