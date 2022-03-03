@@ -7,7 +7,7 @@ import 'moment/locale/de'
 import { useState } from "react";
 import { createTutorialOffer } from "../../api/api";
 import { TutorialOffer } from "../../types/Tutorial";
-import { validateMessages} from "../../utils/messages";
+import { validateMessages} from "../../utils/Messages";
 
 
 
@@ -65,7 +65,6 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     form={form}
                     labelCol={{ span: 5 }}
                     wrapperCol={{ span: 17 }}
-                    validateMessages={validateMessages}
                 >
 
                     <Form.Item
