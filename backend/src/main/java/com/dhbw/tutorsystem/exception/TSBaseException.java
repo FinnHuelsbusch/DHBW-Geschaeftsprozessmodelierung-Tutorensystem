@@ -5,7 +5,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import lombok.Getter;
 
-public class TSBaseException extends ResponseStatusException {
+public abstract class TSBaseException extends ResponseStatusException {
 
     @Getter
     private final TSErrorCode errorCode;

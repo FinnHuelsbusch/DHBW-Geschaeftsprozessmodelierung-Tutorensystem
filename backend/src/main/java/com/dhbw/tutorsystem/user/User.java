@@ -103,4 +103,9 @@ public class User {
         return StringUtils.isNotBlank(this.email) && Pattern.matches(directorMailRegex, this.email);
     }
 
+    public static boolean isValidEmail(String email) {
+        return StringUtils.isNotBlank(email)
+                && (Pattern.matches(directorMailRegex, email) || Pattern.matches(studentMailRegex, email));
+    }
+
 }

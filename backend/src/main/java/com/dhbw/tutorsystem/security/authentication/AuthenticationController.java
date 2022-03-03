@@ -1,7 +1,8 @@
 package com.dhbw.tutorsystem.security.authentication;
 
+import com.dhbw.tutorsystem.exception.TSBaseException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
-import com.dhbw.tutorsystem.exception.TSServerError;
+import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.role.ERole;
@@ -15,6 +16,7 @@ import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundExcept
 import com.dhbw.tutorsystem.security.authentication.exception.UserAlreadyEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
 import com.dhbw.tutorsystem.security.authentication.exception.HashGenerationException;
+import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
 import com.dhbw.tutorsystem.security.authentication.payload.LoginRequest;
@@ -110,6 +112,9 @@ public class AuthenticationController {
     })
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        if (!User.isValidEmail(registerRequest.getEmail())) {
+            throw new InvalidEmailException();
+        }
         // check for duplicate registration, then send mail and update or save user
         Optional<User> optionalUser = userRepository.findByEmail(registerRequest.getEmail());
         if (optionalUser.isPresent()) {
@@ -127,7 +132,7 @@ public class AuthenticationController {
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction());
                 } catch (HashGenerationException | MailSendException e) {
-                    throw e;
+                    throw new TSInternalServerException();
                 }
                 user = userRepository.save(user);
             }
@@ -143,6 +148,7 @@ public class AuthenticationController {
             } else if (user.isDirectorMail()) {
                 role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
             }
+            // role might not be available in DB
             if (role.isEmpty()) {
                 throw new RoleNotFoundException();
             }
@@ -152,7 +158,7 @@ public class AuthenticationController {
             try {
                 sendRegisterMail(user.getEmail(), user.getLastPasswordAction());
             } catch (HashGenerationException | MailSendException e) {
-                throw e;
+                throw new TSInternalServerException();
             }
             user = userRepository.save(user);
         }
@@ -185,7 +191,7 @@ public class AuthenticationController {
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
         } else {
-            throw new InvalidHashException();
+            throw new TSInternalServerException();
         }
     }
 
@@ -215,7 +221,7 @@ public class AuthenticationController {
             user.setLastPasswordAction(LocalDateTime.now());
             userRepository.save(user);
         } catch (HashGenerationException | MailSendException e) {
-            throw e;
+            throw new TSInternalServerException();
         }
         return ResponseEntity.ok(null);
     }
@@ -230,8 +236,9 @@ public class AuthenticationController {
     public ResponseEntity<JwtResponse> resetUserPassword(
             @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
         Optional<User> optionalUser = userRepository.findByEmail(resetPasswordRequest.getEmail());
-        if (optionalUser.isEmpty() || optionalUser.get().isEnabled()) {
-            throw new UserNotFoundException();
+        // not-enabled users should follow the register email link first
+        if (optionalUser.isEmpty() || !optionalUser.get().isEnabled()) {
+            throw new TSInternalServerException();
         }
         User user = optionalUser.get();
         if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(), user.getLastPasswordAction())) {
@@ -242,7 +249,7 @@ public class AuthenticationController {
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
         } else {
-            throw new InvalidHashException();
+            throw new TSInternalServerException();
         }
     }
 

@@ -31,16 +31,11 @@ public class EmailSenderService {
     }
 
     @Async
-    public void sendEmail(SimpleMailMessage email) {
+    private void sendMimeMessage(MimeMessage email) {
         javaMailSender.send(email);
     }
 
-    @Async
-    public void sendMimeMessage(MimeMessage email) {
-        javaMailSender.send(email);
-    }
-
-    public MimeMessage getMimeMessage() {
+    private MimeMessage getMimeMessage() {
         return javaMailSender.createMimeMessage();
     }
 
