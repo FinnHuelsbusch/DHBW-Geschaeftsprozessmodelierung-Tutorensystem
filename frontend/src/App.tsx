@@ -14,9 +14,12 @@ import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom
 import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext } from './context/UserContext';
+
 import Settings from './components/settings/Settings';
 import Register from './components/register/Register';
 import VerifyAccount from './components/verify/VerifyAccount';
+import { validateMessages } from './utils/Messages';
+
 
 const App: React.FC = () => {
 
@@ -54,6 +57,7 @@ const App: React.FC = () => {
             <div className="site-layout-content">
               <Outlet />
             </div>
+
 
           </ConfigProvider>
         </Content>
