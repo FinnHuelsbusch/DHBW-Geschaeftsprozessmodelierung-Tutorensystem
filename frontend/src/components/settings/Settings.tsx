@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
 import { Course } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
+import EmailFormInput from '../inputs/EmailFormInput';
 
 const Settings: React.FC = () => {
 
@@ -47,14 +48,7 @@ const Settings: React.FC = () => {
                 labelCol={{ span: 8 }}
                 initialValues={{ email: authContext.loggedUser?.email }}
                 wrapperCol={{ span: 10 }}>
-                <Form.Item
-                    label="E-Mail"
-                    name="email">
-                    <Input
-                        disabled
-                        style={{ color: 'gray' }}
-                        contentEditable={true} />
-                </Form.Item>
+                <EmailFormInput disabled />
                 <Form.Item
                     label="Passwort">
                     <Button type="default" onClick={e => setIsChangePasswordModalVisible(true)}>

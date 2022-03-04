@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRequestError, login, requestPasswordReset, resetPassword } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
+import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
 
 
@@ -31,7 +32,8 @@ const Login: React.FC = () => {
                     message.success("Login erfolgreich", 2);
                     navigate(AppRoutes.Main.Path);
                 }).catch(err => {
-                    message.error("Login fehlgeschlagen");
+                    const reqErr = getRequestError(err);
+                    message.error(getErrorMessageString(reqErr.errorCode));
                     setLoading(false);
                 });
         };
@@ -42,7 +44,7 @@ const Login: React.FC = () => {
                 wrapperCol={{ span: 10 }}
                 form={form}
                 onFinish={onSubmit}>
-                <EmailFormInput />
+                <EmailFormInput required />
                 <Form.Item
                     label="Passwort"
                     name="password"
@@ -79,14 +81,16 @@ const Login: React.FC = () => {
         const [form] = useForm();
 
         const onFormSubmit = (values: any) => {
-            console.log(values);
-            requestPasswordReset(values.email)
+            setLoading(true);
+            requestPasswordReset(values.email, values.newPassword)
                 .then(res => {
-                    message.success("E-Mail wurde zugesendet");
                     setShowForgotPasswordModal(false);
+                    setLoading(false);
+                    message.success("E-Mail wurde zugesendet", 2);
                 }, err => {
                     const reqErr = getRequestError(err);
-                    message.error(`${reqErr.reason}`);
+                    setLoading(false);
+                    message.error(getErrorMessageString(reqErr.errorCode));
                 });
         }
 
@@ -96,7 +100,7 @@ const Login: React.FC = () => {
                 visible={showForgotPasswordModal}
                 onCancel={e => setShowForgotPasswordModal(false)}
                 footer={[
-                    <Button type='primary' onClick={e => form.submit()}>
+                    <Button type='primary' onClick={e => form.submit()} loading={loading}>
                         Passwort zurücksetzen
                     </Button>
                 ]}
@@ -108,10 +112,16 @@ const Login: React.FC = () => {
                     wrapperCol={{ span: 14 }}
                     onFinish={onFormSubmit}>
                     <Paragraph>
-                        Geben Sie ihre E-Mail Addresse an, um für Ihr bestehendes
-                        Konto ein neues Passwort zu erhalten.
+                        Geben Sie die E-Mail Addresse ihres bestehenden Kontos und ein neues Passwort an.
+                        Folgen Sie dem Prozess in der E-Mail, die ihnen anschließend zugesendet wird.
                     </Paragraph>
-                    <EmailFormInput />
+                    <EmailFormInput required disabled={loading} />
+                    <Form.Item
+                        label="Neues Passwort"
+                        name="newPassword"
+                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
+                        <Input.Password disabled={loading} />
+                    </Form.Item>
                 </Form>
             </Modal>
         )

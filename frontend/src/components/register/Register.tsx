@@ -1,4 +1,6 @@
 import { Button, Divider, Form, Input, message, Result, } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
+import { ValidateStatus } from 'antd/lib/form/FormItem';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
@@ -6,15 +8,35 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRequestError, register } from '../../api/api';
 import { AppRoutes } from '../../types/AppRoutes';
+import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
 
 const Register: React.FC = () => {
 
     const navigate = useNavigate();
+    const [form] = useForm();
     const [loading, setLoading] = useState(false);
     const [showRegisterMessage, setShowRegisterMessage] = useState(false);
 
-    const onRegister = (values: any) => {
+    const passwordsMatch = (password: string, passwordConfirm: string): boolean => {
+        return (
+            password != null && password.trim() !== ""
+            && passwordConfirm != null && passwordConfirm === password
+        );
+    };
+
+    const onSubmit = (values: any) => {
+        if (!passwordsMatch(values.password, values.passwordConfirm)) {
+            setPasswordFieldsInfo({
+                validateStatus: 'error',
+                message: 'Passwörter stimmen nicht überein'
+            });
+        } else {
+            setPasswordFieldsInfo({
+                validateStatus: 'success',
+                message: undefined
+            });
+        }
         setLoading(true);
         register(values.email, values.password)
             .then(res => {
@@ -22,30 +44,67 @@ const Register: React.FC = () => {
                 setShowRegisterMessage(true);
             }, err => {
                 const reqErr = getRequestError(err);
-                message.error(`${reqErr.reason}`);
+                message.error(getErrorMessageString(reqErr.errorCode));
                 setLoading(false);
             });
     };
 
+    const validatePassword = (rule: any, value: string, callback: any) => {
+        if (!value || value === "") {
+            callback("Pflichtfeld");
+        } else if (!passwordsMatch(value, form.getFieldValue("passwordConfirm"))) {
+            callback("Passwörter stimmen nicht überein");
+        } else {
+            callback();
+        }
+    }
+
+    const validatePasswordConfirm = (rule: any, value: string, callback: any) => {
+        if (!value || value === "") {
+            callback("Pflichtfeld");
+        } else if (!passwordsMatch(value, form.getFieldValue("password"))) {
+            callback("Passwörter stimmen nicht überein");
+        } else {
+            callback();
+        }
+    }
+
+    const [passwordFieldsInfo, setPasswordFieldsInfo] = useState<{
+        validateStatus: ValidateStatus | undefined,
+        message: string | undefined
+    }>({
+        validateStatus: undefined,
+        message: undefined
+    });
+
     const UserPasswordForm = () => (
         <Form
             name="login"
+            form={form}
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 10 }}
-            onFinish={onRegister}>
-            <EmailFormInput />
+            onFinish={onSubmit}>
+            <EmailFormInput required disabled={loading} />
             <Form.Item
                 label="Passwort"
                 name="password"
-                rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                <Input.Password />
+                validateStatus={passwordFieldsInfo.validateStatus}
+                help={passwordFieldsInfo.message}
+                rules={[{ required: true }]}>
+                <Input.Password
+                    disabled={loading}
+                />
             </Form.Item>
 
             <Form.Item
-                label="Passwort (bestätigen)"
-                name="password"
-                rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                <Input.Password />
+                label="Passwort wiederholen"
+                name="passwordConfirm"
+                validateStatus={passwordFieldsInfo.validateStatus}
+                help={passwordFieldsInfo.message}
+                rules={[{ required: true }]}>
+                <Input.Password
+                    disabled={loading}
+                />
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                 <Button loading={loading} htmlType='submit' type='primary'>

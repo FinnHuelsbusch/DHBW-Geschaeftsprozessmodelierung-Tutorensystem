@@ -1,6 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
-import { RequestError } from '../types/RequestError';
+import { ErrorCode, RequestError } from '../types/RequestError';
 import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 
@@ -12,8 +12,11 @@ const api = axios.create({
 
 export const getRequestError = (err: any): RequestError => {
     return {
-        statusCode: err.response.status,
-        reason: err.response.data
+        status: err.response.data.status,
+        message: err.response.data.message,
+        timestamp: err.response.data.timestamp,
+        // map error code string to ErrorCode enum
+        errorCode: ErrorCode[err.response.data.errorCode as keyof typeof ErrorCode]
     } as RequestError;
 };
 
@@ -75,7 +78,7 @@ export const register = (email: string, password: string): Promise<string> => {
         });
 }
 
-export const verifyAccount = (hash: string | null, email: string | null): Promise<User> => {
+export const enableAccount = (hash: string | null, email: string | null): Promise<User> => {
     if (!hash || !email) return Promise.reject();
     return api.post('/authentication/enableAccount', {
         // + signs will be removed from urlParams but must be part of the hash
@@ -96,9 +99,32 @@ export const verifyAccount = (hash: string | null, email: string | null): Promis
         });
 }
 
-export const requestPasswordReset = (email: string): Promise<string> => {
+export const performPasswordReset = (hash: string | null, email: string | null, newPassword: string): Promise<User> => {
+    if (!hash || !email || !newPassword) return Promise.reject();
+    return api.post('/authentication/performPasswordReset', {
+        // + signs will be removed from urlParams but must be part of the hash
+        // so re-add them here
+        hash: hash.replaceAll(" ", "+"),
+        email: email,
+        newPassword: newPassword
+    })
+        .then(res => {
+            const data = res.data;
+            if (!res.data.token) Promise.reject();
+            const user = {
+                email: data.email,
+                roles: data.roles,
+                jwt: data.token,
+                loginExpirationDate: data.expirationDate
+            } as User;
+            return user;
+        });
+}
+
+export const requestPasswordReset = (email: string, newPassword: string): Promise<string> => {
     return api.post('/authentication/requestPasswordReset', {
-        email: email.trim()
+        email: email.trim(),
+        newPassword: newPassword
     }).then(res => "ok")
 }
 

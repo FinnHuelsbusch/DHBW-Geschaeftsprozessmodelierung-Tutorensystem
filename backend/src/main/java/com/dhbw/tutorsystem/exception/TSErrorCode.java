@@ -1,7 +1,7 @@
 package com.dhbw.tutorsystem.exception;
 
 /*
-    Please keep the enum values in sync with possible exceptions.
+    Please keep the enum values in sync with exception classes AND with Frontend ErrorCodes and handling!
     When inserting a new TSErrorCode, please insert it in alphabetical order.
     To sort the list manually in VSCode, use CTRL+P, type '>', type 'Sort Lines Ascending'.
 */
@@ -9,12 +9,10 @@ public enum TSErrorCode {
     ACCOUNT_NOT_ENABLED,
     BAD_REQUEST,
     EMAIL_ALREADY_EXISTS,
-    HASH_GENERATION_EXCEPTION,
     INTERNAL_SERVER_ERROR,
     INVALID_EMAIL,
     LAST_PASSWORD_ACTION_TOO_RECENT,
     LOGIN_FAILED,
-    MAIL_SENDING_FAILED,
     ROLE_NOT_FOUND,
     USER_ALREADY_ENABLED,
     USER_NOT_FOUND,

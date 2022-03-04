@@ -20,6 +20,6 @@ public class ResetPasswordRequest {
     @NotBlank
     @Getter
     @Setter
-    private String password;
+    private String newPassword;
 
 }

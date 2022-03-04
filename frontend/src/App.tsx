@@ -16,8 +16,9 @@ import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext, UserContext } from './context/UserContext';
 import Settings from './components/settings/Settings';
 import Register from './components/register/Register';
-import VerifyAccount from './components/verify/VerifyAccount';
+import VerifyRegistration from './components/verify/VerifyRegistration';
 import { applyUserLogin, isUserLoginExpired, removeUserLogin, retrieveUserLocalStorage } from './api/api';
+import VerifyResetPassword from './components/verify/VerifyResetPassword';
 
 const App: React.FC = () => {
 
@@ -119,7 +120,9 @@ const App: React.FC = () => {
                   </ProtectedRoute>} />
             </Route>
 
-            <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
+            <Route path={AppRoutes.VerifyRegistration} element={<VerifyRegistration />} />
+            <Route path={AppRoutes.VerifyResetPassword} element={<VerifyResetPassword />} />
+
             <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
 
             <Route path="*" element={<Unauthorized />} />

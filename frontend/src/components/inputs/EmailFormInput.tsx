@@ -1,8 +1,12 @@
 import { Form, Input } from 'antd';
 import React from 'react';
 
+type Props = {
+    disabled?: boolean,
+    required?: boolean
+}
 
-const EmailFormInput: React.FC = () => {
+const EmailFormInput: React.FC<Props> = ({ disabled = false, required = false }) => {
 
     const mailPatternStudent = /^s[0-9]{6}@student\.dhbw-mannheim\.de$/g;
     const mailPatternOthers = /^[a-z]*\.[a-z]*@dhbw-mannheim\.de$/g;
@@ -21,15 +25,20 @@ const EmailFormInput: React.FC = () => {
         }
     };
 
+    const style = { color: disabled ? 'gray' : 'initial' };
+
     return (
         <Form.Item
             label="E-Mail"
             name="email"
             rules={[{
-                required: true,
+                required: required,
                 validator: validate
             }]}>
-            <Input />
+            <Input
+                disabled={disabled}
+                style={style}
+            />
         </Form.Item>
     );
 }

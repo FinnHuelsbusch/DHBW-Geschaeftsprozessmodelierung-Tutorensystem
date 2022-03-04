@@ -9,12 +9,10 @@ import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
-import com.dhbw.tutorsystem.security.authentication.exception.MailSendException;
 import com.dhbw.tutorsystem.security.authentication.exception.AccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
 import com.dhbw.tutorsystem.security.authentication.exception.UserAlreadyEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
-import com.dhbw.tutorsystem.security.authentication.exception.HashGenerationException;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
@@ -29,6 +27,7 @@ import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -57,16 +56,20 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/authentication")
 public class AuthenticationController {
+
+    @Value("${backend.app.minutesBetweenPasswordActions}")
+    private int minimumMinutesBetweenPasswordActions;
+
     final AuthenticationManager authenticationManager;
     final UserRepository userRepository;
     final RoleRepository roleRepository;
@@ -131,7 +134,8 @@ public class AuthenticationController {
             if (user.isEnabled()) {
                 throw new EmailAlreadyExistsException();
             }
-            if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
+            if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+                    .toMinutes() < minimumMinutesBetweenPasswordActions) {
                 throw new LastPasswordActionTooRecentException();
             } else {
                 // existing non-enabled user re-registered after 15minutes: re-send email and
@@ -139,7 +143,7 @@ public class AuthenticationController {
                 user.setLastPasswordAction(LocalDateTime.now());
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
-                } catch (HashGenerationException | MailSendException e) {
+                } catch (NoSuchAlgorithmException | MessagingException e) {
                     throw new TSInternalServerException();
                 }
                 user = userRepository.save(user);
@@ -166,7 +170,7 @@ public class AuthenticationController {
             user.setLastPasswordAction(LocalDateTime.now());
             try {
                 sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), true);
-            } catch (HashGenerationException | MailSendException e) {
+            } catch (NoSuchAlgorithmException | MessagingException e) {
                 throw new TSInternalServerException();
             }
             user = userRepository.save(user);
@@ -191,7 +195,7 @@ public class AuthenticationController {
             throw new UserAlreadyEnabledException();
         }
         User user = optionalUser.get();
-        if (isHashClaimValid(verifyRequest.getHash(), user.getEmail(), user.getLastPasswordAction())) {
+        if (isHashClaimValid(verifyRequest.getHash(), user.getEmail(), user.getLastPasswordAction().toString())) {
             user.setEnabled(true);
             user.setLastPasswordAction(LocalDateTime.now());
             user = userRepository.save(user);
@@ -213,7 +217,8 @@ public class AuthenticationController {
     @PostMapping("/requestPasswordReset")
     public ResponseEntity<?> resetPasswordRequest(
             @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
-        // find user and send hash via email for password reset
+        // find user, create hash of email/timestamp/newPassword and send it to the
+        // email address
         Optional<User> optionalUser = userRepository.findByEmail(changePasswordRequest.getEmail());
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException();
@@ -222,16 +227,18 @@ public class AuthenticationController {
         if (!user.isEnabled()) {
             throw new AccountNotEnabledException();
         }
-        if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
+        if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+                .toMinutes() < minimumMinutesBetweenPasswordActions) {
             throw new LastPasswordActionTooRecentException();
         }
         try {
-            sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction(), changePasswordRequest.getNewPassword());
+            sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction(),
+                    changePasswordRequest.getNewPassword());
             user.setLastPasswordAction(LocalDateTime.now());
-            user.setTempPassword(changePasswordRequest.getNewPassword());
+            user.setTempPassword(encoder.encode(changePasswordRequest.getNewPassword()));
             userRepository.save(user);
             return ResponseEntity.ok(null);
-        } catch (HashGenerationException | MailSendException e) {
+        } catch (NoSuchAlgorithmException | MessagingException e) {
             throw new TSInternalServerException();
         }
     }
@@ -242,18 +249,27 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Password was reset successfully. User will be logged in directly using token in response."),
             @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
-    @PostMapping("/resetPassword")
+    @PostMapping("/performPasswordReset")
     public ResponseEntity<JwtResponse> resetUserPassword(
             @Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
         Optional<User> optionalUser = userRepository.findByEmail(resetPasswordRequest.getEmail());
-        // not-enabled users should follow the register email link first
-        if (optionalUser.isEmpty() || !optionalUser.get().isEnabled()) {
+        // not-enabled users should follow the register email link first, so throw
+        // exception
+        if (optionalUser.isEmpty()) {
             throw new TSInternalServerException();
         }
         User user = optionalUser.get();
-        if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(), user.getLastPasswordAction())) {
-            user.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
+        if(!user.isEnabled() || user.getTempPassword() == null) {
+            throw new TSInternalServerException();
+        }
+        if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(),
+                user.getLastPasswordAction().toString(), resetPasswordRequest.getNewPassword())) {
+            // set new encoded password, update last action, delete temp password and
+            // directly login user
+            user.setPassword(encoder.encode(resetPasswordRequest.getNewPassword()));
             user.setLastPasswordAction(LocalDateTime.now());
+            user.setTempPassword(null);
+            user = userRepository.save(user);
             String jwt = jwtUtils.generateJwtTokenFromUsername(user.getEmail());
             return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
@@ -264,58 +280,53 @@ public class AuthenticationController {
     }
 
     // @PostMapping("/changePassword")
-    // public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest ) {
-    //     // find user by email and change the password, if user exists and is enabled
-    //     Optional<User> optionalUser = userRepository.findByEmail(changePasswordRequest.getEmail());
-    //     if (optionalUser.isEmpty()) {
-    //         throw new UserNotFoundException();
-    //     }
-    //     User user = optionalUser.get();
-    //     if (!user.isEnabled()) {
-    //         throw new AccountNotEnabledException();
-    //     }
-    //     if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
-    //         throw new LastPasswordActionTooRecentException();
-    //     }
-    //     return ResponseEntity.ok(null);
+    // public ResponseEntity<Void> changePassword(@Valid @RequestBody
+    // ChangePasswordRequest changePasswordRequest ) {
+    // // find user by email and change the password, if user exists and is enabled
+    // Optional<User> optionalUser =
+    // userRepository.findByEmail(changePasswordRequest.getEmail());
+    // if (optionalUser.isEmpty()) {
+    // throw new UserNotFoundException();
+    // }
+    // User user = optionalUser.get();
+    // if (!user.isEnabled()) {
+    // throw new AccountNotEnabledException();
+    // }
+    // if (Duration.between(user.getLastPasswordAction(),
+    // LocalDateTime.now()).toMinutes() < 15) {
+    // throw new LastPasswordActionTooRecentException();
+    // }
+    // return ResponseEntity.ok(null);
     // }
 
     private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
-            throws HashGenerationException, MailSendException {
+            throws NoSuchAlgorithmException, MessagingException {
         try {
-            String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
+            String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString());
             emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of(
                     "hashBase64", hashBase64,
                     "isFirstRegisterMail", isFirstRegisterMail));
         } catch (NoSuchAlgorithmException | MessagingException e) {
             e.printStackTrace();
-            if (e instanceof NoSuchAlgorithmException) {
-                throw new HashGenerationException();
-            } else if (e instanceof MessagingException) {
-                throw new MailSendException();
-            }
+            throw e;
         }
     }
 
     private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword)
-            throws HashGenerationException, MailSendException {
+            throws NoSuchAlgorithmException, MessagingException {
         try {
-            String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
+            String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString(), newPassword);
             emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of(
                     "hashBase64", hashBase64));
         } catch (NoSuchAlgorithmException | MessagingException e) {
             e.printStackTrace();
-            if (e instanceof NoSuchAlgorithmException) {
-                throw new HashGenerationException();
-            } else if (e instanceof MessagingException) {
-                throw new MailSendException();
-            }
+            throw e;
         }
     }
 
-    public boolean isHashClaimValid(String hashClaim, String userEmail, LocalDateTime userLastPasswordAction) {
+    public boolean isHashClaimValid(String hashClaim, String... rawComponents) {
         try {
-            String hashBase64Expected = createBase64VerificationHash(userEmail, userLastPasswordAction);
+            String hashBase64Expected = createBase64VerificationHash(rawComponents);
             return StringUtils.equals(hashBase64Expected, hashClaim);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -323,10 +334,10 @@ public class AuthenticationController {
         }
     }
 
-    private String createBase64VerificationHash(String email, LocalDateTime timestamp) throws NoSuchAlgorithmException {
-        String text = email + timestamp;
+    private String createBase64VerificationHash(String... rawComponents) throws NoSuchAlgorithmException {
+        String rawText = Stream.of(rawComponents).reduce("", (s1, s2) -> s1 + s2);
         byte[] hash = MessageDigest.getInstance("SHA-256").digest(
-                text.getBytes(StandardCharsets.UTF_8));
+                rawText.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(hash);
     }
 
