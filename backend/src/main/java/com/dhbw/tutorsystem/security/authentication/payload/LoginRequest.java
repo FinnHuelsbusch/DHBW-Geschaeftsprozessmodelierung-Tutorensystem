@@ -1,20 +1,19 @@
-package com.dhbw.tutorsystem.security.authentication;
+package com.dhbw.tutorsystem.security.authentication.payload;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
-public class SignupRequest {
-
+@AllArgsConstructor
+public class LoginRequest {
     @NotBlank
     @Getter
     @Setter
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 40)
     @Getter
     @Setter
     private String password;

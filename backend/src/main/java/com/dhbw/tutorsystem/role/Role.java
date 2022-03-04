@@ -1,5 +1,11 @@
 package com.dhbw.tutorsystem.role;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import javax.persistence.*;
 
 @Entity
@@ -33,5 +39,9 @@ public class Role {
 
     public void setName(ERole name) {
         this.name = name;
+    }
+
+    public static List<String> getRolesString(Set<Role> roles) {
+        return roles.stream().map(role -> role.getName().name()).collect(Collectors.toList());
     }
 }

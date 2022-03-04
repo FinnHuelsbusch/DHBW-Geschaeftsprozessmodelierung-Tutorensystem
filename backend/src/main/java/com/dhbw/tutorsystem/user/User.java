@@ -1,7 +1,10 @@
 package com.dhbw.tutorsystem.user;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,9 +29,9 @@ import lombok.Setter;
 @Table(name = "users")
 public class User {
     @JsonIgnore
-    private static final String studentMailEnding = "@student.dhbw-mannheim.de";
+    private static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
     @JsonIgnore
-    private static final String directorMailEnding = "@dhbw-mannheim.de";
+    private static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +55,14 @@ public class User {
     @Getter
     @Setter
     private String email;
+
+    @Getter
+    @Setter
+    private LocalDateTime lastPasswordAction;
+
+    @Getter
+    @Setter
+    private boolean enabled;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
@@ -85,11 +96,16 @@ public class User {
     }
 
     public boolean isStudentMail() {
-        return StringUtils.isNotBlank(this.email) && this.email.endsWith(studentMailEnding);
+        return StringUtils.isNotBlank(this.email) && Pattern.matches(studentMailRegex, this.email);
     }
 
     public boolean isDirectorMail() {
-        return StringUtils.isNotBlank(this.email) && this.email.endsWith(directorMailEnding);
+        return StringUtils.isNotBlank(this.email) && Pattern.matches(directorMailRegex, this.email);
+    }
+
+    public static boolean isValidEmail(String email) {
+        return StringUtils.isNotBlank(email)
+                && (Pattern.matches(directorMailRegex, email) || Pattern.matches(studentMailRegex, email));
     }
 
 }
