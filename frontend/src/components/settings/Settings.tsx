@@ -1,10 +1,13 @@
-import { Button, Divider, Form, Input, Modal, Select } from 'antd';
+import { Button, Divider, Form, Input, Modal, Select, Tooltip } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
 import { Course } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
 import EmailFormInput from '../inputs/EmailFormInput';
+import PasswordWithConfirm from '../register/PasswordWithConfirm';
+import ChangePasswordModal from './PasswordChangeModal';
+import { UserRole } from '../../types/User';
 
 const Settings: React.FC = () => {
 
@@ -28,15 +31,7 @@ const Settings: React.FC = () => {
     ];
 
     const authContext = useContext(AuthContext);
-    const [isChangePasswordModalVisible, setIsChangePasswordModalVisible] = useState(false);
-
-    const onChangePassword = () => {
-
-    };
-
-    const onChangePasswordCancel = () => {
-        setIsChangePasswordModalVisible(false);
-    };
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
     return (
         <>
@@ -51,9 +46,17 @@ const Settings: React.FC = () => {
                 <EmailFormInput disabled />
                 <Form.Item
                     label="Passwort">
-                    <Button type="default" onClick={e => setIsChangePasswordModalVisible(true)}>
-                        <LockOutlined />Passwort ändern
-                    </Button>
+                    <Tooltip
+                        title="Administratoren dürfen ihr Passwort nicht selbst ändern"
+                        visible={authContext.hasRoles([UserRole.ROLE_ADMIN]) ? undefined : false}
+                    >
+                        <Button
+                            type="default"
+                            onClick={e => setShowChangePasswordModal(true)}
+                            disabled={authContext.hasRoles([UserRole.ROLE_ADMIN])}>
+                            <LockOutlined />Passwort ändern
+                        </Button>
+                    </Tooltip>
                 </Form.Item>
                 <Divider />
                 <Form.Item
@@ -90,30 +93,9 @@ const Settings: React.FC = () => {
                 </Form.Item>
             </Form>
 
-            <Modal
-                title="Passwort ändern"
-                visible={isChangePasswordModalVisible}
-                onOk={onChangePassword}
-                onCancel={onChangePasswordCancel}
-                width={800}>
-                <Form
-                    name="login"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 14 }}>
-                    <Form.Item
-                        label="Neues Passwort"
-                        name="password"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input.Password />
-                    </Form.Item>
-                    <Form.Item
-                        label="Neues Passwort (bestätigen)"
-                        name="password"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input.Password />
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <ChangePasswordModal
+                visible={showChangePasswordModal}
+                onClose={() => setShowChangePasswordModal(false)} />
         </>
     );
 }

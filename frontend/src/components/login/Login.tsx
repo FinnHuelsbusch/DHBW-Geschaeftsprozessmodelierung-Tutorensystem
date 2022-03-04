@@ -1,10 +1,9 @@
-import { Button, Checkbox, Divider, Form, Input, message, Modal, } from 'antd';
+import { Button, Checkbox, Divider, Form, Input, message, } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
-import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getRequestError, login, requestPasswordReset, resetPassword } from '../../api/api';
+import { getRequestError, login } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.scss';
-import { ConfigProvider, Empty, Layout, message } from 'antd';
+import { ConfigProvider, Empty, Layout, message, Result } from 'antd';
 import { Content, Footer, Header } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation/Navigation';
 import ProtectedRoute from './components/routes/ProtectedRoute';
@@ -12,7 +12,7 @@ import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
 import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
-import { CopyrightOutlined } from '@ant-design/icons';
+import { CopyrightOutlined, LoadingOutlined } from '@ant-design/icons';
 import { AuthContext, UserContext } from './context/UserContext';
 import Settings from './components/settings/Settings';
 import Register from './components/register/Register';
@@ -20,8 +20,10 @@ import VerifyRegistration from './components/verify/VerifyRegistration';
 import { applyUserLogin, isUserLoginExpired, removeUserLogin, retrieveUserLocalStorage } from './api/api';
 import VerifyResetPassword from './components/verify/VerifyResetPassword';
 
+
 const App: React.FC = () => {
 
+  const [initialPageLoadComplete, setInitialPageLoadComplete] = useState(false);
   const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
 
   const UserContext: UserContext = {
@@ -46,8 +48,9 @@ const App: React.FC = () => {
     loggedUser: loggedUser
   };
 
+
   useEffect(() => {
-    // initial opening of page: log in user if login data was persisted
+    // initial opening of page: log in user if persisted
     const user = retrieveUserLocalStorage();
     if (user) {
       if (!user.jwt || isUserLoginExpired(user.loginExpirationDate)) {
@@ -58,7 +61,9 @@ const App: React.FC = () => {
         UserContext.login(user);
       }
     }
+    setInitialPageLoadComplete(true);
   }, []);
+
 
   const MainLayout = () => {
     return (
@@ -89,46 +94,53 @@ const App: React.FC = () => {
     );
   }
 
+  const MainContent = () => {
+    return (
+      <Router>
+        <Routes>
+          <Route path={AppRoutes.Main.Path} element={<MainLayout />}>
+            <Route path={AppRoutes.Main.Path} element={<Overview />} />
+            <Route path={AppRoutes.Main.Subroutes.Login} element={<Login />} />
+            <Route path={AppRoutes.Main.Subroutes.Register} element={<Register />} />
+            <Route
+              path={AppRoutes.Main.Subroutes.AdminOverview}
+              element={
+                <ProtectedRoute hasAccess={UserContext.hasRoles([UserRole.ROLE_ADMIN])}>
+                  <AdminOverview />
+                </ProtectedRoute>} />
+            <Route
+              path={AppRoutes.Main.Subroutes.DirectorOverview}
+              element={
+                <ProtectedRoute hasAccess={UserContext.hasRoles([UserRole.ROLE_DIRECTOR])}>
+                  <DirectorOverview />
+                </ProtectedRoute>} />
+            <Route
+              path={AppRoutes.Main.Subroutes.Settings}
+              element={
+                <ProtectedRoute hasAccess={loggedUser ? true : false}>
+                  <Settings />
+                </ProtectedRoute>} />
+          </Route>
+
+          <Route path={AppRoutes.VerifyRegistration} element={<VerifyRegistration />} />
+          <Route path={AppRoutes.VerifyResetPassword} element={<VerifyResetPassword />} />
+
+          <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
+
+          <Route path="*" element={<Unauthorized />} />
+        </Routes>
+      </Router>
+    );
+  }
+
   return (
     <div className="App">
-
       <AuthContext.Provider value={{ ...UserContext }}>
-
-        <Router >
-          <Routes>
-            <Route path={AppRoutes.Main.Path} element={<MainLayout />}>
-              <Route path={AppRoutes.Main.Path} element={<Overview />} />
-              <Route path={AppRoutes.Main.Subroutes.Login} element={<Login />} />
-              <Route path={AppRoutes.Main.Subroutes.Register} element={<Register />} />
-              <Route
-                path={AppRoutes.Main.Subroutes.AdminOverview}
-                element={
-                  <ProtectedRoute hasAccess={UserContext.hasRoles([UserRole.ROLE_ADMIN])}>
-                    <AdminOverview />
-                  </ProtectedRoute>} />
-              <Route
-                path={AppRoutes.Main.Subroutes.DirectorOverview}
-                element={
-                  <ProtectedRoute hasAccess={UserContext.hasRoles([UserRole.ROLE_DIRECTOR])}>
-                    <DirectorOverview />
-                  </ProtectedRoute>} />
-              <Route
-                path={AppRoutes.Main.Subroutes.Settings}
-                element={
-                  <ProtectedRoute hasAccess={loggedUser ? true : false}>
-                    <Settings />
-                  </ProtectedRoute>} />
-            </Route>
-
-            <Route path={AppRoutes.VerifyRegistration} element={<VerifyRegistration />} />
-            <Route path={AppRoutes.VerifyResetPassword} element={<VerifyResetPassword />} />
-
-            <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
-
-            <Route path="*" element={<Unauthorized />} />
-          </Routes>
-        </Router>
-
+        {initialPageLoadComplete ? <MainContent />
+          : <Result
+            icon={<LoadingOutlined />}>
+          </Result>
+        }
       </AuthContext.Provider>
     </div>
   );

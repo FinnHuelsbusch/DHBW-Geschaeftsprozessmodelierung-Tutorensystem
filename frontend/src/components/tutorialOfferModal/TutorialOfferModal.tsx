@@ -19,25 +19,24 @@ interface Props {
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
     const [loading, setLoading] = useState(false);
-    const [form] = useForm(); 
+    const [form] = useForm();
 
     const onFinish = (values: any) => {
         setLoading(true);
         createTutorialOffer({
-            description : values.description,
-            start: values.timerange[0].toDate(), 
+            description: values.description,
+            start: values.timerange[0].toDate(),
             end: values.timerange[1].toDate()
-        } as TutorialOffer).then( res => 
-            {
-                setLoading(false); 
-                message.success("Tutoriumsangebot erfolgreich erstellt."); 
-                setIsTutorialOfferModalVisible(false); 
-                form.resetFields()
-            }, err => {
-                setLoading(false); 
-                message.error("Tutoriumsangebot konnte nicht erstellt werden."); 
-            }
-            
+        } as TutorialOffer).then(res => {
+            setLoading(false);
+            message.success("Tutoriumsangebot erfolgreich erstellt.");
+            setIsTutorialOfferModalVisible(false);
+            form.resetFields()
+        }, err => {
+            setLoading(false);
+            message.error("Tutoriumsangebot konnte nicht erstellt werden.");
+        }
+
         )
     };
 
@@ -55,7 +54,11 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                 title={"Tutoriumsangebot erstellen"}
                 width={600}
                 footer={[
-                    <Button loading={loading} type="primary" onClick={e => form.submit()}>
+                    <Button
+                        loading={loading}
+                        type="primary"
+                        htmlType="submit"
+                        onClick={e => form.submit()}>
                         Absenden
                     </Button>
                 ]}
@@ -65,18 +68,18 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     form={form}
                     labelCol={{ span: 5 }}
                     wrapperCol={{ span: 17 }}
-                    
+
                 >
 
                     <Form.Item
                         label="Zeitraum"
                         name="timerange"
-                        
+
                     >
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
-                            
+
                         />
 
                     </Form.Item>

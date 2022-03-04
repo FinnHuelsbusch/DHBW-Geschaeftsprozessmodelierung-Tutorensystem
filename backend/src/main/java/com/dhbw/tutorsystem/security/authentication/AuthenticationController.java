@@ -18,6 +18,7 @@ import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundExcept
 import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
 import com.dhbw.tutorsystem.security.authentication.payload.LoginRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.RegisterRequest;
+import com.dhbw.tutorsystem.security.authentication.payload.RequestPasswordResetRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.ChangePasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.ResetPasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.VerifyRequest;
@@ -25,6 +26,7 @@ import com.dhbw.tutorsystem.security.jwt.JwtUtils;
 import com.dhbw.tutorsystem.security.services.UserDetailsImpl;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
+import com.dhbw.tutorsystem.user.UserService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,16 +78,18 @@ public class AuthenticationController {
     final JwtUtils jwtUtils;
     final PasswordEncoder encoder;
     final EmailSenderService emailSenderService;
+    final UserService userService;
 
     public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository,
             RoleRepository roleRepository, JwtUtils jwtUtils, PasswordEncoder encoder,
-            EmailSenderService emailSenderService) {
+            EmailSenderService emailSenderService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.jwtUtils = jwtUtils;
         this.encoder = encoder;
         this.emailSenderService = emailSenderService;
+        this.userService = userService;
     }
 
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
@@ -216,10 +220,10 @@ public class AuthenticationController {
     })
     @PostMapping("/requestPasswordReset")
     public ResponseEntity<?> resetPasswordRequest(
-            @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+            @Valid @RequestBody RequestPasswordResetRequest requestPasswordResetRequest) {
         // find user, create hash of email/timestamp/newPassword and send it to the
         // email address
-        Optional<User> optionalUser = userRepository.findByEmail(changePasswordRequest.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(requestPasswordResetRequest.getEmail());
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException();
         }
@@ -234,9 +238,9 @@ public class AuthenticationController {
         try {
             LocalDateTime newLastPasswordAction = LocalDateTime.now();
             sendResetPasswordMail(user.getEmail(), newLastPasswordAction,
-                    changePasswordRequest.getNewPassword());
+                    requestPasswordResetRequest.getNewPassword());
             user.setLastPasswordAction(newLastPasswordAction);
-            user.setTempPassword(encoder.encode(changePasswordRequest.getNewPassword()));
+            user.setTempPassword(encoder.encode(requestPasswordResetRequest.getNewPassword()));
             userRepository.save(user);
             return ResponseEntity.ok(null);
         } catch (NoSuchAlgorithmException | MessagingException e) {
@@ -260,7 +264,7 @@ public class AuthenticationController {
             throw new TSInternalServerException();
         }
         User user = optionalUser.get();
-        if(!user.isEnabled() || user.getTempPassword() == null) {
+        if (!user.isEnabled() || user.getTempPassword() == null) {
             throw new TSInternalServerException();
         }
         if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(),
@@ -280,25 +284,35 @@ public class AuthenticationController {
         }
     }
 
-    // @PostMapping("/changePassword")
-    // public ResponseEntity<Void> changePassword(@Valid @RequestBody
-    // ChangePasswordRequest changePasswordRequest ) {
-    // // find user by email and change the password, if user exists and is enabled
-    // Optional<User> optionalUser =
-    // userRepository.findByEmail(changePasswordRequest.getEmail());
-    // if (optionalUser.isEmpty()) {
-    // throw new UserNotFoundException();
-    // }
-    // User user = optionalUser.get();
-    // if (!user.isEnabled()) {
-    // throw new AccountNotEnabledException();
-    // }
-    // if (Duration.between(user.getLastPasswordAction(),
-    // LocalDateTime.now()).toMinutes() < 15) {
-    // throw new LastPasswordActionTooRecentException();
-    // }
-    // return ResponseEntity.ok(null);
-    // }
+    @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
+    @PostMapping("/changePassword")
+    public ResponseEntity<JwtResponse> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        // find user and change the password, then directly log in
+        User loggedUser = userService.getLoggedInUser();
+        if (loggedUser == null) {
+            throw new UserNotFoundException();
+        }
+        Optional<User> optionalUser = userRepository.findByEmail(loggedUser.getEmail());
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        User user = optionalUser.get();
+        if (!user.isEnabled()) {
+            throw new AccountNotEnabledException();
+        }
+        if (Duration.between(user.getLastPasswordAction(),
+                LocalDateTime.now()).toMinutes() < minimumMinutesBetweenPasswordActions) {
+            throw new LastPasswordActionTooRecentException();
+        }
+        // set new password and update user
+        user.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
+        user.setLastPasswordAction(LocalDateTime.now());
+        user = userRepository.save(user);
+        String jwt = jwtUtils.generateJwtTokenFromUsername(user.getEmail());
+        return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
+                jwtUtils.getExpirationDateFromJwtToken(jwt),
+                user.getEmail()));
+    }
 
     private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
             throws NoSuchAlgorithmException, MessagingException {

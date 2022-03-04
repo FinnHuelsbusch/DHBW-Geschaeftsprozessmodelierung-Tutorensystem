@@ -24,8 +24,8 @@ const ForgotPasswordModal: React.FC<Props> = ({ visible, onClose }) => {
                 message.success("E-Mail wurde zugesendet", 2);
                 cleanupAndClose();
             }, err => {
-                const reqErr = getRequestError(err);
                 setLoading(false);
+                const reqErr = getRequestError(err);
                 message.error(getErrorMessageString(reqErr.errorCode));
             });
     }
@@ -41,7 +41,11 @@ const ForgotPasswordModal: React.FC<Props> = ({ visible, onClose }) => {
             visible={visible}
             onCancel={e => cleanupAndClose()}
             footer={[
-                <Button type='primary' onClick={e => form.submit()} loading={loading}>
+                <Button
+                    type='primary'
+                    htmlType='submit'
+                    onClick={e => form.submit()}
+                    loading={loading}>
                     Passwort zurücksetzen
                 </Button>
             ]}

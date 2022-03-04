@@ -10,23 +10,10 @@ const api = axios.create({
     baseURL: backendUrl,
 });
 
-export const getRequestError = (err: any): RequestError => {
-    return {
-        status: err.response.data.status,
-        message: err.response.data.message,
-        timestamp: err.response.data.timestamp,
-        // map error code string to ErrorCode enum
-        errorCode: ErrorCode[err.response.data.errorCode as keyof typeof ErrorCode]
-    } as RequestError;
-};
-
-export const ping = (): Promise<string> => {
-    return api.get('/ping')
-        .then(res => res.data);
-}
 
 export const applyUserLogin = (user: User, saveToLocalStorage: boolean = false) => {
-    if (saveToLocalStorage) {
+    // persist login if method parameter says so, or if it was persisted previously (e.g. refresh case)
+    if (saveToLocalStorage || retrieveUserLocalStorage()) {
         localStorage.setItem("user", JSON.stringify(user));
     }
     api.defaults.headers.common['Authorization'] = `Bearer ${user.jwt}`;
@@ -48,6 +35,21 @@ export const removeUserLogin = () => {
     api.defaults.headers.common['Authorization'] = "";
 }
 
+
+export const getRequestError = (err: any): RequestError => {
+    return {
+        status: err.response.data.status,
+        message: err.response.data.message,
+        timestamp: err.response.data.timestamp,
+        // map error code string to ErrorCode enum
+        errorCode: ErrorCode[err.response.data.errorCode as keyof typeof ErrorCode]
+    } as RequestError;
+};
+
+export const ping = (): Promise<string> => {
+    return api.get('/ping')
+        .then(res => res.data);
+}
 
 export const login = (email: string, password: string, remember: boolean = false): Promise<User> => {
     return api.post('/authentication/login',
@@ -99,6 +101,13 @@ export const enableAccount = (hash: string | null, email: string | null): Promis
         });
 }
 
+export const requestPasswordReset = (email: string, newPassword: string): Promise<string> => {
+    return api.post('/authentication/requestPasswordReset', {
+        email: email.trim(),
+        newPassword: newPassword.trim()
+    }).then(res => "ok")
+}
+
 export const performPasswordReset = (hash: string | null, email: string | null, newPassword: string): Promise<User> => {
     if (!hash || !email || !newPassword) return Promise.reject();
     return api.post('/authentication/performPasswordReset', {
@@ -106,7 +115,7 @@ export const performPasswordReset = (hash: string | null, email: string | null, 
         // so re-add them here
         hash: hash.replaceAll(" ", "+"),
         email: email,
-        newPassword: newPassword
+        newPassword: newPassword.trim()
     })
         .then(res => {
             const data = res.data;
@@ -121,20 +130,21 @@ export const performPasswordReset = (hash: string | null, email: string | null, 
         });
 }
 
-export const requestPasswordReset = (email: string, newPassword: string): Promise<string> => {
-    return api.post('/authentication/requestPasswordReset', {
-        email: email.trim(),
-        newPassword: newPassword
-    }).then(res => "ok")
-}
-
-export const resetPassword = (hash: string | null, email: string | null, newPassword: string): Promise<string> => {
-    if (!hash || !email) return Promise.reject();
-    return api.post('/authentication/resetPassword', {
-        hash: hash,
-        email: email.trim(),
-        password: newPassword
-    }).then(res => "ok")
+export const changePassword = (newPassword: string): Promise<User> => {
+    if (!newPassword) return Promise.reject();
+    return api.post('/authentication/changePassword', {
+        newPassword: newPassword.trim()
+    }).then(res => {
+        const data = res.data;
+        if (!res.data.token) Promise.reject();
+        const user = {
+            email: data.email,
+            roles: data.roles,
+            jwt: data.token,
+            loginExpirationDate: data.expirationDate
+        } as User;
+        return user;
+    });
 }
 
 export const createTutorialOffer = (tutorialOffer: TutorialOffer): Promise<void> => {
