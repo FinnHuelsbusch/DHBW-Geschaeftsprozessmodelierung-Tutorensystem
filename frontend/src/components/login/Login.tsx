@@ -9,6 +9,7 @@ import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 
 const Login: React.FC = () => {
@@ -19,9 +20,7 @@ const Login: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-
     const LoginForm = () => {
-
         const [form] = useForm();
 
         const onSubmit = (values: any) => {
@@ -76,64 +75,15 @@ const Login: React.FC = () => {
         )
     };
 
-    const ForgotPasswordModal = () => {
-
-        const [form] = useForm();
-
-        const onFormSubmit = (values: any) => {
-            setLoading(true);
-            requestPasswordReset(values.email, values.newPassword)
-                .then(res => {
-                    setShowForgotPasswordModal(false);
-                    setLoading(false);
-                    message.success("E-Mail wurde zugesendet", 2);
-                }, err => {
-                    const reqErr = getRequestError(err);
-                    setLoading(false);
-                    message.error(getErrorMessageString(reqErr.errorCode));
-                });
-        }
-
-        return (
-            <Modal
-                title="Passwort vergessen?"
-                visible={showForgotPasswordModal}
-                onCancel={e => setShowForgotPasswordModal(false)}
-                footer={[
-                    <Button type='primary' onClick={e => form.submit()} loading={loading}>
-                        Passwort zurücksetzen
-                    </Button>
-                ]}
-            >
-                <Form
-                    name="login"
-                    form={form}
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 14 }}
-                    onFinish={onFormSubmit}>
-                    <Paragraph>
-                        Geben Sie die E-Mail Addresse ihres bestehenden Kontos und ein neues Passwort an.
-                        Folgen Sie dem Prozess in der E-Mail, die ihnen anschließend zugesendet wird.
-                    </Paragraph>
-                    <EmailFormInput required disabled={loading} />
-                    <Form.Item
-                        label="Neues Passwort"
-                        name="newPassword"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input.Password disabled={loading} />
-                    </Form.Item>
-                </Form>
-            </Modal>
-        )
-    };
-
     return (
         <>
             <Title level={1}>
                 Anmeldung
             </Title>
             <LoginForm />
-            {showForgotPasswordModal && <ForgotPasswordModal />}
+            <ForgotPasswordModal
+                visible={showForgotPasswordModal}
+                onClose={() => setShowForgotPasswordModal(false)} />
         </>
     )
 }

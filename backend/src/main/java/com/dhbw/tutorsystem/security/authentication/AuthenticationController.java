@@ -232,9 +232,10 @@ public class AuthenticationController {
             throw new LastPasswordActionTooRecentException();
         }
         try {
-            sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction(),
+            LocalDateTime newLastPasswordAction = LocalDateTime.now();
+            sendResetPasswordMail(user.getEmail(), newLastPasswordAction,
                     changePasswordRequest.getNewPassword());
-            user.setLastPasswordAction(LocalDateTime.now());
+            user.setLastPasswordAction(newLastPasswordAction);
             user.setTempPassword(encoder.encode(changePasswordRequest.getNewPassword()));
             userRepository.save(user);
             return ResponseEntity.ok(null);
