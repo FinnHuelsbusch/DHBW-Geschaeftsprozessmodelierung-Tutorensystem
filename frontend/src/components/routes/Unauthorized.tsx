@@ -13,7 +13,7 @@ const Unauthorized: React.FC = () => {
             title="Nicht autorisiert"
             subTitle="Auf diese Seite darfst du nicht zugreifen!"
             extra={
-                <Button onClick={e => navigate(AppRoutes.Home)}>
+                <Button onClick={e => navigate(AppRoutes.Main.Path)}>
                     Zurück zur Startseite
                 </Button>
             }>
