@@ -18,7 +18,6 @@ const Register: React.FC = () => {
         setLoading(true);
         register(values.email, values.password)
             .then(res => {
-                console.log("res", res);
                 setLoading(false);
                 setShowRegisterMessage(true);
             }, err => {

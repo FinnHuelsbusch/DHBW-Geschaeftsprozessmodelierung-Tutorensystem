@@ -29,7 +29,7 @@ const VerifyAccount: React.FC = () => {
             .then(user => {
                 setLoading(false);
                 authContext.login(user);
-                message.success("Login erfolgreich", 2);
+                message.success("Registrierung erfolgreich", 2);
                 navigate(AppRoutes.Main.Path);
             }).catch(err => handleVerifyError());
     }, []);

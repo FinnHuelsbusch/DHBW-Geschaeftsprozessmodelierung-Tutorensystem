@@ -5,11 +5,16 @@ import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-public class RequestPasswordResetRequest {
+public class ChangePasswordRequest {
 
     @NotBlank
     @Getter
     @Setter
     private String email;
+
+    @NotBlank
+    @Getter
+    @Setter
+    private String newPassword;
 
 }

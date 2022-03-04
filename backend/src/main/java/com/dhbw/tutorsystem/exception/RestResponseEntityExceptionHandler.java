@@ -1,18 +1,26 @@
 package com.dhbw.tutorsystem.exception;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     // catch all exceptions and put them into defined error object as JSON response
-    @ExceptionHandler(value = { Exception.class })
+    @ExceptionHandler(value = { TSBaseException.class })
     protected ResponseEntity<TSExceptionResponse> handleConflict(Exception exception) {
         TSExceptionResponse response;
         if (exception instanceof TSBaseException) {
@@ -25,6 +33,20 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                     TSErrorCode.INTERNAL_SERVER_ERROR, exception.getMessage());
         }
         return new ResponseEntity<TSExceptionResponse>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    // override handling of javax.validation errors
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+            HttpHeaders headers, HttpStatus status, WebRequest request) {
+        StringBuilder sb = new StringBuilder();
+        ex.getBindingResult().getFieldErrors().stream().forEach(fieldError -> {
+            sb.append(String.format("Field '%s' has error: %s. ", fieldError.getField(),
+                    fieldError.getDefaultMessage()));
+        });
+        TSExceptionResponse response = new TSExceptionResponse(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
+                TSErrorCode.BAD_REQUEST, sb.toString());
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
 }

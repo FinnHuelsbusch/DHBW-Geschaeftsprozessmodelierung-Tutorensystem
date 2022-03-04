@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.security.authentication;
 
-import com.dhbw.tutorsystem.exception.TSBaseException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
@@ -8,11 +7,10 @@ import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
-import com.dhbw.tutorsystem.security.authentication.exception.InvalidHashException;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
 import com.dhbw.tutorsystem.security.authentication.exception.MailSendException;
-import com.dhbw.tutorsystem.security.authentication.exception.ResetPasswordAccountNotEnabledException;
+import com.dhbw.tutorsystem.security.authentication.exception.AccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
 import com.dhbw.tutorsystem.security.authentication.exception.UserAlreadyEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
@@ -22,7 +20,7 @@ import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundExcept
 import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
 import com.dhbw.tutorsystem.security.authentication.payload.LoginRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.RegisterRequest;
-import com.dhbw.tutorsystem.security.authentication.payload.RequestPasswordResetRequest;
+import com.dhbw.tutorsystem.security.authentication.payload.ChangePasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.ResetPasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.VerifyRequest;
 import com.dhbw.tutorsystem.security.jwt.JwtUtils;
@@ -32,6 +30,7 @@ import com.dhbw.tutorsystem.user.UserRepository;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -213,22 +212,23 @@ public class AuthenticationController {
     })
     @PostMapping("/requestPasswordReset")
     public ResponseEntity<?> resetPasswordRequest(
-            @Valid @RequestBody RequestPasswordResetRequest requestResetPasswordRequest) {
+            @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         // find user and send hash via email for password reset
-        Optional<User> optionalUser = userRepository.findByEmail(requestResetPasswordRequest.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(changePasswordRequest.getEmail());
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException();
         }
         User user = optionalUser.get();
         if (!user.isEnabled()) {
-            throw new ResetPasswordAccountNotEnabledException();
+            throw new AccountNotEnabledException();
         }
         if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
             throw new LastPasswordActionTooRecentException();
         }
         try {
-            sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction());
+            sendResetPasswordMail(user.getEmail(), user.getLastPasswordAction(), changePasswordRequest.getNewPassword());
             user.setLastPasswordAction(LocalDateTime.now());
+            user.setTempPassword(changePasswordRequest.getNewPassword());
             userRepository.save(user);
             return ResponseEntity.ok(null);
         } catch (HashGenerationException | MailSendException e) {
@@ -263,6 +263,23 @@ public class AuthenticationController {
         }
     }
 
+    // @PostMapping("/changePassword")
+    // public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest ) {
+    //     // find user by email and change the password, if user exists and is enabled
+    //     Optional<User> optionalUser = userRepository.findByEmail(changePasswordRequest.getEmail());
+    //     if (optionalUser.isEmpty()) {
+    //         throw new UserNotFoundException();
+    //     }
+    //     User user = optionalUser.get();
+    //     if (!user.isEnabled()) {
+    //         throw new AccountNotEnabledException();
+    //     }
+    //     if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now()).toMinutes() < 15) {
+    //         throw new LastPasswordActionTooRecentException();
+    //     }
+    //     return ResponseEntity.ok(null);
+    // }
+
     private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
             throws HashGenerationException, MailSendException {
         try {
@@ -280,7 +297,7 @@ public class AuthenticationController {
         }
     }
 
-    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction)
+    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword)
             throws HashGenerationException, MailSendException {
         try {
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction);
