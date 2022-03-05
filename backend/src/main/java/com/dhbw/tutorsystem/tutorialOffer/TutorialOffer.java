@@ -9,7 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.dhbw.tutorsystem.user.Student;
+import com.dhbw.tutorsystem.user.student.Student;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

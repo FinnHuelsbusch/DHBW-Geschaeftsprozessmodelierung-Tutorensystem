@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.dhbw.tutorsystem.user.Director;
+import com.dhbw.tutorsystem.user.director.Director;
 
 import lombok.Getter;
 import lombok.Setter;

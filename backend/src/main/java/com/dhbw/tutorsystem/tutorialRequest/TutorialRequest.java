@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
-import com.dhbw.tutorsystem.user.Student;
+import com.dhbw.tutorsystem.user.student.Student;
 
 import lombok.Getter;
 import lombok.Setter;
