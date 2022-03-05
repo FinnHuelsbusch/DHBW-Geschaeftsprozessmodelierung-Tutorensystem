@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.security;
 
-import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.security.jwt.AuthEntryPointJwt;
 import com.dhbw.tutorsystem.security.jwt.AuthTokenFilter;
 import com.dhbw.tutorsystem.security.services.UserDetailsServiceImpl;

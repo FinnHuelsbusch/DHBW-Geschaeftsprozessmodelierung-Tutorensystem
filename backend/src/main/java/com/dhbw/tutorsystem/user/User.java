@@ -11,13 +11,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
 import javax.persistence.Table;
 
-import com.dhbw.tutorsystem.course.Course;
 import com.dhbw.tutorsystem.role.Role;
-import com.dhbw.tutorsystem.tutorial.Tutorial;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.apache.commons.lang3.StringUtils;

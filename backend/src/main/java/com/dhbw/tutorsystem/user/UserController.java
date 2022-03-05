@@ -1,5 +1,7 @@
 package com.dhbw.tutorsystem.user;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +17,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity getUsers(int userDetails) {
-        return new ResponseEntity(userRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<User>> getUsers(int userDetails) {
+        return new ResponseEntity<List<User>>(userRepository.findAll(), HttpStatus.OK);
     }
 }
