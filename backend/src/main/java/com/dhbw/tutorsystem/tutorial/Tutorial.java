@@ -12,7 +12,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.dhbw.tutorsystem.module.Module;
+
+import com.dhbw.tutorsystem.user.Student;
 import com.dhbw.tutorsystem.user.User;
 
 import lombok.Getter;
@@ -48,18 +49,17 @@ public class Tutorial {
     @Setter
     private LocalDate end;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private User tutor;
+    private Set<User> tutors;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Set<User> participants;
+    private Set<Student> participants;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Module module;
+    private String module;
 }

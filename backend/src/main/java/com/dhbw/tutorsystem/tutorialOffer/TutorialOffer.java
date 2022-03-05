@@ -3,12 +3,13 @@ package com.dhbw.tutorsystem.tutorialOffer;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.dhbw.tutorsystem.user.User;
+import com.dhbw.tutorsystem.user.Student;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +39,7 @@ public class TutorialOffer {
 
     @Getter
     @Setter
-    @ManyToOne
-    private User user; 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Student student; 
 
 }

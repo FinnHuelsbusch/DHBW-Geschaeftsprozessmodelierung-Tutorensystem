@@ -51,7 +51,7 @@ public class TutorialOfferController {
         // find out which user executes this operation
         User user = userService.getLoggedInUser();
         if (user != null) {
-            tutorialOffer.setUser(user);
+            //tutorialOffer.setStudent(user);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }

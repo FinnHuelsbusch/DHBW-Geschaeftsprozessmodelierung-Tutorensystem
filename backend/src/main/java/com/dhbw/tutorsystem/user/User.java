@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.user;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Table;
 
 import com.dhbw.tutorsystem.course.Course;
@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.Getter;
 import lombok.Setter;
+
 
 @Entity
 @Table(name = "users")
@@ -69,15 +70,9 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Getter
-    @Setter
-    private Course course;
 
-    @ManyToMany
-    @Getter
-    @Setter
-    private Set<Tutorial> participates;
+
+
 
     public User() {
 
