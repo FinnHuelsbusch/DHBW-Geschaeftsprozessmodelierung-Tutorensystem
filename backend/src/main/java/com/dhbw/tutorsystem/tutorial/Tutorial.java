@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
 
@@ -56,6 +57,11 @@ public class Tutorial {
     @Getter
     @Setter
     private Set<Student> participants;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Getter
+    @Setter
+    private Set<SpecialisationCourse> spcialisationCourses;
 
     @Getter
     @Setter
