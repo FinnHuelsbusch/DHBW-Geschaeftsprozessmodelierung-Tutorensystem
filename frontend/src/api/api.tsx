@@ -4,8 +4,10 @@ import axios from 'axios';
 import { RequestError } from '../types/RequestError';
 import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
+import jsonFile from './url.json'
 
-const backendUrl = 'http://localhost:8080';
+
+const backendUrl = jsonFile.api_url;
 
 const api = axios.create({
     baseURL: backendUrl,
@@ -19,6 +21,7 @@ export const getRequestError = (err: any): RequestError => {
 };
 
 export const ping = (): Promise<string> => {
+    console.log(backendUrl)
     return api.get('/ping')
         .then(res => res.data);
 }
