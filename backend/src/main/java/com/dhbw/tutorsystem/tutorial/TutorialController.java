@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import com.dhbw.tutorsystem.exception.TSBadRequestException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,17 +99,17 @@ public class TutorialController {
 
     @Operation(
         tags={"tutorial"},
-        summary = "Get one specific tutorials.", 
-        description = "Get one specific tutorial by a tutorial ID. "
+        summary = "Create new tutorial.", 
+        description = "Create a new tutorial and get it as return."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Returns the tutorial."),
-            @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "400", description = "One of the parameters was not set corret.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
 
         })
     @PutMapping()
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public ResponseEntity<Tutorial> createTutorial(@RequestBody CreateTutorialRequest createTutorialRequest){
+    public ResponseEntity<Tutorial> createTutorial(@RequestBody @Valid CreateTutorialRequest createTutorialRequest){
         
         if(createTutorialRequest == null){
             throw new TSBadRequestException("No tutorial was provided for creation.");
@@ -123,5 +126,30 @@ public class TutorialController {
         tutorial = tutorialRepository.save(tutorial);
  
         return new ResponseEntity<>(tutorial, HttpStatus.CREATED); 
+    }
+
+    @Operation(
+        tags={"tutorial"},
+        summary = "Delete one specific tutorial.", 
+        description = "Delete one specific tutorial by a tutorial ID. "
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the tutorial."),
+            @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+        })
+    @DeleteMapping(params = {"ID"})
+    public ResponseEntity<Void> deleteTutorial(
+        @RequestParam Integer ID
+    ){
+        Optional<Tutorial> optionalTutorial =  tutorialRepository.findById(ID); 
+        if(optionalTutorial.isEmpty())
+        {
+            throw new TSBadRequestException("The tutorial with the given ID does not exist");
+        }else{
+            tutorialRepository.deleteById(ID);
+            return new ResponseEntity<>(HttpStatus.OK); 
+        }
+ 
+        
     }
 }
