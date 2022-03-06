@@ -52,15 +52,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                // configures only spring security sessions, which should be stateless to
-                // correspond to REST
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/ping").permitAll()
-                .antMatchers("/authentication/**").permitAll()
-                .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
-                .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
-                .anyRequest().authenticated();
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+            // configures only spring security sessions, which should be stateless to
+            // correspond to REST
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+            .authorizeRequests().antMatchers("/ping").permitAll()
+            .antMatchers("/authentication/**").permitAll()
+            .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
+            .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
+            .anyRequest().authenticated().and()
+            .headers().xssProtection().and().contentSecurityPolicy("script-src 'self'");
 
         http.cors();
 
