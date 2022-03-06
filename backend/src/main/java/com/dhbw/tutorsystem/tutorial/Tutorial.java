@@ -38,6 +38,10 @@ public class Tutorial {
 
     @Getter
     @Setter
+    private String title;
+
+    @Getter
+    @Setter
     private int durationMinutes;
 
     @Getter
@@ -63,7 +67,4 @@ public class Tutorial {
     @Setter
     private Set<SpecialisationCourse> spcialisationCourses;
 
-    @Getter
-    @Setter
-    private String module;
 }

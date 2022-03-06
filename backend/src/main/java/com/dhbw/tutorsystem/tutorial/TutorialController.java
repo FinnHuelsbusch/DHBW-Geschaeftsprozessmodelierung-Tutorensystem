@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -88,5 +91,37 @@ public class TutorialController {
         }
  
         
+    }
+
+
+    @Operation(
+        tags={"tutorial"},
+        summary = "Get one specific tutorials.", 
+        description = "Get one specific tutorial by a tutorial ID. "
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Returns the tutorial."),
+            @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+
+        })
+    @PutMapping()
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public ResponseEntity<Tutorial> createTutorial(@RequestBody CreateTutorialRequest createTutorialRequest){
+        
+        if(createTutorialRequest == null){
+            throw new TSBadRequestException("No tutorial was provided for creation.");
+        }
+        Tutorial tutorial = new Tutorial(); 
+        tutorial.setDescription(createTutorialRequest.getDescription());
+        tutorial.setTitle(createTutorialRequest.getTitel()); 
+        tutorial.setStart(createTutorialRequest.getStart());
+        tutorial.setEnd(createTutorialRequest.getEnd());
+        tutorial.setDurationMinutes(createTutorialRequest.getDurationMinutes());
+        tutorial.setTutors(createTutorialRequest.getTutors());
+        tutorial.setSpcialisationCourses(createTutorialRequest.getSpcialisationCourses());
+
+        tutorial = tutorialRepository.save(tutorial);
+ 
+        return new ResponseEntity<>(tutorial, HttpStatus.CREATED); 
     }
 }
