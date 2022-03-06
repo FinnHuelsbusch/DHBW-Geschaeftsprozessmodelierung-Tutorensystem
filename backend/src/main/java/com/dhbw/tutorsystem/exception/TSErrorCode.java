@@ -6,6 +6,7 @@ package com.dhbw.tutorsystem.exception;
     To sort the list manually in VSCode, use CTRL+P, type '>', type 'Sort Lines Ascending'.
 */
 public enum TSErrorCode {
+    BAD_REQUEST,
     EMAIL_ALREADY_EXISTS,
     HASH_GENERATION_EXCEPTION,
     INTERNAL_SERVER_ERROR,
