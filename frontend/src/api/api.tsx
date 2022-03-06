@@ -6,7 +6,6 @@ import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 import jsonFile from './url.json'
 
-
 const backendUrl = jsonFile.api_url;
 
 const api = axios.create({
