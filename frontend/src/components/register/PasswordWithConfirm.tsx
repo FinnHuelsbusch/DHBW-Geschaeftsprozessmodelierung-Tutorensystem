@@ -6,7 +6,7 @@ export type PasswordFieldProps = {
     disabled?: boolean,
     validateStatus: ValidateStatus | undefined,
     message: string | undefined,
-    customLable?: string
+    customLabel?: string
 }
 
 declare function Password(props: PasswordFieldProps): React.ReactElement;
@@ -21,7 +21,7 @@ interface IPasswordWithConfirm {
 const PasswordWithConfirm: IPasswordWithConfirm = {
     Password: (props: PasswordFieldProps) =>
         <Form.Item
-            label={props.customLable ?? "Passwort"}
+            label={props.customLabel ?? "Passwort"}
             name="password"
             validateStatus={props.validateStatus}
             help={props.message}
@@ -32,7 +32,7 @@ const PasswordWithConfirm: IPasswordWithConfirm = {
         </Form.Item>,
     PasswordConfirm: (props: PasswordFieldProps) =>
         <Form.Item
-            label={props.customLable ?? "Passwort wiederholen"}
+            label={props.customLabel ?? "Passwort wiederholen"}
             name="passwordConfirm"
             validateStatus={props.validateStatus}
             help={props.message}
@@ -44,7 +44,7 @@ const PasswordWithConfirm: IPasswordWithConfirm = {
     passwordsMatch: (password: string, passwordConfirm: string): boolean => {
         return (
             password != null && password.trim() !== ""
-            && passwordConfirm != null && passwordConfirm === password
+            && passwordConfirm === password
         );
     }
 }

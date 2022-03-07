@@ -88,14 +88,14 @@ const ForgotPasswordModal: React.FC<Props> = ({ visible, onClose }) => {
                     disabled={loading}
                     validateStatus={passwordFieldsInfo.validateStatus}
                     message={passwordFieldsInfo.message}
-                    customLable={"Neues Passwort"}
+                    customLabel={"Neues Passwort"}
                 />
 
                 <PasswordWithConfirm.PasswordConfirm
                     disabled={loading}
                     validateStatus={passwordFieldsInfo.validateStatus}
                     message={passwordFieldsInfo.message}
-                    customLable={"Neues Passwort wiederholen"}
+                    customLabel={"Neues Passwort wiederholen"}
                 />
             </Form>
         </Modal>

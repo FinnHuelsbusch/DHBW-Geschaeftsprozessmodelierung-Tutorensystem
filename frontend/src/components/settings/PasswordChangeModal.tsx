@@ -78,13 +78,13 @@ const ChangePasswordModal: React.FC<Props> = ({ visible, onClose }) => {
                 onFinish={onFormSubmit}>
                 <PasswordWithConfirm.Password
                     disabled={loading}
-                    customLable="Neues Passwort"
+                    customLabel="Neues Passwort"
                     validateStatus={passwordFieldsInfo.validateStatus}
                     message={passwordFieldsInfo.message}
                 />
                 <PasswordWithConfirm.PasswordConfirm
                     disabled={loading}
-                    customLable="Neues Passwort wiederholen"
+                    customLabel="Neues Passwort wiederholen"
                     validateStatus={passwordFieldsInfo.validateStatus}
                     message={passwordFieldsInfo.message}
                 />

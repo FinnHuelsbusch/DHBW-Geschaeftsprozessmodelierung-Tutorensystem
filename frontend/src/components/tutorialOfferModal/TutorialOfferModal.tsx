@@ -1,9 +1,9 @@
-import { Button, ConfigProvider, DatePicker, Form, message, Modal } from "antd"
+import { Button, DatePicker, Form, message, Modal } from "antd"
 import { useForm } from "antd/lib/form/Form";
 import TextArea from "antd/lib/input/TextArea";
-import locale from 'antd/lib/locale/de_DE';
+
 import Title from "antd/lib/skeleton/Title";
-import 'moment/locale/de'
+
 import { useState } from "react";
 import { createTutorialOffer } from "../../api/api";
 import { TutorialOffer } from "../../types/Tutorial";
@@ -47,7 +47,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     }
 
     return (
-        <ConfigProvider locale={locale}>
+
             <Modal
                 destroyOnClose={true}
                 visible={isModalVisible}
@@ -92,7 +92,6 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     </Form.Item>
                 </Form>
             </Modal>
-        </ConfigProvider>
     )
 }
 

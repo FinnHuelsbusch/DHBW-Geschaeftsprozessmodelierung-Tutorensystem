@@ -59,6 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests().antMatchers("/ping").permitAll()
             .antMatchers("/authentication/**").permitAll()
+            .antMatchers("/authentication/changePassword").authenticated()
             .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
             .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
             .anyRequest().authenticated();
