@@ -8,6 +8,10 @@ import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
+import com.dhbw.tutorsystem.user.director.Director;
+import com.dhbw.tutorsystem.user.director.DirectorRepository;
+import com.dhbw.tutorsystem.user.student.Student;
+import com.dhbw.tutorsystem.user.student.StudentRepository;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,14 +30,16 @@ public class TutorsystemApplication {
 	public CommandLineRunner init(
 			RoleRepository roleRepository,
 			UserRepository userRepository,
-			PasswordEncoder encoder) {
+			PasswordEncoder encoder, 
+			DirectorRepository directorRepository, 
+			StudentRepository studentRepository) {
 		return (args) -> {
-			initDatabaseForDevelopment(roleRepository, userRepository, encoder);
+			initDatabaseForDevelopment(roleRepository, userRepository, encoder, directorRepository, studentRepository);
 		};
 	}
 
 	private void initDatabaseForDevelopment(RoleRepository roleRepository, UserRepository userRepository,
-			PasswordEncoder encoder) {
+			PasswordEncoder encoder, DirectorRepository directorRepository, StudentRepository studentRepository) {
 		Role rStudent = roleRepository.save(new Role(ERole.ROLE_STUDENT));
 		Role rDirector = roleRepository.save(new Role(ERole.ROLE_DIRECTOR));
 		Role rAdmin = roleRepository.save(new Role(ERole.ROLE_ADMIN));
@@ -45,19 +51,19 @@ public class TutorsystemApplication {
 		uAdmin.setLastPasswordAction(LocalDateTime.now());
 		uAdmin = userRepository.save(uAdmin);
 
-		User uDirector = new User("dirk.director@dhbw-mannheim.de", "1234");
+		Director uDirector = new Director("dirk.director@dhbw-mannheim.de", "1234");
 		uDirector.setRoles(Set.of(rDirector));
 		uDirector.setPassword(encoder.encode(uDirector.getPassword()));
 		uDirector.setEnabled(true);
 		uDirector.setLastPasswordAction(LocalDateTime.now());
-		uDirector = userRepository.save(uDirector);
+		uDirector = directorRepository.save(uDirector);
 
-		User uStudent = new User("s111111@student.dhbw-mannheim.de", "1234");
+		Student uStudent = new Student("s111111@student.dhbw-mannheim.de", "1234");
 		uStudent.setRoles(Set.of(rStudent));
 		uStudent.setPassword(encoder.encode(uStudent.getPassword()));
 		uStudent.setEnabled(true);
 		uStudent.setLastPasswordAction(LocalDateTime.now());
-		uStudent = userRepository.save(uStudent);
+		uStudent = studentRepository.save(uStudent);
 	}
 
 }

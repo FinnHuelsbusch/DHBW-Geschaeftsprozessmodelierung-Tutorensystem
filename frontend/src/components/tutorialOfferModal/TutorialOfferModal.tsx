@@ -7,6 +7,7 @@ import 'moment/locale/de'
 import { useState } from "react";
 import { createTutorialOffer } from "../../api/api";
 import { TutorialOffer } from "../../types/Tutorial";
+import { validateMessages} from "../../utils/Messages";
 
 
 
@@ -68,13 +69,12 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     form={form}
                     labelCol={{ span: 5 }}
                     wrapperCol={{ span: 17 }}
-
                 >
 
                     <Form.Item
                         label="Zeitraum"
                         name="timerange"
-
+                        rules={[{required: true}]}
                     >
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
@@ -86,8 +86,9 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     <Form.Item
                         label="Beschreibung"
                         name="description"
+                        rules={[{required: true}]}
                     >
-                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} />
+                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
                     </Form.Item>
                 </Form>
             </Modal>

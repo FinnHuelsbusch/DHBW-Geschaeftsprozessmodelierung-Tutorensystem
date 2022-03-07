@@ -19,6 +19,7 @@ import Register from './components/register/Register';
 import VerifyRegistration from './components/verify/VerifyRegistration';
 import { applyUserLogin, isUserLoginExpired, removeUserLogin, retrieveUserLocalStorage } from './api/api';
 import VerifyResetPassword from './components/verify/VerifyResetPassword';
+import { validateMessages } from './utils/Messages';
 
 
 const App: React.FC = () => {
@@ -82,6 +83,7 @@ const App: React.FC = () => {
             <div className="site-layout-content">
               <Outlet />
             </div>
+
 
           </ConfigProvider>
         </Content>
