@@ -55,6 +55,21 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+		<!-- Annotation processor, not included at build time -->
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+			<version>5.0.0</version>
+			<scope>provided</scope>
+			<!-- <classifier>jpa</classifier> -->
+		</dependency>
+
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-jpa</artifactId>
+			<version>5.0.0</version>
+		</dependency>
+
 		<dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
@@ -126,6 +141,7 @@
 
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -138,6 +154,28 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.1.3</version>
+				<executions>
+					<execution>
+					<goals>
+						<goal>process</goal>
+					</goals>
+					<configuration>
+						<outputDirectory>target/generated-sources/java</outputDirectory>
+						<processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+						<options>
+						<querydsl.entityAccessors>true</querydsl.entityAccessors>
+						<querydsl.useFields>false</querydsl.useFields>
+						</options>
+					</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 </project>
