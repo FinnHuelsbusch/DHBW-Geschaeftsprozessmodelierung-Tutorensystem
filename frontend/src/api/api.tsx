@@ -5,7 +5,7 @@ import { RequestError } from '../types/RequestError';
 import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 
-const backendUrl = 'http://localhost:8080';
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const api = axios.create({
     baseURL: backendUrl,
@@ -19,6 +19,7 @@ export const getRequestError = (err: any): RequestError => {
 };
 
 export const ping = (): Promise<string> => {
+    console.log(backendUrl)
     return api.get('/ping')
         .then(res => res.data);
 }
