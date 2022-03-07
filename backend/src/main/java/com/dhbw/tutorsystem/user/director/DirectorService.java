@@ -1,4 +1,5 @@
-package com.dhbw.tutorsystem.user;
+package com.dhbw.tutorsystem.user.director;
+
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,14 +9,16 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserService {
+public class DirectorService {
 
-    private final UserRepository userRepository; 
+    private final DirectorRepository directorRepository; 
 
-    public User getLoggedInUser(){
+
+
+    public Director getLoggedInDirector(){
         Object objectPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(objectPrincipal instanceof UserDetails){
-            return userRepository.findByEmail(((UserDetails) objectPrincipal).getUsername()).orElse(null);
+            return directorRepository.findByEmail(((UserDetails) objectPrincipal).getUsername()).orElse(null);
         } else {
           return null; 
         }

@@ -1,11 +1,13 @@
 package com.dhbw.tutorsystem.tutorialOffer;
 
-import com.dhbw.tutorsystem.user.User;
-import com.dhbw.tutorsystem.user.UserService;
+
+
+import com.dhbw.tutorsystem.user.student.Student;
+import com.dhbw.tutorsystem.user.student.StudentService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +30,7 @@ import lombok.AllArgsConstructor;
 public class TutorialOfferController {
 
     private final TutorialOfferRepository tutorialOfferRepository;
-    private final UserService userService;
+    private final StudentService studentService;
 
     @Operation(
         tags={"tutorialOffer"},
@@ -39,6 +41,7 @@ public class TutorialOfferController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successful creation."),
     })
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
     @PutMapping
     public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialOfferRequest tutorialOfferRequest) {
 
@@ -49,9 +52,9 @@ public class TutorialOfferController {
         tutorialOffer.setEnd(tutorialOfferRequest.getEnd());
 
         // find out which user executes this operation
-        User user = userService.getLoggedInUser();
-        if (user != null) {
-            tutorialOffer.setUser(user);
+        Student student = studentService.getLoggedInStudent();
+        if (student != null) {
+            tutorialOffer.setStudent(student);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
