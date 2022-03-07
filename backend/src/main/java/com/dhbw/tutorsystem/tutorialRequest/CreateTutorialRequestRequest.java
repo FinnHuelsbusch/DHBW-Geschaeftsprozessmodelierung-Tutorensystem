@@ -1,6 +1,6 @@
 package com.dhbw.tutorsystem.tutorialRequest;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,6 @@ import lombok.Setter;
 public class CreateTutorialRequestRequest {
     @Getter
     @Setter
-    @NotNull
+    @NotBlank
     private String description;
 }
