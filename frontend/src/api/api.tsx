@@ -4,9 +4,8 @@ import axios from 'axios';
 import { RequestError } from '../types/RequestError';
 import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
-import jsonFile from './url.json'
 
-const backendUrl = jsonFile.api_url;
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const api = axios.create({
     baseURL: backendUrl,
