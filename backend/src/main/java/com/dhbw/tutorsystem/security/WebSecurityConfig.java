@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.security;
 
-import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.security.jwt.AuthEntryPointJwt;
 import com.dhbw.tutorsystem.security.jwt.AuthTokenFilter;
 import com.dhbw.tutorsystem.security.services.UserDetailsServiceImpl;
@@ -51,16 +50,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                // configures only spring security sessions, which should be stateless to
-                // correspond to REST
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/ping").permitAll()
-                .antMatchers("/authentication/**").permitAll()
-                .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
-                .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
-                .anyRequest().authenticated();
+        http
+            //can be disabled because this application is sessionless and the keys are not stored in cookies
+            .csrf().disable()
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+            // configures only spring security sessions, which should be stateless to
+            // correspond to REST
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+            .authorizeRequests().antMatchers("/ping").permitAll()
+            .antMatchers("/authentication/**").permitAll()
+            .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
+            .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
+            .anyRequest().authenticated();
 
         http.cors();
 
