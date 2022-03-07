@@ -94,7 +94,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login was successful. User will be logged in using the token in the response."),
+            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/login")
@@ -122,7 +122,7 @@ public class AuthenticationController {
     @Operation(summary = "Create user.", description = "Create a not-enabled account for a user using email and password and send registration email with activation link.", tags = {
             "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Registration email was sent successfully."),
+            @ApiResponse(responseCode = "200", description = "Registration email with activation link was sent successfully."),
             @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/register")
@@ -212,7 +212,7 @@ public class AuthenticationController {
         }
     }
 
-    @Operation(summary = "Request a password reset.", description = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
+    @Operation(summary = "Request a password reset for forgotten password.", description = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
             "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password reset email was sent successfully."),
@@ -248,7 +248,7 @@ public class AuthenticationController {
         }
     }
 
-    @Operation(summary = "Reset a password.", description = "Reset the password using a hash value from a link received after a password reset request.", tags = {
+    @Operation(summary = "Reset a password that was forgotten.", description = "Reset the password using a hash value and the new password from a link received after a password reset request.", tags = {
             "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was reset successfully. User will be logged in directly using token in response."),
@@ -284,6 +284,12 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "Change a password while being logged in.", description = "Change the password into a new password when being logged in. Only Students and Directors can reset their passwords.", tags = {
+            "authentication" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password was changed successfully. The user will be directly logged in using the token in the response."),
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+    })
     @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
     @PostMapping("/changePassword")
     public ResponseEntity<JwtResponse> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
