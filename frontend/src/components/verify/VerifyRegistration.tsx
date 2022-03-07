@@ -1,37 +1,40 @@
 import { message, Result } from 'antd';
 import Text from 'antd/lib/typography/Text';
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { verifyAccount } from '../../api/api';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { enableAccount, getRequestError } from '../../api/api';
 import { AppRoutes } from '../../types/AppRoutes';
 import { LoadingOutlined } from '@ant-design/icons';
 import { AuthContext } from '../../context/UserContext';
+import { getErrorMessageString } from '../../types/RequestError';
 
-const VerifyAccount: React.FC = () => {
+const VerifyRegistration: React.FC = () => {
 
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
 
-    const handleVerifyError = () => {
-        message.error("Ein Fehler ist aufgetreten");
+    const handleVerifyError = (messageStr: string) => {
         navigate(AppRoutes.Unauthorized);
+        message.error(messageStr);
     };
 
     useEffect(() => {
         const hash = searchParams.get("h");
         const email = searchParams.get("e");
         if (!hash || !email) {
-            handleVerifyError();
+            handleVerifyError("Ein Fehler ist aufgetreten.");
         }
-        verifyAccount(hash, email)
+        enableAccount(hash, email)
             .then(user => {
+                navigate(AppRoutes.Main.Path);
                 setLoading(false);
                 authContext.login(user);
-                message.success("Login erfolgreich", 2);
-                navigate(AppRoutes.Main.Path);
-            }).catch(err => handleVerifyError());
+                message.success("Registrierung erfolgreich", 2);
+            }).catch(err =>
+                handleVerifyError(getErrorMessageString(getRequestError(err).errorCode))
+            );
     }, []);
 
     return (
@@ -51,4 +54,4 @@ const VerifyAccount: React.FC = () => {
     );
 }
 
-export default VerifyAccount;
+export default VerifyRegistration;

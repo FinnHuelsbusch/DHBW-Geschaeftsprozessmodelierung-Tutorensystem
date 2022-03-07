@@ -1,5 +1,6 @@
 package com.dhbw.tutorsystem;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.dhbw.tutorsystem.role.ERole;
@@ -47,18 +48,21 @@ public class TutorsystemApplication {
 		uAdmin.setRoles(Set.of(rAdmin));
 		uAdmin.setPassword(encoder.encode(uAdmin.getPassword()));
 		uAdmin.setEnabled(true);
+		uAdmin.setLastPasswordAction(LocalDateTime.now());
 		uAdmin = userRepository.save(uAdmin);
 
 		Director uDirector = new Director("dirk.director@dhbw-mannheim.de", "1234");
 		uDirector.setRoles(Set.of(rDirector));
 		uDirector.setPassword(encoder.encode(uDirector.getPassword()));
 		uDirector.setEnabled(true);
+		uDirector.setLastPasswordAction(LocalDateTime.now());
 		uDirector = directorRepository.save(uDirector);
 
 		Student uStudent = new Student("s111111@student.dhbw-mannheim.de", "1234");
 		uStudent.setRoles(Set.of(rStudent));
 		uStudent.setPassword(encoder.encode(uStudent.getPassword()));
 		uStudent.setEnabled(true);
+		uStudent.setLastPasswordAction(LocalDateTime.now());
 		uStudent = studentRepository.save(uStudent);
 	}
 
