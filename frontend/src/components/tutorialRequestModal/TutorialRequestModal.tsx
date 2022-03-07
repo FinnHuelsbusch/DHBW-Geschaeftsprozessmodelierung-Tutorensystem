@@ -1,25 +1,29 @@
-import { Form, Modal, Input, Button, message } from 'antd';
+import { Form, Modal, Input, Button, message, Select } from 'antd';
+import TextArea from "antd/lib/input/TextArea";
 import { useForm } from "antd/lib/form/Form";
 import { useState } from "react";
 import { createTutorialRequest } from "../../api/api";
 import { TutorialRequest } from "../../types/Tutorial";
+import { validateMessages } from "../../utils/Messages";
 
 interface Props {
     isModalVisible: boolean,
     setIsTutorialRequestModalVisible: (visible: boolean) => void
 }
 
-
-
 export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTutorialRequestModalVisible }) => {
 
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
+    const { Option } = Select;
 
     const onFinish = (values: any) => {
+        console.log(values.semester);
         setLoading(true);
         createTutorialRequest({
-            description: values.module
+            title: values.module,
+            semester: Number(values.semester),
+            description: values.description
         } as TutorialRequest).then(res => {
             setLoading(false);
             message.success("Tutoriumsanfrage erfolgreich erstellt.");
@@ -55,9 +59,23 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                 form={form}
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 17 }}
+                validateMessages={validateMessages}
             >
                 <Form.Item label="Modul" name="module" rules={[{ required: true },{whitespace: true}]}>
                     <Input placeholder="Programmieren I" allowClear />
+                </Form.Item>
+                <Form.Item label="Dein Semester" name="semester" rules={[{required:true}]}>
+                    <Select style={{ width: 60 }} allowClear>
+                        <Option value="1">1</Option>
+                        <Option value="2">2</Option>
+                        <Option value="3">3</Option>
+                        <Option value="4">4</Option>
+                        <Option value="5">5</Option>
+                        <Option value="6">6</Option>
+                    </Select>
+                </Form.Item>
+                <Form.Item label="Beschreibung" name="description" rules={[{required: true}]}>
+                    <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
                 </Form.Item>
             </Form>
         </Modal>

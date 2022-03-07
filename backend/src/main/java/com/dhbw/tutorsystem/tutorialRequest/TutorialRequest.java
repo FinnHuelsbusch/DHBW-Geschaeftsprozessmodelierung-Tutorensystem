@@ -48,4 +48,8 @@ public class TutorialRequest {
     @Setter
     @OneToOne
     private Student createdBy;
+
+    @Getter
+    @Setter
+    private Integer semester;
 }

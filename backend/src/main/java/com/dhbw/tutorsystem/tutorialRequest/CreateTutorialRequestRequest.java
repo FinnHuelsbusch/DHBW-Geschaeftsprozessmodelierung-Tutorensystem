@@ -11,5 +11,15 @@ public class CreateTutorialRequestRequest {
     @Getter
     @Setter
     @NotBlank
+    private String title;
+
+    @Getter
+    @Setter
+    @NotBlank
     private String description;
+
+    @Getter
+    @Setter
+    @NotBlank
+    private int semester;
 }

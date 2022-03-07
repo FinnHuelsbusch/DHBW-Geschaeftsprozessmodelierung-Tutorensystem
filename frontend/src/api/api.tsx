@@ -107,5 +107,7 @@ export const createTutorialRequest = (tutorialRequest: TutorialRequest ): Promis
     return api.put('/tutorialrequest',
         {
             description: tutorialRequest.description,
+            title: tutorialRequest.title,
+            semester: tutorialRequest.semester
         });
 }

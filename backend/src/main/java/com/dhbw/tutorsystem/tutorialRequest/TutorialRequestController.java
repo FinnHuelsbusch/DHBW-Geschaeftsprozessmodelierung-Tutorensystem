@@ -1,7 +1,8 @@
 package com.dhbw.tutorsystem.tutorialRequest;
 
-import com.dhbw.tutorsystem.user.User;
-import com.dhbw.tutorsystem.user.UserService;
+import com.dhbw.tutorsystem.user.student.Student;
+import com.dhbw.tutorsystem.user.student.StudentService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.AllArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,7 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class TutorialRequestController {
 
     private final TutorialRequestRepository tutorialRequestRepository;
-    private final UserService userService;
+    private final StudentService studentService;
 
     @Operation(
             tags={"tutorialRequest"},
@@ -36,16 +38,18 @@ public class TutorialRequestController {
             @ApiResponse(responseCode = "201", description = "Successful creation."),
     })
     @PutMapping
-    public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialRequestRequest tutorialRequestRequest) {
+    public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialRequestRequest createTutorialRequestRequest) {
 
         TutorialRequest tutorialRequest = new TutorialRequest();
 
-        tutorialRequest.setDescription(tutorialRequestRequest.getDescription());
+        tutorialRequest.setDescription(createTutorialRequestRequest.getDescription());
+        tutorialRequest.setTitle(createTutorialRequestRequest.getTitle());
+        tutorialRequest.setSemester(createTutorialRequestRequest.getSemester());
 
         // find out which user executes this operation
-        User user = userService.getLoggedInUser();
-        if (user != null) {
-            tutorialRequest.setUser(user);
+        Student student = studentService.getLoggedInStudent();
+        if (student != null) {
+            tutorialRequest.setCreatedBy(student);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
