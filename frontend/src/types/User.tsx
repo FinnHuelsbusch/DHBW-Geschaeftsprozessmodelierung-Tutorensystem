@@ -8,5 +8,6 @@ export interface User {
     email: string,
     jwt: string,
     refreshToken: string,
-    roles: Array<UserRole>
+    roles: Array<UserRole>,
+    loginExpirationDate: Date
 }

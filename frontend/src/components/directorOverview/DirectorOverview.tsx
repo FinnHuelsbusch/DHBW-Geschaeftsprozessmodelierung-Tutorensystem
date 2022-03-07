@@ -3,11 +3,11 @@ import React from 'react';
 
 const DirectorOverview: React.FC = () => {
     return (
-        <div>
-            
-                Director Overview
-            
-        </div>
+        <>
+            <Title level={1}>
+                Übersicht Studiengangsleiter
+            </Title>
+        </>
     )
 };
 

@@ -1,7 +1,14 @@
 export const AppRoutes = {
-    Login: "/login",
-    Unauthorized: "/unauthorized",
-    AdminOverview: "/adminOverview",
-    DirectorOverview: "/directorOverview",
-    Home: "/"
+    Main: {
+        Path: '/',
+        Subroutes: {
+            Login: "/login",
+            Register: "/register",
+            Settings: "/settings",
+            AdminOverview: "/adminOverview",
+            DirectorOverview: "/directorOverview",
+        }
+    },
+    Verify: '/verify',
+    Unauthorized: '/unauthorized'
 }

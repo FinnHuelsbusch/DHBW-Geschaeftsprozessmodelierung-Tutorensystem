@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.scss';
 import { ConfigProvider, Empty, Layout, message } from 'antd';
 import { Content, Footer, Header } from 'antd/lib/layout/layout';
@@ -10,20 +10,24 @@ import DirectorOverview from './components/directorOverview/DirectorOverview';
 import Login from './components/login/Login';
 import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
 import { CopyrightOutlined } from '@ant-design/icons';
 import { AuthContext } from './context/UserContext';
+
+import Settings from './components/settings/Settings';
+import Register from './components/register/Register';
+import VerifyAccount from './components/verify/VerifyAccount';
 import { validateMessages } from './utils/Messages';
+
 
 const App: React.FC = () => {
 
   const [loggedUser, setLoggedUser] = useState<User | undefined>(undefined);
   const login = (user: User) => setLoggedUser(user);
   const logout = () => {
-    // removeLogin()
     setLoggedUser(undefined);
-    message.info("Sie wurden ausgeloggt");
+    message.info("Sie wurden ausgeloggt", 2);
   }
   const hasRoles = (roles: Array<UserRole>): boolean => {
     if (loggedUser) {
@@ -36,63 +40,81 @@ const App: React.FC = () => {
     }
   }
 
+  const MainLayout = () => {
+    return (
+      <Layout>
+        <Header>
+          <Navigation />
+        </Header>
+
+        <Content style={{ padding: '50px' }}>
+          <ConfigProvider renderEmpty={() =>
+            <Empty
+              description="Keine Daten verfügbar">
+            </Empty>
+          }>
+
+            <div className="site-layout-content">
+              <Outlet />
+            </div>
+
+
+          </ConfigProvider>
+        </Content>
+
+        <Footer>
+          <CopyrightOutlined /> 2021
+        </Footer>
+
+      </Layout>
+    );
+  }
+
   return (
     <div className="App">
-      <Router >
-        <AuthContext.Provider
-          value={{
-            loggedUser: loggedUser,
-            login: login,
-            logout: logout,
-            hasRoles: hasRoles
-          }}>
 
-          <Layout>
+      <AuthContext.Provider
+        value={{
+          loggedUser: loggedUser,
+          login: login,
+          logout: logout,
+          hasRoles: hasRoles
+        }}>
 
-            <Header>
-              <Navigation />
-            </Header>
+        <Router >
+          <Routes>
+            <Route path={AppRoutes.Main.Path} element={<MainLayout />}>
+              <Route path={AppRoutes.Main.Path} element={<Overview />} />
+              <Route path={AppRoutes.Main.Subroutes.Login} element={<Login />} />
+              <Route path={AppRoutes.Main.Subroutes.Register} element={<Register />} />
+              <Route
+                path={AppRoutes.Main.Subroutes.AdminOverview}
+                element={
+                  <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_ADMIN])}>
+                    <AdminOverview />
+                  </ProtectedRoute>} />
+              <Route
+                path={AppRoutes.Main.Subroutes.DirectorOverview}
+                element={
+                  <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
+                    <DirectorOverview />
+                  </ProtectedRoute>} />
+              <Route
+                path={AppRoutes.Main.Subroutes.Settings}
+                element={
+                  <ProtectedRoute hasAccess={loggedUser ? true : false}>
+                    <Settings />
+                  </ProtectedRoute>} />
+            </Route>
 
-            <Content style={{ padding: '50px' }}>
-              <ConfigProvider renderEmpty={() =>
-                <Empty
-                  description="Keine Daten verfügbar">
-                </Empty>
-              } form={{ validateMessages }}>
+            <Route path={AppRoutes.Verify} element={<VerifyAccount />} />
+            <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
 
-                <div className="site-layout-content">
-                  <Routes>
+            <Route path="*" element={<Unauthorized />} />
+          </Routes>
+        </Router>
 
-                    <Route path={AppRoutes.Login} element={<Login />} />
-                    <Route path={AppRoutes.Unauthorized} element={<Unauthorized />} />
-                    <Route path={AppRoutes.Home} element={<Overview />} />
-                    <Route
-                      path={AppRoutes.AdminOverview}
-                      element={
-                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                          <AdminOverview />
-                        </ProtectedRoute>} />
-                    <Route
-                      path={AppRoutes.DirectorOverview}
-                      element={
-                        <ProtectedRoute hasAccess={hasRoles([UserRole.ROLE_DIRECTOR])}>
-                          <DirectorOverview />
-                        </ProtectedRoute>} />
-                    <Route path="/*" element={<Unauthorized />} />
-                  </Routes>
-                </div>
-
-              </ConfigProvider>
-            </Content>
-
-            <Footer>
-              <CopyrightOutlined /> 2021
-            </Footer>
-
-          </Layout>
-        </AuthContext.Provider>
-
-      </Router>
+      </AuthContext.Provider>
     </div>
   );
 }
