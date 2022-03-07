@@ -43,19 +43,19 @@ const Login: React.FC = () => {
                 wrapperCol={{ span: 10 }}
                 form={form}
                 onFinish={onSubmit}>
-                <EmailFormInput required />
+                <EmailFormInput required disabled={loading} />
                 <Form.Item
                     label="Passwort"
                     name="password"
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                    <Input.Password />
+                    <Input.Password disabled={loading} />
                 </Form.Item>
                 <Form.Item
                     name="rememberLogin"
                     initialValue={false}
                     valuePropName="checked"
                     wrapperCol={{ offset: 8, span: 10 }}>
-                    <Checkbox>Anmeldung speichern</Checkbox>
+                    <Checkbox disabled={loading}>Anmeldung speichern</Checkbox>
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <a onClick={e => setShowForgotPasswordModal(true)}>
