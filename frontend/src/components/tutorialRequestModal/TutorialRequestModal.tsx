@@ -21,7 +21,7 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
         console.log(values.semester);
         setLoading(true);
         createTutorialRequest({
-            title: values.module,
+            title: values.title,
             semester: Number(values.semester),
             description: values.description
         } as TutorialRequest).then(res => {
@@ -61,7 +61,7 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                 wrapperCol={{ span: 17 }}
                 validateMessages={validateMessages}
             >
-                <Form.Item label="Modul" name="module" rules={[{ required: true },{whitespace: true}]}>
+                <Form.Item label="Titel" name="title" rules={[{ required: true },{whitespace: true}]}>
                     <Input placeholder="Programmieren I" allowClear />
                 </Form.Item>
                 <Form.Item label="Dein Semester" name="semester" rules={[{required:true}]}>
