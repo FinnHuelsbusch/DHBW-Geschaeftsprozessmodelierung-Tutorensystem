@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger("com");
 
     @Value("${backend.app.jwtSecret}")
     private String jwtSecret;
