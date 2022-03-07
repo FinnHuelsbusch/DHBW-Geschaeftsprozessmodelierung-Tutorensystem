@@ -34,7 +34,7 @@ public class TutorialRequest {
     @OneToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Set<Student> interstedStudents;
+    private Set<Student> interestedStudents;
 
     @Getter
     @Setter
