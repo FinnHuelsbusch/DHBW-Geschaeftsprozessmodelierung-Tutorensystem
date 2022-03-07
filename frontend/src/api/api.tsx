@@ -4,7 +4,7 @@ import { ErrorCode, RequestError } from '../types/RequestError';
 import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 
-const backendUrl = 'http://localhost:8080';
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const api = axios.create({
     baseURL: backendUrl,
