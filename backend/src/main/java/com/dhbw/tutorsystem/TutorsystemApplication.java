@@ -83,7 +83,7 @@ public class TutorsystemApplication {
 		tutorial1.setAppointment("Jeden Dienstag von 18 bis 19 Uhr.");
 		tutorial1.setDescription("Mathe für alle, die den ersten Versuch nicht bestanden haben. Schwerpunkt Analysis.");
 		tutorial1.setDurationMinutes(120);
-		tutorial1.setModule("Mathe 1");
+		tutorial1.setTitle("Mathe 1");
 		tutorial1.setTutors(tutors);
 		tutorial1.setStart(LocalDate.now());
 		tutorial1.setEnd(LocalDate.now().plusDays(21));
@@ -95,7 +95,7 @@ public class TutorsystemApplication {
 		tutorial2.setAppointment("Jeden Dienstag von 18 bis 19 Uhr.");
 		tutorial2.setDescription("Aufgaben im Bereich programmieren mit Java. Schwerpunkt Objektorientierung");
 		tutorial2.setDurationMinutes(120);
-		tutorial2.setModule("Programmieren 1");
+		tutorial2.setTitle("Programmieren 1");
 		tutorial2.setTutors(tutors);
 		tutorial2.setStart(LocalDate.now().plusWeeks(4));
 		tutorial2.setEnd(LocalDate.now().plusWeeks(12));

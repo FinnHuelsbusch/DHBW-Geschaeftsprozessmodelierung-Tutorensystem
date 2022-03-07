@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
-import com.dhbw.tutorsystem.user.student.Student;
 
 import lombok.Getter;
 import lombok.Setter;
