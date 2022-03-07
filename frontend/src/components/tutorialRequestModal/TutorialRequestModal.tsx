@@ -46,7 +46,7 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
             onCancel={onCancel}
             width={600}
             footer={[
-                <Button loading={loading} type="primary" onClick={e => form.submit()}>
+                <Button loading={loading} htmlType="submit" type="primary" onClick={e => form.submit()}>
                     Absenden
                 </Button>
             ]}>

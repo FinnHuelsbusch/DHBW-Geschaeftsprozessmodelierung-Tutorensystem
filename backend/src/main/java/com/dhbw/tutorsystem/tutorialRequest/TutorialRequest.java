@@ -7,8 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.dhbw.tutorsystem.module.Module;
-
 import com.dhbw.tutorsystem.user.User;
 import lombok.Getter;
 import lombok.Setter;

@@ -48,6 +48,6 @@ export const createTutorialOffer = (tutorialOffer: TutorialOffer ): Promise<void
 export const createTutorialRequest = (tutorialRequest: TutorialRequest ): Promise<void> => {
     return api.put('/tutorialrequest',
         {
-            ...tutorialRequest
+            description: tutorialRequest.description,
         });
 }
