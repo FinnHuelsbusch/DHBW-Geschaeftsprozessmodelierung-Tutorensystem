@@ -15,6 +15,7 @@ import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
