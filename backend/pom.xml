@@ -9,9 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.dhbw</groupId>
-	<artifactId>tutorsystem</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>tutorsystem</name>
+	<artifactId>tutorensystem</artifactId>
+	<version>1.0</version>
+	<name>tutorensystem</name>
+	<packaging>war</packaging>
 	<description>Backend of the tutorsystem</description>
 	<properties>
 		<java.version>11</java.version>
