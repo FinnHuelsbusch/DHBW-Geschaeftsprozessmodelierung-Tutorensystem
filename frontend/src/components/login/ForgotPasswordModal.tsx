@@ -57,14 +57,14 @@ const ForgotPasswordModal: React.FC<Props> = ({ visible, onClose }) => {
                 wrapperCol={{ span: 14 }}
                 onFinish={onFormSubmit}>
                 <Paragraph>
-                    Geben Sie die E-Mail Addresse ihres bestehenden Kontos und ein neues Passwort an.
-                    Folgen Sie dem Prozess in der E-Mail, die ihnen anschließend zugesendet wird.
+                    Geben Sie die E-Mail Addresse Ihres bestehenden Kontos und ein neues Passwort an.
+                    Folgen Sie dem Prozess in der E-Mail, die Ihnen anschließend zugesendet wird.
                 </Paragraph>
                 <EmailFormInput required disabled={loading} />
                 <Form.Item
                     label="Neues Passwort"
                     name="newPassword"
-                    rules={[{ required: true, message: 'Pflichtfeld' }]}>
+                    rules={[{ required: true }]}>
                     <Input.Password disabled={loading} />
                 </Form.Item>
             </Form>
