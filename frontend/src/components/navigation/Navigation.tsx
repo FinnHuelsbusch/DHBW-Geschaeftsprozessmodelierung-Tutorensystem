@@ -14,9 +14,9 @@ const Navigation: React.FC = () => {
 
     const ProfileButton = (user: User) => {
         const onLogoutClick = () => {
+            navigate(AppRoutes.Main.Path);
             authContext.logout();
             message.info("Sie wurden ausgeloggt", 2);
-            navigate(AppRoutes.Main.Path);
         }
         const profileDropdown = (
             <Menu>
