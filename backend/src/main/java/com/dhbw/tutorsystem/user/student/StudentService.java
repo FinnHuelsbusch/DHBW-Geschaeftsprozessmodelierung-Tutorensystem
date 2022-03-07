@@ -1,4 +1,5 @@
-package com.dhbw.tutorsystem.user;
+package com.dhbw.tutorsystem.user.student;
+
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,14 +9,16 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserService {
+public class StudentService {
 
-    private final UserRepository userRepository; 
+    private final StudentRepository studentRepository; 
 
-    public User getLoggedInUser(){
+
+
+    public Student getLoggedInStudent(){
         Object objectPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(objectPrincipal instanceof UserDetails){
-            return userRepository.findByEmail(((UserDetails) objectPrincipal).getUsername()).orElse(null);
+            return studentRepository.findByEmail(((UserDetails) objectPrincipal).getUsername()).orElse(null);
         } else {
           return null; 
         }

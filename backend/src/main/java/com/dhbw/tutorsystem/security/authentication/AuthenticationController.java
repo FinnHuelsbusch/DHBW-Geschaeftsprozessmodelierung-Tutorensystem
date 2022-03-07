@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.security.authentication;
 
-import com.dhbw.tutorsystem.exception.TSBaseException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
@@ -8,7 +7,6 @@ import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
-import com.dhbw.tutorsystem.security.authentication.exception.InvalidHashException;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
 import com.dhbw.tutorsystem.security.authentication.exception.MailSendException;
@@ -58,7 +56,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
