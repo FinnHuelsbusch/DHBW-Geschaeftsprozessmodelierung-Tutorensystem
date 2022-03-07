@@ -112,6 +112,14 @@ public class AuthenticationController {
             List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
+            // reset temp password so that any previous "forgot password" action is
+            // invalidated
+            User user = userRepository.findById(userDetails.getUserId()).get();
+            if (user.getTempPassword() != null) {
+                user.setTempPassword(null);
+                userRepository.save(user);
+            }
+
             return ResponseEntity.ok(new JwtResponse(roles, jwt, jwtUtils.getExpirationDateFromJwtToken(jwt),
                     userDetails.getEmailAddress()));
         } catch (AuthenticationException e) {
