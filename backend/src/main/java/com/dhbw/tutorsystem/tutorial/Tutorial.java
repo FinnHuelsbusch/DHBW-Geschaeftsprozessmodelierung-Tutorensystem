@@ -65,5 +65,5 @@ public class Tutorial {
 
     @Getter
     @Setter
-    private String module;
+    private String title;
 }
