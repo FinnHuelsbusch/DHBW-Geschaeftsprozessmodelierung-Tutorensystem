@@ -1,7 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
 import { ErrorCode, RequestError } from '../types/RequestError';
-import { TutorialOffer } from '../types/Tutorial';
 import { User } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
