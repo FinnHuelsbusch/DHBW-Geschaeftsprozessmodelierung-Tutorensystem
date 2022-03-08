@@ -20,7 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     // catch all exceptions and put them into defined error object as JSON response
-    @ExceptionHandler(value = { TSBaseException.class })
+    @ExceptionHandler(value = { Exception.class })
     protected ResponseEntity<TSExceptionResponse> handleConflict(Exception exception) {
         TSExceptionResponse response;
         if (exception instanceof TSBaseException) {
