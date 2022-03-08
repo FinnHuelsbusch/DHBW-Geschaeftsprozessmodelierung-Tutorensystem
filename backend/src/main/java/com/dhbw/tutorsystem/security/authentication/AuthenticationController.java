@@ -1,5 +1,21 @@
 package com.dhbw.tutorsystem.security.authentication;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
@@ -7,19 +23,19 @@ import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.role.ERole;
 import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
-import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
-import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
 import com.dhbw.tutorsystem.security.authentication.exception.AccountNotEnabledException;
-import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
-import com.dhbw.tutorsystem.security.authentication.exception.UserAlreadyEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
+import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
+import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
+import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
+import com.dhbw.tutorsystem.security.authentication.exception.UserAlreadyEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
+import com.dhbw.tutorsystem.security.authentication.payload.ChangePasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.JwtResponse;
 import com.dhbw.tutorsystem.security.authentication.payload.LoginRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.RegisterRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.RequestPasswordResetRequest;
-import com.dhbw.tutorsystem.security.authentication.payload.ChangePasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.ResetPasswordRequest;
 import com.dhbw.tutorsystem.security.authentication.payload.VerifyRequest;
 import com.dhbw.tutorsystem.security.jwt.JwtUtils;
@@ -37,36 +53,26 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 // import io.swagger.v3.oas.annotations.responses.ApiResponses;
 // import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import javax.mail.MessagingException;
-import javax.validation.Valid;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @RestController
 @RequestMapping("/authentication")
+@SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
 public class AuthenticationController {
 
     @Value("${backend.app.minutesBetweenPasswordActions}")
@@ -92,7 +98,7 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
+    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
