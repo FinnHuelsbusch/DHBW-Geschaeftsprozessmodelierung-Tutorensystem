@@ -32,6 +32,7 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +41,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.querydsl.QuerydslUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,28 +59,33 @@ public class TutorialController {
         private EntityManagerFactory entityManagerFactory;
 
         @PostMapping("/findWithFilter")
-        public ResponseEntity<?> findTutorialsWithFilter(Pageable pageable,
+        public ResponseEntity<FindTutorialsWithFilterResponse> findTutorialsWithFilter(Pageable pageable,
                         @Valid @RequestBody FindTutorialsWithFilterRequest filterRequest) {
 
                 // construct filter conditions
                 QTutorial tutorial = QTutorial.tutorial;
 
                 // search text: any word matches title or description
-                List<String> textsToMatch = Arrays.asList(filterRequest.getTitle().split(" "));
                 BooleanBuilder textMatches = new BooleanBuilder();
-                for (String text : textsToMatch) {
-                        text = "%" + text + "%";
-                        textMatches.and(
-                                        tutorial.title.likeIgnoreCase(text)
-                                                        .or(tutorial.description.likeIgnoreCase(text)));
+                if (filterRequest.getTitle() != null) {
+                        List<String> textsToMatch = Arrays.asList(filterRequest.getTitle().split(" "));
+                        for (String text : textsToMatch) {
+                                text = "%" + text + "%";
+                                textMatches.and(
+                                                tutorial.title.likeIgnoreCase(text)
+                                                                .or(tutorial.description.likeIgnoreCase(text)));
+                        }
                 }
 
                 // search specialisation course
-                Iterable<SpecialisationCourse> specialisationCourses = specialisationCourseRepository
-                                .findAllById((Iterable<Integer>) filterRequest.getSpecialisationCourseIds());
                 BooleanBuilder specialisationCourseMatches = new BooleanBuilder();
-                for (SpecialisationCourse specialisationCourse : specialisationCourses) {
-                        specialisationCourseMatches.or(tutorial.specialisationCourses.contains(specialisationCourse));
+                if (filterRequest.getSpecialisationCourseIds() != null) {
+                        Iterable<SpecialisationCourse> specialisationCourses = specialisationCourseRepository
+                                        .findAllById((Iterable<Integer>) filterRequest.getSpecialisationCourseIds());
+                        for (SpecialisationCourse specialisationCourse : specialisationCourses) {
+                                specialisationCourseMatches
+                                                .or(tutorial.specialisationCourses.contains(specialisationCourse));
+                        }
                 }
 
                 // search start date within specified time range
@@ -106,15 +113,16 @@ public class TutorialController {
                                                         filterRequest.getStartDateTo()));
                 }
 
-                EntityManager entityManager = entityManagerFactory.createEntityManager();
-                JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-
                 // construct pageable details
                 int start = (int) pageable.getOffset();
                 int size = pageable.getPageSize();
                 if (size <= 0) {
                         size = 4; // default to 4 in size
                 }
+
+                EntityManager entityManager = entityManagerFactory.createEntityManager();
+                JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+                entityManager.getTransaction().begin();
 
                 // construct query from conditions, one for tutorial objects and one for total
                 // element count
@@ -151,6 +159,15 @@ public class TutorialController {
 
                 List<Tutorial> filteredTutorials = tutorialQuery.fetch();
                 int totalResultCount = countQuery.fetchFirst().intValue();
+
+                for (Tutorial t : filteredTutorials) {
+                        Hibernate.initialize(t.getSpecialisationCourses());
+                        Hibernate.initialize(t.getTutors());
+                    }
+
+                entityManager.getTransaction().commit();
+                entityManager.close();
+
                 int totalPages = (int) Math.ceil((double) totalResultCount / pageable.getPageSize());
 
                 return ResponseEntity.ok(new FindTutorialsWithFilterResponse(

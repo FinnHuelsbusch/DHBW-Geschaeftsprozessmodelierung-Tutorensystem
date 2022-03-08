@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,7 +50,7 @@ public class Tutorial {
     @Setter
     private LocalDate end;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @Getter
     @Setter
     private Set<User> tutors;
@@ -57,6 +58,7 @@ public class Tutorial {
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
+    @JsonIgnore
     private Set<Student> participants;
 
     @ManyToMany(fetch = FetchType.LAZY)

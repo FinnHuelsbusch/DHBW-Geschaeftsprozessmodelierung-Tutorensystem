@@ -1,6 +1,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import { ErrorCode, RequestError } from '../types/RequestError';
+import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
 import { User } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -145,4 +146,28 @@ export const changePassword = (newPassword: string): Promise<User> => {
         } as User;
         return user;
     });
+}
+
+export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFilterResponse> => {
+    const sorting = filter.sorting ?
+        filter.sorting
+            .map(sort => `&sort=${sort.attribute},${sort.order}`)
+            .reduce((prev, curr) => prev + curr)
+        : "";
+    const filterRequest = {
+        text: filter.text,
+        startDateFrom: filter.startDateFrom,
+        startDateTo: filter.startDateTo,
+        specialisationCourseIds: filter.specialisationCourseIds
+    } as TutorialFilter;
+    return api.post(`/tutorials/findWithFilter?page=${filter.currentPage}&size=${filter.elementsPerPage}${sorting}`, filterRequest)
+        .then(res => {
+            const data = res.data;
+            return {
+                tutorials: data.tutorials as Array<Tutorial>,
+                currentPage: data.currentPage,
+                totalPages: data.totalPages,
+                totalElements: data.totalElements
+            } as TutorialFilterResponse;
+        });
 }

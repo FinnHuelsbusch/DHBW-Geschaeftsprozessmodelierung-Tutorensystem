@@ -1,8 +1,6 @@
 import { List, Empty } from 'antd';
 import React, { PropsWithChildren } from 'react';
 import { Page } from '../../types/Paging';
-import './PagingList.scss';
-
 
 type PagingListProps<DataType> = {
     listData: Array<DataType> | undefined,
@@ -24,10 +22,12 @@ const PagingList: React.FC<DataType> = (
                 {...varargs}
                 dataSource={listData}
                 pagination={{
-                    pageSize: page.size,
+                    pageSize: page.elementsPerPage,
                     total: page.totalElements,
-                    onChange: page => onPageChanged(page),
-                    // adjust from zero-based to one-based index (for ant)
+                    // ant uses one-based index, but consumer expects zero-based
+                    // convert one-based to zero-based
+                    onChange: page => onPageChanged(page - 1),
+                    // convert zero-based to one-based
                     current: page.currentPage + 1
                 }}
                 renderItem={(item: DataType) => listItem(item)}
