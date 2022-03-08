@@ -9,6 +9,7 @@ export const AppRoutes = {
             DirectorOverview: "/directorOverview",
         }
     },
-    Verify: '/verify',
+    VerifyRegistration: '/verifyRegistration',
+    VerifyResetPassword: 'verifyResetPassword',
     Unauthorized: '/unauthorized'
 }

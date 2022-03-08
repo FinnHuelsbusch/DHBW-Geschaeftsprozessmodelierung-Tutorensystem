@@ -12,4 +12,9 @@ public class RequestPasswordResetRequest {
     @Setter
     private String email;
 
+    @NotBlank
+    @Getter
+    @Setter
+    private String newPassword;
+
 }

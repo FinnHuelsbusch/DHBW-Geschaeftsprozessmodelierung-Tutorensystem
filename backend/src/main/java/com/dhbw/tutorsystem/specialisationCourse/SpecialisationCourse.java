@@ -23,7 +23,7 @@ public class SpecialisationCourse {
 
     @Getter
     @Setter
-    private String description;
+    private String title;
 
     @Getter
     @Setter

@@ -16,8 +16,4 @@ public class UserController {
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-    public ResponseEntity<List<User>> getUsers(int userDetails) {
-        return new ResponseEntity<List<User>>(userRepository.findAll(), HttpStatus.OK);
-    }
 }

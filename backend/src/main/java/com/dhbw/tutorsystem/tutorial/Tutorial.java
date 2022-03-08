@@ -66,5 +66,4 @@ public class Tutorial {
     @Getter
     @Setter
     private Set<SpecialisationCourse> spcialisationCourses;
-
 }

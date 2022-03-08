@@ -16,7 +16,7 @@ public class Director extends User{
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Course leadCourses;
+    private Course assignedCourses;
 
     public Director(){
         

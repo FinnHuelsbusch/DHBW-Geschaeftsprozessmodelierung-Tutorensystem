@@ -57,14 +57,14 @@ public class EmailSenderService {
         boolean isFirstRegisterMail = (boolean) arguments.get("isFirstRegisterMail");
 
         Context thymeleafContext = new Context();
-        String linkUrl = frontendUrl + "/verify?h=" + hashBase64 + "&e=" + mailTo;
+        String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
         String htmlBody = thymeTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
-        helper.setSubject("Registrierung Tutorensystem");
+        helper.setSubject("Tutorensystem Registrierung");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }
@@ -73,13 +73,13 @@ public class EmailSenderService {
         String hashBase64 = (String) arguments.get("hashBase64");
 
         Context thymeleafContext = new Context();
-        String linkUrl = frontendUrl + "/resetPassword?h=" + hashBase64 + "&e=" + mailTo;
+        String linkUrl = frontendUrl + "/verifyResetPassword?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
         String htmlBody = thymeTemplateEngine.process("resetPasswordMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
-        helper.setSubject("Registrierung Tutorensystem");
+        helper.setSubject("Tutorensystem Passwort vergessen");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }

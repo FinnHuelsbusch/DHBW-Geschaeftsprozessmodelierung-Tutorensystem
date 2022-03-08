@@ -59,6 +59,10 @@ public class User {
 
     @Getter
     @Setter
+    private String tempPassword;
+
+    @Getter
+    @Setter
     private boolean enabled;
 
     @ManyToMany(fetch = FetchType.LAZY)

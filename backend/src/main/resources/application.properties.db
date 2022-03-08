@@ -15,6 +15,7 @@ spring.thymeleaf.prefix=classpath:/mail-templates/
 backend.app.jwtSecret=
 backend.app.jwtExpirationMs=
 backend.app.frontendUrl=
+backend.app.minutesBetweenPasswordActions=
 
 spring.mail.host=
 spring.mail.port=
