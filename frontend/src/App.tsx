@@ -20,6 +20,8 @@ import VerifyRegistration from './components/verify/VerifyRegistration';
 import { applyUserLogin, isUserLoginExpired, removeUserLogin, retrieveUserLocalStorage } from './api/api';
 import VerifyResetPassword from './components/verify/VerifyResetPassword';
 import { validateMessages } from './utils/Messages';
+import locale from 'antd/lib/locale/de_DE';
+import 'moment/locale/de'
 
 
 const App: React.FC = () => {
@@ -74,7 +76,7 @@ const App: React.FC = () => {
         </Header>
 
         <Content style={{ padding: '50px' }}>
-          <ConfigProvider renderEmpty={() =>
+          <ConfigProvider locale={locale} form={{validateMessages}} renderEmpty={() =>
             <Empty
               description="Keine Daten verfügbar">
             </Empty>

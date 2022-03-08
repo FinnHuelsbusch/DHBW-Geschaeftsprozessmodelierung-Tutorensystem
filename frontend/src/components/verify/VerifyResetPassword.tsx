@@ -18,8 +18,8 @@ const VerifyResetPassword: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const handleVerifyError = (messageStr: string) => {
-        message.error(messageStr);
         navigate(AppRoutes.Unauthorized);
+        message.error(messageStr);
     };
 
     const onSubmit = (values: any) => {
@@ -31,10 +31,10 @@ const VerifyResetPassword: React.FC = () => {
         setLoading(true);
         performPasswordReset(hash, email, values.newPassword)
             .then(user => {
+                navigate(AppRoutes.Main.Path);
                 setLoading(false);
                 authContext.login(user);
                 message.success("Passwort erfolgreich geändert", 2);
-                navigate(AppRoutes.Main.Path);
             }).catch(err => {
                 message.error("Verifizierung fehlgeschlagen");
                 setLoading(false);
@@ -64,7 +64,7 @@ const VerifyResetPassword: React.FC = () => {
                         <Form.Item
                             label="Passwort"
                             name="newPassword"
-                            rules={[{ required: true, message: 'Pflichtfeld' }]}>
+                            rules={[{ required: true}]}>
                             <Input.Password disabled={loading} />
                         </Form.Item>
                         <Form.Item wrapperCol={{ offset: 8, span: 10 }}>

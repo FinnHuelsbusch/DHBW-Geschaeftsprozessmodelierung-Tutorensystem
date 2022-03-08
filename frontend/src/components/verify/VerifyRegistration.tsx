@@ -16,8 +16,8 @@ const VerifyRegistration: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     const handleVerifyError = (messageStr: string) => {
-        message.error(messageStr);
         navigate(AppRoutes.Unauthorized);
+        message.error(messageStr);
     };
 
     useEffect(() => {
@@ -28,10 +28,10 @@ const VerifyRegistration: React.FC = () => {
         }
         enableAccount(hash, email)
             .then(user => {
+                navigate(AppRoutes.Main.Path);
                 setLoading(false);
                 authContext.login(user);
                 message.success("Registrierung erfolgreich", 2);
-                navigate(AppRoutes.Main.Path);
             }).catch(err =>
                 handleVerifyError(getErrorMessageString(getRequestError(err).errorCode))
             );
