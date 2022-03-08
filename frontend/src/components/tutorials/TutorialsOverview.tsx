@@ -42,7 +42,14 @@ const TutorialsOverview: React.FC = () => {
                     totalPages: res.totalPages,
                     totalElements: res.totalElements
                 });
-            })
+            });
+    };
+
+    const FilterBar = () => {
+        
+        return(
+            <div>Hallo</div>
+        );
     };
 
     const mockSpecialisationCourses = [
@@ -50,7 +57,7 @@ const TutorialsOverview: React.FC = () => {
         { id: 2, name: "WI SC" },
         { id: 3, name: "BWL DBM" },
         { id: 4, name: "AI" },
-    ]
+    ];
 
     const listItem = (tutorial: Tutorial) => {
         return (
