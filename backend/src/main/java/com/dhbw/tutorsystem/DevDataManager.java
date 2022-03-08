@@ -18,7 +18,6 @@ import com.dhbw.tutorsystem.user.student.StudentRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -65,23 +64,28 @@ public class DevDataManager {
     }
 
     public void insertTutorials() {
-        Tutorial t1 = new Tutorial();
-        t1.setTitle("Mathe I");
-        t1.setAppointment("appointment");
-        t1.setDescription("Wir machen Analysis und lineare Algebra. Außerdem noch LOPs.");
-        t1.setDurationMinutes(120);
-        t1.setStart(LocalDate.now());
-        t1.setEnd(LocalDate.now().plusWeeks(2));
-        t1 = tutorialRepository.save(t1);
+        createTutorial("Mathe I", "appointment", "Wir machen Analysis und lineare Algebra. Außerdem noch LOPs.", 120,
+                LocalDate.now(), LocalDate.now().plusWeeks(2));
+        createTutorial("Elektrotechnik 1", "appointment", "Wir machen Elektrotechnik jeden Montag um 17:00 Uhr.", 120,
+                LocalDate.now(), LocalDate.now().plusWeeks(9));
+        createTutorial("Elektrotechnik 2", "appointment", "Wir machen Elektrotechnik jeden Montag um 19:00 Uhr.", 120,
+                LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(10));
+        createTutorial("Elektrotechnik 3", "appointment", "Wir machen Elektrotechnik jeden Montag um 9:00 Uhr.", 120,
+                LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(11));
+        createTutorial("Elektrotechnik 4", "appointment", "Wir machen Elektrotechnik jeden Montag um 15:00 Uhr.", 120,
+                LocalDate.now().plusWeeks(3), LocalDate.now().plusWeeks(12));
+    }
 
-        Tutorial t2 = new Tutorial();
-        t2.setTitle("Elektrotechnik 2");
-        t2.setAppointment("appointment");
-        t2.setDescription("Wir machen Elektrotechnik jeden Montag um 19:00 Uhr.");
-        t2.setDurationMinutes(120);
-        t2.setStart(LocalDate.now().minusWeeks(2));
-        t2.setEnd(LocalDate.now().plusWeeks(4));
-        t2 = tutorialRepository.save(t1);
+    private Tutorial createTutorial(String title, String appointment, String description, int durationMinutes,
+            LocalDate start, LocalDate end) {
+        Tutorial t = new Tutorial();
+        t.setTitle(title);
+        t.setAppointment(appointment);
+        t.setDescription(description);
+        t.setDurationMinutes(durationMinutes);
+        t.setStart(start);
+        t.setEnd(end);
+        return tutorialRepository.save(t);
     }
 
 }

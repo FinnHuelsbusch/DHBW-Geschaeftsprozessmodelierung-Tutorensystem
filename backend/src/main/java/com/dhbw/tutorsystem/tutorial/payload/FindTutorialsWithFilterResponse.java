@@ -4,17 +4,19 @@ import java.util.List;
 
 import com.dhbw.tutorsystem.tutorial.Tutorial;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public class FindTutorialsWithFilterResponse extends PagedDataResponse {
+@AllArgsConstructor
+@Data
+public class FindTutorialsWithFilterResponse {
 
-    @Getter
     private List<Tutorial> tutorials;
 
-    public FindTutorialsWithFilterResponse(List<Tutorial> tutorials, int currentPage, int totalPages,
-            long totalElements) {
-        super(currentPage, totalPages, totalElements);
-        this.tutorials = tutorials;
-    }
+    private int currentPage;
+
+    private int totalPages;
+
+    private int totalElements;
 
 }

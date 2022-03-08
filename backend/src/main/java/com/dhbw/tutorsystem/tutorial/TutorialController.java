@@ -23,7 +23,11 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.PathMetadata;
 import com.querydsl.core.types.TemplateFactory;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -60,7 +64,7 @@ public class TutorialController {
                 QTutorial tutorial = QTutorial.tutorial;
 
                 // search text: any word matches title or description
-                List<String> textsToMatch = Arrays.asList(filterRequest.getTitle().split(""));
+                List<String> textsToMatch = Arrays.asList(filterRequest.getTitle().split(" "));
                 BooleanBuilder textMatches = new BooleanBuilder();
                 for (String text : textsToMatch) {
                         text = "%" + text + "%";
@@ -79,21 +83,21 @@ public class TutorialController {
 
                 // search start date within specified time range
                 BooleanBuilder startsWithinTimeFrame = new BooleanBuilder();
+                LocalDate defaultStartDateFrom = LocalDate.now().minusMonths(3);
                 if (filterRequest.getStartDateFrom() == null &&
                                 filterRequest.getStartDateTo() == null) {
                         // nothing specified, default to starting date 2 months in the past until
                         // infinity
-                        startsWithinTimeFrame.and(
-                                        tutorial.start.after(LocalDate.now().minusMonths(2)));
-                } else if (filterRequest.getStartDateFrom() == null) {
+                        startsWithinTimeFrame.and(tutorial.start.after(defaultStartDateFrom));
+                } else if (filterRequest.getStartDateFrom() != null) {
                         // only from date specified
                         startsWithinTimeFrame.and(
                                         tutorial.start.after(filterRequest.getStartDateFrom()));
-                } else if (filterRequest.getStartDateTo() == null) {
+                } else if (filterRequest.getStartDateTo() != null) {
                         // only to date specified: default to starting date 2 months in the past until
                         // specified date
                         startsWithinTimeFrame.and(
-                                        tutorial.start.between(LocalDate.now().minusMonths(2),
+                                        tutorial.start.between(defaultStartDateFrom,
                                                         filterRequest.getStartDateTo()));
                 } else {
                         // from and to date specified
@@ -112,46 +116,48 @@ public class TutorialController {
                         size = 4; // default to 4 in size
                 }
 
-                // construct query from conditions
-                // TODO: how to use BlazeJPAQuery, because .fetchResults() is deprecated in
-                // querydsl?
-                JPAQuery<Tutorial> query = queryFactory
+                // construct query from conditions, one for tutorial objects and one for total
+                // element count
+                JPAQuery<Tutorial> tutorialQuery = queryFactory
                                 .selectFrom(tutorial)
-                                .where(
-                                                textMatches
-                                                                .and(specialisationCourseMatches)
-                                                                .and(startsWithinTimeFrame))
+                                .where(textMatches
+                                                .and(specialisationCourseMatches)
+                                                .and(startsWithinTimeFrame))
                                 .offset(start)
                                 .limit(size);
+
+                JPAQuery<Long> countQuery = queryFactory
+                                .from(tutorial)
+                                .select(tutorial.id.countDistinct())
+                                .where(textMatches
+                                                .and(specialisationCourseMatches)
+                                                .and(startsWithinTimeFrame));
 
                 for (Sort.Order order : pageable.getSort()) {
                         com.querydsl.core.types.Order querydslOrder = order.isAscending()
                                         ? com.querydsl.core.types.Order.ASC
                                         : com.querydsl.core.types.Order.DESC;
 
-                        PathBuilder<Object> orderByExpression = new PathBuilder<Tutorial>(Tutorial.class, "tutorial")
-                                        .get(order.getProperty());
-                        // if (orderByExpression.getType() == String.class) {
-                                query.orderBy(new OrderSpecifier<String>(querydslOrder,
-                                                orderByExpression.getString(order.getProperty())));
-                        // }
+                        if ("title".equals(order.getProperty())) {
+                                tutorialQuery.orderBy(new OrderSpecifier<String>(
+                                                querydslOrder,
+                                                tutorial.title));
+                        } else if ("start".equals(order.getProperty())) {
+                                tutorialQuery.orderBy(new OrderSpecifier<LocalDate>(
+                                                querydslOrder,
+                                                tutorial.start));
+                        }
                 }
 
-                QueryResults<Tutorial> queryResults = query.fetchResults();
+                List<Tutorial> filteredTutorials = tutorialQuery.fetch();
+                int totalResultCount = countQuery.fetchFirst().intValue();
+                int totalPages = (int) Math.ceil((double) totalResultCount / pageable.getPageSize());
 
-                int totalResultCount = (int) queryResults.getTotal();
-                List<Tutorial> filteredTutorials = queryResults.getResults();
-
-                Page<Tutorial> tutorialPage = new PageImpl<>(
-                                filteredTutorials, pageable, totalResultCount);
-
-                return ResponseEntity.ok(tutorialPage
-                        // new FindTutorialsWithFilterResponse(
-                        //         filteredTutorials,
-                        //         tutorialPage.getNumber(),
-                        //         tutorialPage.getTotalPages(),
-                        //         tutorialPage.getTotalElements())
-                                );
+                return ResponseEntity.ok(new FindTutorialsWithFilterResponse(
+                                filteredTutorials,
+                                pageable.getPageNumber(),
+                                totalPages,
+                                totalResultCount));
         }
 
 }
