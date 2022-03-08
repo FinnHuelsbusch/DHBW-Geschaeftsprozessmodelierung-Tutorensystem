@@ -66,13 +66,22 @@ public class DevDataManager {
 
     public void insertTutorials() {
         Tutorial t1 = new Tutorial();
-        t1.setTitle("Test12");
+        t1.setTitle("Mathe I");
         t1.setAppointment("appointment");
-        t1.setDescription("description");
+        t1.setDescription("Wir machen Analysis und lineare Algebra. Außerdem noch LOPs.");
         t1.setDurationMinutes(120);
         t1.setStart(LocalDate.now());
         t1.setEnd(LocalDate.now().plusWeeks(2));
         t1 = tutorialRepository.save(t1);
+
+        Tutorial t2 = new Tutorial();
+        t2.setTitle("Elektrotechnik 2");
+        t2.setAppointment("appointment");
+        t2.setDescription("Wir machen Elektrotechnik jeden Montag um 19:00 Uhr.");
+        t2.setDurationMinutes(120);
+        t2.setStart(LocalDate.now().minusWeeks(2));
+        t2.setEnd(LocalDate.now().plusWeeks(4));
+        t2 = tutorialRepository.save(t1);
     }
 
 }

@@ -18,14 +18,23 @@ import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
+import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.TemplateFactory;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.querydsl.QuerydslUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,7 +71,7 @@ public class TutorialController {
 
                 // search specialisation course
                 Iterable<SpecialisationCourse> specialisationCourses = specialisationCourseRepository
-                                .findAllById((Iterable<Integer>) filterRequest.getSpecialisationCourseIds().iterator());
+                                .findAllById((Iterable<Integer>) filterRequest.getSpecialisationCourseIds());
                 BooleanBuilder specialisationCourseMatches = new BooleanBuilder();
                 for (SpecialisationCourse specialisationCourse : specialisationCourses) {
                         specialisationCourseMatches.or(tutorial.specialisationCourses.contains(specialisationCourse));
@@ -94,7 +103,6 @@ public class TutorialController {
                 }
 
                 EntityManager entityManager = entityManagerFactory.createEntityManager();
-                entityManager.getTransaction().begin();
                 JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
 
                 // construct pageable details
@@ -105,9 +113,9 @@ public class TutorialController {
                 }
 
                 // construct query from conditions
-                // BlazeJPAQuery
-                new BlazeJPAQuery<>(entityManage)
-                BlazeJPAQuery<Tutorial> query = queryFactory
+                // TODO: how to use BlazeJPAQuery, because .fetchResults() is deprecated in
+                // querydsl?
+                JPAQuery<Tutorial> query = queryFactory
                                 .selectFrom(tutorial)
                                 .where(
                                                 textMatches
@@ -116,22 +124,34 @@ public class TutorialController {
                                 .offset(start)
                                 .limit(size);
 
-                QueryResults<Tutorial> tQueryResults = query.fetchResults();
+                for (Sort.Order order : pageable.getSort()) {
+                        com.querydsl.core.types.Order querydslOrder = order.isAscending()
+                                        ? com.querydsl.core.types.Order.ASC
+                                        : com.querydsl.core.types.Order.DESC;
 
-                // List<Tutorial> tutorials = query.fetchResults();
-                // CriteriaBuilderConfiguration config = Criteria.getDefault();
-                // CriteriaBuilderFactory cbf = config.createCriteriaBuilderFactory(entityManagerFactory);
-                // PagedList<Tutorial> page = cbf.create(
-                //                 entityManager, Tutorial.class, "t")
-                //                 // .where("t.start").between(LocalDate.now()).and(LocalDate.now().plusDays(2))
-                //                 .where("t.title").like().value(filterRequest.getTitle()).noEscape()
-                //                 .where("t.specialisationCourses")
-                //                 .inCollectionExpression("cat.age IN (1L, 2L, 3L, :param)")
-                //                 .orderBy("t.id", true)
-                //                 .page(0, 3)
-                //                 .getResultList();
+                        PathBuilder<Object> orderByExpression = new PathBuilder<Tutorial>(Tutorial.class, "tutorial")
+                                        .get(order.getProperty());
+                        // if (orderByExpression.getType() == String.class) {
+                                query.orderBy(new OrderSpecifier<String>(querydslOrder,
+                                                orderByExpression.getString(order.getProperty())));
+                        // }
+                }
 
-                return ResponseEntity.ok(null);
+                QueryResults<Tutorial> queryResults = query.fetchResults();
+
+                int totalResultCount = (int) queryResults.getTotal();
+                List<Tutorial> filteredTutorials = queryResults.getResults();
+
+                Page<Tutorial> tutorialPage = new PageImpl<>(
+                                filteredTutorials, pageable, totalResultCount);
+
+                return ResponseEntity.ok(tutorialPage
+                        // new FindTutorialsWithFilterResponse(
+                        //         filteredTutorials,
+                        //         tutorialPage.getNumber(),
+                        //         tutorialPage.getTotalPages(),
+                        //         tutorialPage.getTotalElements())
+                                );
         }
 
 }
