@@ -1,5 +1,6 @@
-export interface TutorialOffer {
-    description: string, 
-    start: Date, 
+export interface Tutorial {
+    title: string,
+    description: string,
+    start: Date,
     end: Date
 }

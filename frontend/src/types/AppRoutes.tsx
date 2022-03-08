@@ -7,6 +7,7 @@ export const AppRoutes = {
             Settings: "/settings",
             AdminOverview: "/adminOverview",
             DirectorOverview: "/directorOverview",
+            Tutorials: "/tutorials",
         }
     },
     VerifyRegistration: '/verifyRegistration',
