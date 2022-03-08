@@ -1,8 +1,10 @@
-import { Button, Card, List, Tag } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Input, List, Row, Select, Slider, Tag } from 'antd';
 import Meta from 'antd/lib/card/Meta';
+import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
+import { format } from 'path';
 import React, { useContext, useEffect, useState } from 'react';
 import { getFilteredTutorials } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
@@ -31,7 +33,7 @@ const TutorialsOverview: React.FC = () => {
     }, []);
 
     const fetchNewPage = (newPage: number) => {
-        console.log("fetching page",newPage);
+        console.log("fetching page", newPage);
         return getFilteredTutorials({ ...filter, currentPage: newPage })
             .then(res => {
                 console.log("received:", res)
@@ -45,10 +47,93 @@ const TutorialsOverview: React.FC = () => {
             });
     };
 
+    const onFilterChange = () => {
+        const formFilter = { ...form.getFieldsValue() };
+        console.log(form.getFieldsValue());
+        setFilter({
+            ...filter,
+            text: formFilter.text,
+            startDateFrom: formFilter.timerange ?? formFilter.timerange[0],
+            startDateTo: formFilter.timerange ?? formFilter.timerange[1],
+        });
+    };
+
+    const [form] = useForm();
+
+
     const FilterBar = () => {
-        
-        return(
-            <div>Hallo</div>
+
+        const pageSizeValues = [5, 10, 20];
+
+        const resetFilter = () => {
+            form.resetFields();
+            onFilterChange();
+        };
+
+        return (
+            <Form
+                form={form}
+                className="product-filter-form"
+                onChange={e => onFilterChange()}
+                onFinish={onFilterChange}
+            >
+                <Row gutter={24}>
+                    <Col flex="1 1 300px">
+                        <Form.Item
+                            name="text"
+                            label="Suchen">
+                            <Input
+                                placeholder="Titel..." />
+                        </Form.Item>
+                    </Col>
+
+                    <Col flex="1 1 300px">
+                        <Row style={{ display: 'block' }}>
+                            <Form.Item
+                                label="Zeitraum"
+                                name="timerange"
+                            >
+                                <DatePicker.RangePicker
+                                    placeholder={["Anfang", "Ende"]}
+                                    format="DD.MM.YYYY"
+                                />
+                            </Form.Item>
+                        </Row>
+                    </Col>
+
+                    <Col flex="1 1 300px">
+                        <Form.Item
+                            label="Elemente pro Seite"
+                            name="pageSize"
+                            initialValue={pageSizeValues[0]}>
+                            <Select
+                                style={{ width: 80 }}
+                                onChange={e => onFilterChange()}>
+                                {pageSizeValues.map(number =>
+                                    <Select.Option
+                                        key={`${number}`}
+                                        value={`${number}`}>
+                                        {number}
+                                    </Select.Option>
+                                )}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col span={24} style={{ textAlign: 'right' }}>
+                        <Button type="primary" htmlType="submit">
+                            Suchen
+                        </Button>
+                        <Button
+                            style={{ margin: '0 8px' }}
+                            onClick={() => resetFilter()}>
+                            Zurücksetzen
+                        </Button>
+                    </Col>
+                </Row>
+            </Form>
         );
     };
 
@@ -88,7 +173,7 @@ const TutorialsOverview: React.FC = () => {
             <Title level={1}>
                 Tutorien
             </Title>
-            <div>Filter</div>
+            <FilterBar />
             <PagingList
                 grid={{
                     gutter: 16,
