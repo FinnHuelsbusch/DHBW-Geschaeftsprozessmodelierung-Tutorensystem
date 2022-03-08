@@ -47,6 +47,7 @@ export const getRequestError = (err: any): RequestError => {
 };
 
 export const ping = (): Promise<string> => {
+    console.log(backendUrl)
     return api.get('/ping')
         .then(res => res.data);
 }

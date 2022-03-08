@@ -1,7 +1,7 @@
 import { Button, Checkbox, Divider, Form, Input, message, } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Title from 'antd/lib/typography/Title';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRequestError, login } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
@@ -26,9 +26,10 @@ const Login: React.FC = () => {
             setLoading(true);
             login(values.email, values.password)
                 .then(user => {
+                    navigate(AppRoutes.Main.Path);
                     authContext.login(user, values.rememberLogin);
                     message.success("Login erfolgreich", 2);
-                    navigate(AppRoutes.Main.Path);
+                    setLoading(false);
                 }).catch(err => {
                     const reqErr = getRequestError(err);
                     message.error(getErrorMessageString(reqErr.errorCode));
@@ -42,19 +43,19 @@ const Login: React.FC = () => {
                 wrapperCol={{ span: 10 }}
                 form={form}
                 onFinish={onSubmit}>
-                <EmailFormInput required />
+                <EmailFormInput required disabled={loading} />
                 <Form.Item
                     label="Passwort"
                     name="password"
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                    <Input.Password />
+                    <Input.Password disabled={loading} />
                 </Form.Item>
                 <Form.Item
                     name="rememberLogin"
                     initialValue={false}
                     valuePropName="checked"
                     wrapperCol={{ offset: 8, span: 10 }}>
-                    <Checkbox>Anmeldung speichern</Checkbox>
+                    <Checkbox disabled={loading}>Anmeldung speichern</Checkbox>
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <a onClick={e => setShowForgotPasswordModal(true)}>
@@ -79,6 +80,9 @@ const Login: React.FC = () => {
             <Title level={1}>
                 Anmeldung
             </Title>
+            <Button onClick={e => navigate(AppRoutes.Main.Path)}>
+                Navigate
+            </Button>
             <LoginForm />
             <ForgotPasswordModal
                 visible={showForgotPasswordModal}
