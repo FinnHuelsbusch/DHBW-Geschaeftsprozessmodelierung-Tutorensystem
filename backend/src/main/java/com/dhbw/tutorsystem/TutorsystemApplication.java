@@ -1,6 +1,9 @@
 package com.dhbw.tutorsystem;
 
+import com.dhbw.tutorsystem.course.CourseRepository;
 import com.dhbw.tutorsystem.role.RoleRepository;
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.TutorialRepository;
 import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.director.DirectorRepository;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
@@ -24,9 +27,12 @@ public class TutorsystemApplication {
 			UserRepository userRepository,
 			PasswordEncoder encoder,
 			DirectorRepository directorRepository,
-			StudentRepository studentRepository) {
+			StudentRepository studentRepository, 
+			TutorialRepository tutorialRepository,
+			CourseRepository courseRepository, 
+			SpecialisationCourseRepository specialisationCourseRepository) {
 		return (args) -> {
-			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository)
+			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository, tutorialRepository, courseRepository, specialisationCourseRepository)
 					.initDatabaseForDevelopment();
 		};
 	}
