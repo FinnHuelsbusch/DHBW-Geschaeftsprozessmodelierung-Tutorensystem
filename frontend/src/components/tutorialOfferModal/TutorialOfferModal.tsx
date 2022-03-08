@@ -5,8 +5,6 @@ import TextArea from "antd/lib/input/TextArea";
 import Title from "antd/lib/skeleton/Title";
 
 import { useState } from "react";
-import { createTutorialOffer } from "../../api/api";
-import { TutorialOffer } from "../../types/Tutorial";
 import { validateMessages} from "../../utils/Messages";
 
 
@@ -22,24 +20,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
 
-    const onFinish = (values: any) => {
-        setLoading(true);
-        createTutorialOffer({
-            description: values.description,
-            start: values.timerange[0].toDate(),
-            end: values.timerange[1].toDate()
-        } as TutorialOffer).then(res => {
-            setLoading(false);
-            message.success("Tutoriumsangebot erfolgreich erstellt.");
-            setIsTutorialOfferModalVisible(false);
-            form.resetFields()
-        }, err => {
-            setLoading(false);
-            message.error("Tutoriumsangebot konnte nicht erstellt werden.");
-        }
-
-        )
-    };
+    
 
     const onCancel = () => {
         setIsTutorialOfferModalVisible(false)
@@ -65,7 +46,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                 ]}
             >
                 <Form
-                    onFinish={onFinish}
+                    
                     form={form}
                     labelCol={{ span: 5 }}
                     wrapperCol={{ span: 17 }}
