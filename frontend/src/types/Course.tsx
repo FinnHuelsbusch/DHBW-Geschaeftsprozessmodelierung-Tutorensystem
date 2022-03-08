@@ -1,8 +1,13 @@
+import { User } from "./User"
+
+export interface SpecialisationCourse {
+    id: number,
+    title: string,
+    course: Course
+}
+
 export interface Course {
     id: number,
-    description: string,
-    year: number,
-    specialization: string,
-    courseOfDegree: string,
-    block: string
+    title: string,
+    leadBy: [User]
 }

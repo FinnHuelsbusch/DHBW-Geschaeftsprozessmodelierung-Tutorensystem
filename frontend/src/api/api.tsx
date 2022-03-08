@@ -1,9 +1,10 @@
 import axios from 'axios';
 import moment from 'moment';
+import { Course, SpecialisationCourse } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { User } from '../types/User';
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = "http://localhost:8080";
 
 const api = axios.create({
     baseURL: backendUrl,
@@ -145,4 +146,9 @@ export const changePassword = (newPassword: string): Promise<User> => {
         } as User;
         return user;
     });
+}
+
+export const getCourses = (): Promise<Course[]> => {
+    return api.get('/courses')
+        .then(res => res.data);
 }

@@ -1,11 +1,13 @@
-import { Button, DatePicker, Form, message, Modal } from "antd"
+import { Button, DatePicker, Dropdown, Form, Menu, message, Modal, Select } from "antd"
 import { useForm } from "antd/lib/form/Form";
-import TextArea from "antd/lib/input/TextArea";
+import { DownOutlined } from '@ant-design/icons';
 
-import Title from "antd/lib/skeleton/Title";
 
-import { useState } from "react";
-import { validateMessages} from "../../utils/Messages";
+
+import { useEffect, useState } from "react";
+import { getCourses } from "../../api/api";
+import { Course } from "../../types/Course";
+
 
 
 
@@ -18,61 +20,66 @@ interface Props {
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
     const [loading, setLoading] = useState(false);
-    const [form] = useForm();
+    const [selectedCourse, setselectedCourse] = useState<Course>()
+    const [courses, setCourses] = useState<Course[]>([]);
 
-    
+
+    const onFinish = (values: any) => {
+        setIsTutorialOfferModalVisible(false)
+    };
 
     const onCancel = () => {
         setIsTutorialOfferModalVisible(false)
-        form.resetFields()
     }
+
+    useEffect(() => {
+        // initial opening of page: log in user if persisted
+        getCourses().then(Courses => {
+            setCourses(Courses);
+        }, err => {
+            message.error("Böses hui")
+        });
+    }, []);
+
+
 
     return (
 
-            <Modal
-                destroyOnClose={true}
-                visible={isModalVisible}
-                onCancel={onCancel}
-                title={"Tutoriumsangebot erstellen"}
-                width={600}
-                footer={[
+        <Modal
+            destroyOnClose={true}
+            visible={isModalVisible}
+            onCancel={onCancel}
+            title={"Tutoriumsangebot erstellen"}
+            width={600}
+            footer={[
+                <a href={"mailto:"+selectedCourse?.leadBy.map(user => {return user.email;}).concat() + "?body=Ein noch zu schreibender Text."} >
                     <Button
                         loading={loading}
                         type="primary"
                         htmlType="submit"
-                        onClick={e => form.submit()}>
-                        Absenden
+                        onClick={onFinish}
+                        disabled={selectedCourse? false: true}>
+                        Kontaktieren
                     </Button>
-                ]}
-            >
-                <Form
-                    
-                    form={form}
-                    labelCol={{ span: 5 }}
-                    wrapperCol={{ span: 17 }}
+                </a>
+            ]}
+        >
+
+            <div>
+                Für welchen Studiengang möchtest du ein Tutorium anbieten:<br></br>
+                <Select 
+                    placeholder="Studiengang wählen"
+                    onSelect={(selectedCourse: String) => {setselectedCourse(courses.find((course) => {return course.title === selectedCourse}))}}
                 >
+                    {courses.map(course => (
+                        <Select.Option key={course.id} value={course.title}>
+                            {course.title}
+                        </Select.Option>
+                    ))}
+                </Select>
+            </div>
 
-                    <Form.Item
-                        label="Zeitraum"
-                        name="timerange"
-                        rules={[{required: true}]}
-                    >
-                        <DatePicker.RangePicker
-                            placeholder={["Anfang", "Ende"]}
-                            format="DD.MM.YYYY"
-
-                        />
-
-                    </Form.Item>
-                    <Form.Item
-                        label="Beschreibung"
-                        name="description"
-                        rules={[{required: true}]}
-                    >
-                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
-                    </Form.Item>
-                </Form>
-            </Modal>
+        </Modal>
     )
 }
 
