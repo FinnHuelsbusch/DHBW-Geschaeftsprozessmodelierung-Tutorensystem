@@ -147,10 +147,3 @@ export const changePassword = (newPassword: string): Promise<User> => {
         return user;
     });
 }
-
-export const createTutorialOffer = (tutorialOffer: TutorialOffer): Promise<void> => {
-    return api.put('/tutorialoffer',
-        {
-            ...tutorialOffer
-        });
-}
