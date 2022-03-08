@@ -93,6 +93,5 @@ public class DevDataManager {
 		tutorial2.setParticipants(participants);
 		tutorial2 = tutorialRepository.save(tutorial2);
 	}
-    }
 
 }
