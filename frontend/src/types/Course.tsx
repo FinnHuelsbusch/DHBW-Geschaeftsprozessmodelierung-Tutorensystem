@@ -9,5 +9,5 @@ export interface SpecialisationCourse {
 export interface Course {
     id: number,
     title: string,
-    leadBy: [User]
+    leadBy: User[]
 }

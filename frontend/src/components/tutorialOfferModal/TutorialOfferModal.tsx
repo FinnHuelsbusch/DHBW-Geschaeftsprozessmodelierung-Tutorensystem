@@ -1,4 +1,4 @@
-import { Button, DatePicker, Dropdown, Form, Menu, message, Modal, Select } from "antd"
+import { Button, DatePicker, Divider, Dropdown, Form, Input, Menu, message, Modal, Select } from "antd"
 import { useForm } from "antd/lib/form/Form";
 import { DownOutlined } from '@ant-design/icons';
 
@@ -7,6 +7,9 @@ import { DownOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { getCourses } from "../../api/api";
 import { Course } from "../../types/Course";
+import TextArea from "antd/lib/input/TextArea";
+import moment from "moment";
+import { User } from "../../types/User";
 
 
 
@@ -19,13 +22,24 @@ interface Props {
 
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
-    const [loading, setLoading] = useState(false);
-    const [selectedCourse, setselectedCourse] = useState<Course>()
+    const [form] = useForm();
     const [courses, setCourses] = useState<Course[]>([]);
 
 
     const onFinish = (values: any) => {
-        setIsTutorialOfferModalVisible(false)
+        
+        setIsTutorialOfferModalVisible(false);
+        const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
+        Hochschule/Universität: ${values.university}%0D%0A
+        Studiengang: ${values.ownCourse}%0D%0A
+        Semester: ${values.semester}%0D%0A
+        Zeitraum: ${moment(values.timerange[0]).format("DD.MM.YYYY")} bis  ${values.timerange[1].format("DD.MM.YYYY")}%0D%0A
+        Beschreibung: ${values.description}`;
+
+        //get Emailadresses of the directors by the selected Courses
+        const mailEmailsString = values.offeredCourses.map((course: String) => courses.find(innerCourse => course === innerCourse.title)?.leadBy.map((user: User) => user.email)).flat().join(";");
+        window.location.href="mailto:" + mailEmailsString + "?body="+mailBodyString;
+        form.resetFields();
     };
 
     const onCancel = () => {
@@ -33,7 +47,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     }
 
     useEffect(() => {
-        // initial opening of page: log in user if persisted
+        // initial opening of page: get available courses
         getCourses().then(Courses => {
             setCourses(Courses);
         }, err => {
@@ -52,31 +66,115 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
             title={"Tutoriumsangebot erstellen"}
             width={600}
             footer={[
-                <a href={"mailto:"+selectedCourse?.leadBy.map(user => {return user.email;}).concat() + "?body=Ein noch zu schreibender Text."} >
-                    <Button
-                        loading={loading}
-                        type="primary"
-                        htmlType="submit"
-                        onClick={onFinish}
-                        disabled={selectedCourse? false: true}>
-                        Kontaktieren
-                    </Button>
-                </a>
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={e => form.submit()}>
+                    Kontaktieren
+                </Button>
             ]}
         >
 
             <div>
-                Für welchen Studiengang möchtest du ein Tutorium anbieten:<br></br>
-                <Select 
-                    placeholder="Studiengang wählen"
-                    onSelect={(selectedCourse: String) => {setselectedCourse(courses.find((course) => {return course.title === selectedCourse}))}}
+                <Form
+                    form={form}
+                    labelCol={{ span: 5 }}
+                    wrapperCol={{ span: 17 }}
+                    onFinish={onFinish}
                 >
-                    {courses.map(course => (
-                        <Select.Option key={course.id} value={course.title}>
-                            {course.title}
-                        </Select.Option>
-                    ))}
-                </Select>
+                    <Divider>Persönliche Daten:</Divider>
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Vorname:"
+                        name="firstname"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Nachname:"
+                        name="lastname"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Hochschule/Universität:"
+                        name="university"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Studiengang:"
+                        name="ownCourse"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Semester:"
+                        name="semester"
+                    >
+                        <Select
+                            showSearch
+                            placeholder="Semester wählen"
+                        >
+                            {Array.from(Array(12).keys()).map(i => (
+                                <Select.Option key={i} value={i}>
+                                    {i}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Divider>Daten des angebotenen Tutoriums:</Divider>
+                    <Form.Item
+                        label="Zeitraum:"
+                        name="timerange"
+                        rules={[{ required: true }]}
+                    >
+                        <DatePicker.RangePicker
+                            placeholder={["Anfang", "Ende"]}
+                            format="DD.MM.YYYY"
+
+                        />
+
+                    </Form.Item>
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Studiengang:"
+                        name="offeredCourses"
+                        
+                    >
+                        <Select
+                            mode="multiple"
+                            showSearch
+                            placeholder="Studiengang wählen"
+                        >
+                            {courses.map(course => (
+                                <Select.Option key={course.id} value={course.title}>
+                                    {course.title}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        label="Beschreibung:"
+                        name="description"
+                        rules={[{ required: true }]}
+                    >
+                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
+                    </Form.Item>
+                </Form>
+
+
+
+
+
             </div>
 
         </Modal>
