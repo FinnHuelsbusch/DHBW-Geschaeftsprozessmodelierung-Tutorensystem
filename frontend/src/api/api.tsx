@@ -160,7 +160,6 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
         startDateTo: filter.startDateTo,
         specialisationCourseIds: filter.specialisationCourseIds
     } as TutorialFilter;
-    console.log("sending filter:", attributesFilter);
     return api.post(`/tutorials/findWithFilter?page=${filter.page}&size=${filter.elementsPerPage}${sorting}`, attributesFilter)
         .then(res => {
             const data = res.data;

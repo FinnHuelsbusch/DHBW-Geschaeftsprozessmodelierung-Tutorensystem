@@ -3,45 +3,30 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.validation.Valid;
 
-import com.blazebit.persistence.Criteria;
-import com.blazebit.persistence.CriteriaBuilderFactory;
-import com.blazebit.persistence.PagedList;
-import com.blazebit.persistence.querydsl.BlazeCriteriaBuilderRenderer;
-import com.blazebit.persistence.querydsl.BlazeJPAQuery;
-import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.PathMetadata;
-import com.querydsl.core.types.TemplateFactory;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.data.querydsl.QuerydslUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +42,9 @@ public class TutorialController {
         @PersistenceUnit
         @Autowired
         private EntityManagerFactory entityManagerFactory;
+
+        @Autowired
+        ModelMapper modelMapper;
 
         @PostMapping("/findWithFilter")
         public ResponseEntity<FindTutorialsWithFilterResponse> findTutorialsWithFilter(Pageable pageable,
@@ -162,6 +150,7 @@ public class TutorialController {
                 for (Tutorial t : filteredTutorials) {
                         Hibernate.initialize(t.getSpecialisationCourses());
                         Hibernate.initialize(t.getTutors());
+                        Hibernate.initialize(t.getParticipants());
                 }
 
                 entityManager.getTransaction().commit();
@@ -169,11 +158,21 @@ public class TutorialController {
 
                 int totalPages = (int) Math.ceil((double) totalResultCount / pageable.getPageSize());
 
+                // List<TutorialDto> tutorialDtos = filteredTutorials.stream().map(
+                //                 t -> convertToDto(t)).collect(Collectors.toList());
+
                 return ResponseEntity.ok(new FindTutorialsWithFilterResponse(
                                 filteredTutorials,
                                 pageable.getPageNumber(),
                                 totalPages,
                                 totalResultCount));
+        }
+
+        private TutorialDto convertToDto(Tutorial tutorial) {
+                TutorialDto tutorialDto = modelMapper.map(tutorial, TutorialDto.class);
+                tutorialDto.setTutorNames(tutorial.getTutors().stream().map(tutor -> tutor.getFirstName())
+                                .collect(Collectors.toSet()));
+                return tutorialDto;
         }
 
 }

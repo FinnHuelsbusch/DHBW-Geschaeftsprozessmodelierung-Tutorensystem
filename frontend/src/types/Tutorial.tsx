@@ -1,10 +1,15 @@
-import { Sorting } from "./Paging"
+import { Sorting } from "./Paging";
+import { Course } from "./Course";
 
 export interface Tutorial {
+    id: number,
     title: string,
     description: string,
     start: Date,
-    end: Date
+    end: Date,
+    durationMinutes: number,
+    tutors: any,
+    specialisationCourses: Array<Course>
 }
 
 export interface TutorialFilter {

@@ -1,4 +1,5 @@
 import { List, Empty } from 'antd';
+import { PaginationConfig } from 'antd/lib/pagination';
 import React, { PropsWithChildren } from 'react';
 import { Page } from '../../types/Paging';
 
@@ -14,7 +15,9 @@ type PagingListProps<DataType> = {
     onPageChanged: (selectedPageOneBased: number, pageSize: number) => void,
     possiblePageSizes?: number[],
     defaultPageSize?: number,
-    onPageSizeChanged?: (currentPage: number, newSize: number) => void
+    showSizeChanger?: boolean,
+    isLoading: boolean,
+    loadingItem: () => JSX.Element,
     [x: string]: any, // varargs
 }
 
@@ -25,40 +28,51 @@ const PagingList: React.FC<PagingListProps<DataType>> = (
         listData, listItem, page, onPageChanged,
         possiblePageSizes = PageDefaults.possibleSizes,
         defaultPageSize = PageDefaults.pageSize,
-        onPageSizeChanged,
+        showSizeChanger = true,
+        isLoading,
+        loadingItem,
         ...varargs
     }: PropsWithChildren<PagingListProps<DataType>>
 ) => {
 
-    if (listData && page && listData.length > 0) {
-        const pageSizeChangeDefined = typeof onPageSizeChanged === 'function';
-        return (
-            <List
-                {...varargs}
-                dataSource={listData}
-                pagination={{
-                    pageSize: page.elementsPerPage,
-                    total: page.totalElements,
-                    // ant uses one-based index, but consumer expects zero-based
-                    // convert one-based to zero-based
-                    onChange: (page: number, pageSize: number) => onPageChanged(page - 1, pageSize),
-                    // convert zero-based to one-based
-                    current: page.currentPage + 1,
-                    showSizeChanger: pageSizeChangeDefined,
-                    pageSizeOptions: pageSizeChangeDefined ? possiblePageSizes : undefined,
-                    defaultPageSize: pageSizeChangeDefined ? defaultPageSize : undefined,
-                    // onShowSizeChange: pageSizeChangeDefined ? onPageSizeChanged : undefined
-                }}
-                renderItem={(item: DataType) => listItem(item)}
-            />
-        );
-    } else {
+    if (!listData || listData.length === 0 || !page) {
         return (
             <div className="no-data-info">
                 <Empty
                     description="Keine Daten verfügbar">
                 </Empty>
             </div>
+        );
+    } else {
+        const pagination: PaginationConfig = {
+            pageSize: page.elementsPerPage,
+            total: page.totalElements,
+            // ant uses one-based index, but consumer expects zero-based
+            // convert one-based to zero-based
+            onChange: (page: number, pageSize: number) => onPageChanged(page - 1, pageSize),
+            // convert zero-based to one-based
+            current: page.currentPage + 1,
+            // show page size options only if the corresponding callback is defined
+            // note: onChange method is also triggered on page change 
+            showSizeChanger: showSizeChanger,
+            pageSizeOptions: possiblePageSizes,
+            defaultPageSize: defaultPageSize,
+        }
+
+        return (
+            <List
+                {...varargs}
+                dataSource={listData}
+                pagination={pagination}
+                renderItem={(item: DataType) => {
+                    if (isLoading) {
+                        // loading: fill given number of elements with loading items
+                        return loadingItem();
+                    } else {
+                        return listItem(item);
+                    }
+                }}
+            />
         );
     }
 }

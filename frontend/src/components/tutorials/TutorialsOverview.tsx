@@ -1,20 +1,28 @@
-import { Button, Card, Col, DatePicker, Divider, Form, Input, List, Row, Select, Slider, Tag } from 'antd';
+import { Button, Card, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Slider, Tag } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
+import moment from 'moment';
 import { format } from 'path';
 import React, { useContext, useEffect, useState } from 'react';
-import { getFilteredTutorials } from '../../api/api';
+import { getFilteredTutorials, getRequestError } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { Page } from '../../types/Paging';
+import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
+import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList, { PageDefaults } from '../pagingList/PagingList';
+import TutorialDetails from './TutorialDetails';
 
 const TutorialsOverview: React.FC = () => {
 
     const authContext = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
+    const [form] = useForm();
+
+    const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | undefined>(undefined);
 
     const [filter, setFilter] = useState<TutorialFilter>({
         text: undefined,
@@ -34,21 +42,27 @@ const TutorialsOverview: React.FC = () => {
     });
 
     useEffect(() => {
+        // initially fetch first page
         fetchPage(0);
     }, []);
 
     useEffect(() => {
         // re-fetch the first page upon filter change
         fetchPage(0);
-        console.log("filter after change:", filter);
     }, [filter]);
 
     const fetchPage = (page: number) => {
-        console.log("fetching page", page);
+        setLoading(true);
         getFilteredTutorials(filter)
             .then(filteredTutorials => {
                 console.log("received:", filteredTutorials);
                 setFilteredTutorials(filteredTutorials);
+                setLoading(false);
+            }).catch(err => {
+                console.log("err", err);
+                const reqErr = getRequestError(err);
+                message.error(getErrorMessageString(reqErr.errorCode));
+                setLoading(false);
             });
     };
 
@@ -64,7 +78,6 @@ const TutorialsOverview: React.FC = () => {
     };
 
     const onPageChanged = (page: number, pageSize: number) => {
-        console.log("on page changed");
         setFilter({
             ...filter,
             // if page size has changed, re-fetch the first page
@@ -73,17 +86,8 @@ const TutorialsOverview: React.FC = () => {
         });
     }
 
-    const onPageSizeChanged = (currentPage: number, newSize: number) => {
-        // re-fetch the first page after number of page elements was changed
-        console.log("new size:", newSize);
-        setFilter({ ...filter, elementsPerPage: newSize, page: 0 });
-    }
-
-    const [form] = useForm();
-
 
     const FilterBar = () => {
-
         const resetFilter = () => {
             form.resetFields();
             onFilterChange();
@@ -97,7 +101,6 @@ const TutorialsOverview: React.FC = () => {
             <Form
                 form={form}
                 className="product-filter-form"
-                // onChange={e => onFilterChange()}
                 onFinish={onFilterChange}
             >
                 <Row gutter={24}>
@@ -127,11 +130,16 @@ const TutorialsOverview: React.FC = () => {
 
                 <Row>
                     <Col span={24} style={{ textAlign: 'right' }}>
-                        <Button type="primary" htmlType='submit' onClick={e => onSearchClick()}>
+                        <Button
+                            type="primary"
+                            loading={loading}
+                            htmlType='submit'
+                            onClick={e => onSearchClick()}>
                             Suchen
                         </Button>
                         <Button
                             style={{ margin: '0 8px' }}
+                            disabled={loading}
                             onClick={() => resetFilter()}>
                             Zurücksetzen
                         </Button>
@@ -152,7 +160,7 @@ const TutorialsOverview: React.FC = () => {
         return (
             <List.Item>
                 <Card
-                    onClick={e => alert("Click")}
+                    onClick={e => setSelectedTutorial(tutorial)}
                     hoverable
                     title={tutorial.title}
                     extra={authContext.loggedUser &&
@@ -161,6 +169,9 @@ const TutorialsOverview: React.FC = () => {
                 >
                     <Paragraph ellipsis={{ rows: 2, expandable: false }}>
                         {tutorial.description}
+                    </Paragraph>
+                    <Paragraph>
+                        {formatDate(tutorial.start)} - {formatDate(tutorial.end)}, Umfang {tutorial.durationMinutes} Minuten
                     </Paragraph>
                     <div>
                         {mockSpecialisationCourses.map(course => (
@@ -171,6 +182,16 @@ const TutorialsOverview: React.FC = () => {
             </List.Item>
         );
     };
+
+    const loadingItem = () => {
+        return (
+            <List.Item>
+                <Card>
+                    <Skeleton active paragraph={{ rows: 2 }} />
+                </Card>
+            </List.Item>
+        );
+    }
 
     return (
         <>
@@ -190,8 +211,6 @@ const TutorialsOverview: React.FC = () => {
                     xl: 3,
                     xxl: 5,
                 }}
-                listData={filteredTutorials.tutorials}
-                listItem={listItem}
                 page={{
                     elementsPerPage: filter.elementsPerPage,
                     currentPage: filteredTutorials.currentPage,
@@ -199,7 +218,15 @@ const TutorialsOverview: React.FC = () => {
                     totalPages: filteredTutorials.totalPages
                 } as Page}
                 onPageChanged={onPageChanged}
-                onPageSizeChanged={onPageSizeChanged}
+                listData={filteredTutorials.tutorials}
+                listItem={listItem}
+                isLoading={loading}
+                loadingItem={loadingItem}
+            />
+
+            <TutorialDetails
+                tutorial={selectedTutorial}
+                onClose={() => setSelectedTutorial(undefined)}
             />
         </>
     );
