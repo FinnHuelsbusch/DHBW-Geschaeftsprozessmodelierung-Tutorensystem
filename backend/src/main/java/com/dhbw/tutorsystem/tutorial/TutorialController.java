@@ -121,7 +121,7 @@ public class TutorialController {
         tutorial.setEnd(createTutorialRequest.getEnd());
         tutorial.setDurationMinutes(createTutorialRequest.getDurationMinutes());
         tutorial.setTutors(createTutorialRequest.getTutors());
-        tutorial.setSpcialisationCourses(createTutorialRequest.getSpcialisationCourses());
+        tutorial.setSpecialisationCourses(createTutorialRequest.getSpcialisationCourses());
 
         tutorial = tutorialRepository.save(tutorial);
  

@@ -2,7 +2,7 @@ import { Button, Divider, Form, Input, Modal, Select, Tooltip } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
-import { Course } from '../../types/Course';
+import { CourseWithEmailAndName, SpecialisationCourse } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
 import EmailFormInput from '../inputs/EmailFormInput';
 import PasswordWithConfirm from '../register/PasswordWithConfirm';
@@ -11,22 +11,31 @@ import { UserRole } from '../../types/User';
 
 const Settings: React.FC = () => {
 
-    const mockCourses: Array<Course> = [
+
+
+    const mockCourse: CourseWithEmailAndName = {
+        title: "Wirtschaftsinformatik", 
+        id: 1,
+        leadBy: [{
+            email: "panda@baer.hui", 
+            jwt:"1234",
+            loginExpirationDate: new Date("2022-03-08T20:51:46.558614"),
+            refreshToken:"gibtsNicht", 
+            roles:[UserRole.ROLE_STUDENT]
+
+        }]
+    }
+
+    const mockSpecialisationCourses: Array<SpecialisationCourse> = [
         {
             id: 1,
-            description: "WWI 19 MA SE A",
-            year: 2019,
-            specialization: "Software Engineering",
-            courseOfDegree: "Wirtschaftsinformatik",
-            block: "A"
+            title: "WWI 19 MA SE A",
+            course: mockCourse
         },
         {
             id: 2,
-            description: "WWI 19 MA SE B",
-            year: 2019,
-            specialization: "Software Engineering",
-            courseOfDegree: "Wirtschaftsinformatik",
-            block: "B"
+            title: "WWI 19 MA SE B", 
+            course: mockCourse
         },
     ];
 
@@ -76,11 +85,11 @@ const Settings: React.FC = () => {
                     name="course"
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
                     <Select>
-                        {mockCourses.map(course => (
+                        {mockSpecialisationCourses.map(course => (
                             <Select.Option
                                 key={`${course.id}`}
-                                value={`${course.description}`}>
-                                {course.description}
+                                value={`${course.title}`}>
+                                {course.title}
                             </Select.Option>
                         ))}
                     </Select>
