@@ -61,7 +61,7 @@ public class Tutorial {
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Set<SpecialisationCourse> specialisationCourse;
+    private Set<SpecialisationCourse> specialisationCourses;
 
     @Getter
     @Setter

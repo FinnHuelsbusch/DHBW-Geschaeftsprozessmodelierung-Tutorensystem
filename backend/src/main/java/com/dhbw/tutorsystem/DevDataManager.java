@@ -132,7 +132,7 @@ public class DevDataManager {
 		tutorial1.setStart(LocalDate.now());
 		tutorial1.setEnd(LocalDate.now().plusDays(21));
 		tutorial1.setParticipants(participants);
-        tutorial1.setSpecialisationCourse(specialisationCourses1);
+        tutorial1.setSpecialisationCourses(specialisationCourses1);
 		tutorial1 = tutorialRepository.save(tutorial1);
 
 
@@ -145,7 +145,7 @@ public class DevDataManager {
 		tutorial2.setStart(LocalDate.now().plusWeeks(4));
 		tutorial2.setEnd(LocalDate.now().plusWeeks(12));
 		tutorial2.setParticipants(participants);
-        tutorial2.setSpecialisationCourse(specialisationCourses1);
+        tutorial2.setSpecialisationCourses(specialisationCourses1);
 		tutorial2 = tutorialRepository.save(tutorial2);
 
     }
