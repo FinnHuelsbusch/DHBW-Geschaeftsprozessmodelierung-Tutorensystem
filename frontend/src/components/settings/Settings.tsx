@@ -1,41 +1,46 @@
-import { Button, Divider, Form, Input, Modal, Select } from 'antd';
+import { Button, Divider, Form, Input, Modal, Select, Tooltip } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
-import { Course } from '../../types/Course';
+import { CourseWithEmailAndName, SpecialisationCourse } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
+import EmailFormInput from '../inputs/EmailFormInput';
+import PasswordWithConfirm from '../register/PasswordWithConfirm';
+import ChangePasswordModal from './PasswordChangeModal';
+import { UserRole } from '../../types/User';
 
 const Settings: React.FC = () => {
 
-    const mockCourses: Array<Course> = [
+
+
+    const mockCourse: CourseWithEmailAndName = {
+        title: "Wirtschaftsinformatik", 
+        id: 1,
+        leadBy: [{
+            email: "panda@baer.hui", 
+            jwt:"1234",
+            loginExpirationDate: new Date("2022-03-08T20:51:46.558614"),
+            refreshToken:"gibtsNicht", 
+            roles:[UserRole.ROLE_STUDENT]
+
+        }]
+    }
+
+    const mockSpecialisationCourses: Array<SpecialisationCourse> = [
         {
             id: 1,
-            description: "WWI 19 MA SE A",
-            year: 2019,
-            specialization: "Software Engineering",
-            courseOfDegree: "Wirtschaftsinformatik",
-            block: "A"
+            title: "WWI 19 MA SE A",
+            course: mockCourse
         },
         {
             id: 2,
-            description: "WWI 19 MA SE B",
-            year: 2019,
-            specialization: "Software Engineering",
-            courseOfDegree: "Wirtschaftsinformatik",
-            block: "B"
+            title: "WWI 19 MA SE B", 
+            course: mockCourse
         },
     ];
 
     const authContext = useContext(AuthContext);
-    const [isChangePasswordModalVisible, setIsChangePasswordModalVisible] = useState(false);
-
-    const onChangePassword = () => {
-
-    };
-
-    const onChangePasswordCancel = () => {
-        setIsChangePasswordModalVisible(false);
-    };
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
     return (
         <>
@@ -47,19 +52,20 @@ const Settings: React.FC = () => {
                 labelCol={{ span: 8 }}
                 initialValues={{ email: authContext.loggedUser?.email }}
                 wrapperCol={{ span: 10 }}>
-                <Form.Item
-                    label="E-Mail"
-                    name="email">
-                    <Input
-                        disabled
-                        style={{ color: 'gray' }}
-                        contentEditable={true} />
-                </Form.Item>
+                <EmailFormInput disabled />
                 <Form.Item
                     label="Passwort">
-                    <Button type="default" onClick={e => setIsChangePasswordModalVisible(true)}>
-                        <LockOutlined />Passwort ändern
-                    </Button>
+                    <Tooltip
+                        title="Administratoren dürfen ihr Passwort nicht selbst ändern"
+                        visible={authContext.hasRoles([UserRole.ROLE_ADMIN]) ? undefined : false}
+                    >
+                        <Button
+                            type="default"
+                            onClick={e => setShowChangePasswordModal(true)}
+                            disabled={authContext.hasRoles([UserRole.ROLE_ADMIN])}>
+                            <LockOutlined />Passwort ändern
+                        </Button>
+                    </Tooltip>
                 </Form.Item>
                 <Divider />
                 <Form.Item
@@ -79,11 +85,11 @@ const Settings: React.FC = () => {
                     name="course"
                     rules={[{ required: true, message: 'Pflichtfeld' }]}>
                     <Select>
-                        {mockCourses.map(course => (
+                        {mockSpecialisationCourses.map(course => (
                             <Select.Option
                                 key={`${course.id}`}
-                                value={`${course.description}`}>
-                                {course.description}
+                                value={`${course.title}`}>
+                                {course.title}
                             </Select.Option>
                         ))}
                     </Select>
@@ -96,30 +102,9 @@ const Settings: React.FC = () => {
                 </Form.Item>
             </Form>
 
-            <Modal
-                title="Passwort ändern"
-                visible={isChangePasswordModalVisible}
-                onOk={onChangePassword}
-                onCancel={onChangePasswordCancel}
-                width={800}>
-                <Form
-                    name="login"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 14 }}>
-                    <Form.Item
-                        label="Neues Passwort"
-                        name="password"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input.Password />
-                    </Form.Item>
-                    <Form.Item
-                        label="Neues Passwort (bestätigen)"
-                        name="password"
-                        rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                        <Input.Password />
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <ChangePasswordModal
+                visible={showChangePasswordModal}
+                onClose={() => setShowChangePasswordModal(false)} />
         </>
     );
 }

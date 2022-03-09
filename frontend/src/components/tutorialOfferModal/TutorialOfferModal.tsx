@@ -1,94 +1,176 @@
-import { Button, ConfigProvider, DatePicker, Form, message, Modal } from "antd"
+import { Button, DatePicker, Divider, Form, Input, message, Modal, Select } from "antd"
 import { useForm } from "antd/lib/form/Form";
+import { useEffect, useState } from "react";
+import { getCourses, getRequestError } from "../../api/api";
+import { CourseWithEmailAndName } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
-import locale from 'antd/lib/locale/de_DE';
-import Title from "antd/lib/skeleton/Title";
-import 'moment/locale/de'
-import { useState } from "react";
-import { createTutorialOffer } from "../../api/api";
-import { TutorialOffer } from "../../types/Tutorial";
-import { validateMessages} from "../../utils/Messages";
-
-
+import moment from "moment";
+import { User } from "../../types/User";
+import { getErrorMessageString } from "../../types/RequestError";
 
 interface Props {
     isModalVisible: boolean,
     setIsTutorialOfferModalVisible: (visible: boolean) => void
 }
 
-
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
-    const [loading, setLoading] = useState(false);
     const [form] = useForm();
+    const [courses, setCourses] = useState<CourseWithEmailAndName[]>([]);
 
     const onFinish = (values: any) => {
-        setLoading(true);
-        createTutorialOffer({
-            description: values.description,
-            start: values.timerange[0].toDate(),
-            end: values.timerange[1].toDate()
-        } as TutorialOffer).then(res => {
-            setLoading(false);
-            message.success("Tutoriumsangebot erfolgreich erstellt.");
-            setIsTutorialOfferModalVisible(false);
-            form.resetFields()
-        }, err => {
-            setLoading(false);
-            message.error("Tutoriumsangebot konnte nicht erstellt werden.");
-        }
+        console.log("values", values);
 
-        )
+        const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
+        Hochschule/Universität: ${values.university}%0D%0A
+        Studiengang: ${values.ownCourse}%0D%0A
+        Semester: ${values.semester}%0D%0A
+        Zeitraum: ${moment(values.timerange[0]).format("DD.MM.YYYY")} bis  ${values.timerange[1].format("DD.MM.YYYY")}%0D%0A
+        Beschreibung: ${values.description}`;
+
+        //get Emailadresses of the directors by the selected Courses
+        const mailEmailsString = values.offeredCourses.map((course: String) => courses.find(innerCourse => course === innerCourse.title)?.leadBy.map((user: User) => user.email)).flat().join(";");
+        window.location.href = "mailto:" + mailEmailsString + "?body=" + mailBodyString;
+        setIsTutorialOfferModalVisible(false);
+        form.resetFields();
     };
 
     const onCancel = () => {
         setIsTutorialOfferModalVisible(false)
-        form.resetFields()
     }
 
+    useEffect(() => {
+        // initial opening of page: get available courses
+        if (isModalVisible) {
+            getCourses().then(Courses => {
+                setCourses(Courses);
+            }, err => {
+                message.error(getErrorMessageString(getRequestError(err).errorCode))
+            });
+        }
+    }, [isModalVisible]);
+
+
+
     return (
-        <ConfigProvider locale={locale}>
-            <Modal
-                destroyOnClose={true}
-                visible={isModalVisible}
-                onCancel={onCancel}
-                title={"Tutoriumsangebot erstellen"}
-                width={600}
-                footer={[
-                    <Button loading={loading} type="primary" onClick={e => form.submit()}>
-                        Absenden
-                    </Button>
-                ]}
-            >
+
+        <Modal
+            destroyOnClose={true}
+            visible={isModalVisible}
+            onCancel={onCancel}
+            title={"Tutoriumsangebot erstellen"}
+            width={600}
+            footer={[
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={e => form.submit()}>
+                    Kontaktieren
+                </Button>
+            ]}
+        >
+
+            <div>
                 <Form
-                    onFinish={onFinish}
                     form={form}
-                    labelCol={{ span: 5 }}
-                    wrapperCol={{ span: 17 }}
+                    labelCol={{ span: 9 }}
+                    wrapperCol={{ span: 15 }}
+                    onFinish={onFinish}
                 >
+                    <Divider>Persönliche Daten</Divider>
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Vorname:"
+                        name="firstname"
+                    >
+                        <Input />
+                    </Form.Item>
 
                     <Form.Item
-                        label="Zeitraum"
+                        rules={[{ required: true }]}
+                        label="Nachname:"
+                        name="lastname"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Hochschule/Universität:"
+                        name="university"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Studiengang:"
+                        name="ownCourse"
+                    >
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Semester:"
+                        name="semester"
+                    >
+                        <Select
+                            showSearch
+                            placeholder="Semester wählen"
+                        >
+                            {Array.from(Array(12).keys()).map(i => (
+                                <Select.Option key={i + 1} value={i + 1}>
+                                    {i + 1}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Divider>Daten für angebotene Tutorien</Divider>
+                    <Form.Item
+                        label="Zeitraum:"
                         name="timerange"
-                        rules={[{required: true}]}
+                        rules={[{ required: true }]}
                     >
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
-
                         />
-
                     </Form.Item>
                     <Form.Item
-                        label="Beschreibung"
+                        rules={[{ required: true }]}
+                        label="Angebotene Studiengänge:"
+                        name="offeredCourses"
+
+                    >
+                        <Select
+                            mode="multiple"
+                            showSearch
+                            placeholder="Studiengang wählen"
+                        >
+                            {courses.map(course => (
+                                <Select.Option key={course.id} value={course.title}>
+                                    {course.title}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        label="Beschreibung:"
                         name="description"
-                        rules={[{required: true}]}
+                        rules={[{ required: true }]}
                     >
                         <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
                     </Form.Item>
                 </Form>
-            </Modal>
-        </ConfigProvider>
+
+
+
+
+
+            </div>
+
+        </Modal>
     )
 }
 
