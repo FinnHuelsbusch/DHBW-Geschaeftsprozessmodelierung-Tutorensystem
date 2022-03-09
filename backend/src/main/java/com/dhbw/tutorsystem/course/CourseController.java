@@ -1,6 +1,10 @@
 package com.dhbw.tutorsystem.course;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 
@@ -35,7 +39,9 @@ public class CourseController {
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @GetMapping()
-    public ResponseEntity<Iterable<Course>> getCourses() {
-        return new ResponseEntity<Iterable<Course>>(courseRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<CourseResponse>> getCourses() {
+        
+        List<CourseResponse> reposes = StreamSupport.stream(courseRepository.findAll().spliterator(), false).map((t) -> new CourseResponse(t.getId(),t.getTitle(), t.getLeadBy())).collect(Collectors.toList()); 
+        return new ResponseEntity<List<CourseResponse>>(reposes, HttpStatus.OK);
     }
 }
