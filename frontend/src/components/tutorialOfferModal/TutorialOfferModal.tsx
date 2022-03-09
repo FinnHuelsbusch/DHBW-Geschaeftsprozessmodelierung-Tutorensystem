@@ -1,12 +1,10 @@
-import { Button, ConfigProvider, DatePicker, Form, message, Modal } from "antd"
+import { Button, DatePicker, Form, message, Modal } from "antd"
 import { useForm } from "antd/lib/form/Form";
 import TextArea from "antd/lib/input/TextArea";
-import locale from 'antd/lib/locale/de_DE';
+
 import Title from "antd/lib/skeleton/Title";
-import 'moment/locale/de'
+
 import { useState } from "react";
-import { createTutorialOffer } from "../../api/api";
-import { TutorialOffer } from "../../types/Tutorial";
 import { validateMessages} from "../../utils/Messages";
 
 
@@ -22,24 +20,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
 
-    const onFinish = (values: any) => {
-        setLoading(true);
-        createTutorialOffer({
-            description: values.description,
-            start: values.timerange[0].toDate(),
-            end: values.timerange[1].toDate()
-        } as TutorialOffer).then(res => {
-            setLoading(false);
-            message.success("Tutoriumsangebot erfolgreich erstellt.");
-            setIsTutorialOfferModalVisible(false);
-            form.resetFields()
-        }, err => {
-            setLoading(false);
-            message.error("Tutoriumsangebot konnte nicht erstellt werden.");
-        }
-
-        )
-    };
+    
 
     const onCancel = () => {
         setIsTutorialOfferModalVisible(false)
@@ -47,7 +28,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     }
 
     return (
-        <ConfigProvider locale={locale}>
+
             <Modal
                 destroyOnClose={true}
                 visible={isModalVisible}
@@ -55,13 +36,17 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                 title={"Tutoriumsangebot erstellen"}
                 width={600}
                 footer={[
-                    <Button loading={loading} type="primary" onClick={e => form.submit()}>
+                    <Button
+                        loading={loading}
+                        type="primary"
+                        htmlType="submit"
+                        onClick={e => form.submit()}>
                         Absenden
                     </Button>
                 ]}
             >
                 <Form
-                    onFinish={onFinish}
+                    
                     form={form}
                     labelCol={{ span: 5 }}
                     wrapperCol={{ span: 17 }}
@@ -88,7 +73,6 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     </Form.Item>
                 </Form>
             </Modal>
-        </ConfigProvider>
     )
 }
 
