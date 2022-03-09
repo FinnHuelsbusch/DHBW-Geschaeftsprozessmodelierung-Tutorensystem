@@ -4,6 +4,7 @@ import Title from 'antd/lib/typography/Title';
 import React from 'react';
 import { Tutorial } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
+import './TutorialDetails.scss';
 
 type Props = {
     tutorial: Tutorial | undefined,
@@ -14,10 +15,10 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
 
     const getDetailsRow = (label: string, content: any) => {
         return (
-            <Row gutter={{ xs: 1, sm: 16, md: 24, lg: 32 }}>
-                <Col span={6}>{label}</Col>
-                <Col flex="auto">{content}</Col>
-            </Row>
+            <Row>
+                <Col className="view-only-label" flex={"0 0 200px"}>{label}</Col>
+                <Col className="view-only-value" flex={"1 1 200px"}>{content}</Col>
+            </Row >
         );
     }
 
@@ -31,7 +32,7 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
                 <Typography>
                     <Title level={4}>Details</Title>
                     <Paragraph>
-                        {getDetailsRow("Umfang", tutorial.durationMinutes)}
+                        {getDetailsRow("Umfang", `${tutorial.durationMinutes} Minuten`)}
                         {getDetailsRow("Zeitraum", `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
                         {getDetailsRow("Anzahl Teilnehmer", tutorial.numberOfParticipants)}
                     </Paragraph>
