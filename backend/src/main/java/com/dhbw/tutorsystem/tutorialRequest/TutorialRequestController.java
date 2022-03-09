@@ -1,5 +1,6 @@
 package com.dhbw.tutorsystem.tutorialRequest;
 
+import com.dhbw.tutorsystem.security.authentication.exception.StudentNotLoggedInException;
 import com.dhbw.tutorsystem.user.student.Student;
 import com.dhbw.tutorsystem.user.student.StudentService;
 
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/tutorialrequest")
@@ -39,23 +39,18 @@ public class TutorialRequestController {
     })
     @PutMapping
     public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialRequestRequest createTutorialRequestRequest) {
-
-        TutorialRequest tutorialRequest = new TutorialRequest();
-
-        tutorialRequest.setDescription(createTutorialRequestRequest.getDescription());
-        tutorialRequest.setTitle(createTutorialRequestRequest.getTitle());
-        tutorialRequest.setSemester(createTutorialRequestRequest.getSemester());
-
         // find out which user executes this operation
         Student student = studentService.getLoggedInStudent();
         if (student != null) {
+            TutorialRequest tutorialRequest = new TutorialRequest();
+            tutorialRequest.setDescription(createTutorialRequestRequest.getDescription());
+            tutorialRequest.setTitle(createTutorialRequestRequest.getTitle());
+            tutorialRequest.setSemester(createTutorialRequestRequest.getSemester());
             tutorialRequest.setCreatedBy(student);
-        } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-
-        tutorialRequestRepository.save(tutorialRequest);
-
+            tutorialRequestRepository.save(tutorialRequest);
         return new ResponseEntity<Void>(HttpStatus.CREATED);
+        } else {
+            throw new StudentNotLoggedInException();
+        }
     }
 }
