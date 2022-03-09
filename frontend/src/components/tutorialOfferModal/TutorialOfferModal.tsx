@@ -8,24 +8,19 @@ import moment from "moment";
 import { User } from "../../types/User";
 import { getErrorMessageString } from "../../types/RequestError";
 
-
-
-
 interface Props {
     isModalVisible: boolean,
     setIsTutorialOfferModalVisible: (visible: boolean) => void
 }
-
 
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
     const [form] = useForm();
     const [courses, setCourses] = useState<CourseWithEmailAndName[]>([]);
 
-
     const onFinish = (values: any) => {
-        
-        
+        console.log("values", values);
+
         const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
         Hochschule/Universität: ${values.university}%0D%0A
         Studiengang: ${values.ownCourse}%0D%0A
@@ -35,10 +30,9 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
 
         //get Emailadresses of the directors by the selected Courses
         const mailEmailsString = values.offeredCourses.map((course: String) => courses.find(innerCourse => course === innerCourse.title)?.leadBy.map((user: User) => user.email)).flat().join(";");
-        window.location.href="mailto:" + mailEmailsString + "?body="+mailBodyString;
+        window.location.href = "mailto:" + mailEmailsString + "?body=" + mailBodyString;
         setIsTutorialOfferModalVisible(false);
         form.resetFields();
-        
     };
 
     const onCancel = () => {
@@ -47,12 +41,14 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
 
     useEffect(() => {
         // initial opening of page: get available courses
-        getCourses().then(Courses => {
-            setCourses(Courses);
-        }, err => {
-            message.error(getErrorMessageString(getRequestError(err).errorCode))
-        });
-    }, []);
+        if (isModalVisible) {
+            getCourses().then(Courses => {
+                setCourses(Courses);
+            }, err => {
+                message.error(getErrorMessageString(getRequestError(err).errorCode))
+            });
+        }
+    }, [isModalVisible]);
 
 
 
@@ -77,11 +73,11 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
             <div>
                 <Form
                     form={form}
-                    labelCol={{ span: 5 }}
-                    wrapperCol={{ span: 17 }}
+                    labelCol={{ span: 9 }}
+                    wrapperCol={{ span: 15 }}
                     onFinish={onFinish}
                 >
-                    <Divider>Persönliche Daten:</Divider>
+                    <Divider>Persönliche Daten</Divider>
                     <Form.Item
                         rules={[{ required: true }]}
                         label="Vorname:"
@@ -124,13 +120,13 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                             placeholder="Semester wählen"
                         >
                             {Array.from(Array(12).keys()).map(i => (
-                                <Select.Option key={i} value={i}>
-                                    {i}
+                                <Select.Option key={i + 1} value={i + 1}>
+                                    {i + 1}
                                 </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
-                    <Divider>Daten des angebotenen Tutoriums:</Divider>
+                    <Divider>Daten für angebotene Tutorien</Divider>
                     <Form.Item
                         label="Zeitraum:"
                         name="timerange"
@@ -139,15 +135,13 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
-
                         />
-
                     </Form.Item>
                     <Form.Item
                         rules={[{ required: true }]}
-                        label="Studiengang:"
+                        label="Angebotene Studiengänge:"
                         name="offeredCourses"
-                        
+
                     >
                         <Select
                             mode="multiple"
