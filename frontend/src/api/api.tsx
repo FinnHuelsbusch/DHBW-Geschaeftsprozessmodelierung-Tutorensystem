@@ -1,5 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
+import { CourseWithEmailAndName, SpecialisationCourse } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { User } from '../types/User';
 
@@ -145,4 +146,9 @@ export const changePassword = (newPassword: string): Promise<User> => {
         } as User;
         return user;
     });
+}
+
+export const getCourses = (): Promise<CourseWithEmailAndName[]> => {
+    return api.get('/courses/withoutSpecialisation')
+        .then(res => res.data);
 }
