@@ -18,7 +18,7 @@ const Overview: React.FC = () => {
       }}>
         Ping backend
       </Button>
-      <Button type="link" onClick={() => { setIsTutorialOfferModalVisible(true) }}>
+      <Button type="link" onClick={() => setIsTutorialOfferModalVisible(true)}>
         OfferModal
       </Button>
       <TutorialOfferModal

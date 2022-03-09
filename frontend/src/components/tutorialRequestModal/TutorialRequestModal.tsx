@@ -62,10 +62,10 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                 validateMessages={validateMessages}
             >
                 <Form.Item label="Titel" name="title" rules={[{ required: true },{whitespace: true}]}>
-                    <Input placeholder="Programmieren I" allowClear />
+                    <Input placeholder="Titel der Vorlesung" allowClear disabled={loading} />
                 </Form.Item>
-                <Form.Item label="Dein Semester" name="semester" rules={[{required:true}]}>
-                    <Select style={{ width: 60 }} allowClear>
+                <Form.Item label="Semester" name="semester" rules={[{required:true}]}>
+                    <Select style={{ width: 60 }} allowClear disabled={loading}>
                         <Option value="1">1</Option>
                         <Option value="2">2</Option>
                         <Option value="3">3</Option>
@@ -75,7 +75,7 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                     </Select>
                 </Form.Item>
                 <Form.Item label="Beschreibung" name="description" rules={[{required: true}]}>
-                    <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
+                    <TextArea rows={4} placeholder="Beschreiben Sie hier, bei welchen Themen Sie Unterstützung brauchen." maxLength={500} showCount disabled={loading}/>
                 </Form.Item>
             </Form>
         </Modal>
