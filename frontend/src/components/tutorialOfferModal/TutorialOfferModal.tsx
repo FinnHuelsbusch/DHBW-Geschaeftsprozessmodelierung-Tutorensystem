@@ -1,15 +1,12 @@
-import { Button, DatePicker, Divider, Dropdown, Form, Input, Menu, message, Modal, Select } from "antd"
+import { Button, DatePicker, Divider, Form, Input, message, Modal, Select } from "antd"
 import { useForm } from "antd/lib/form/Form";
-import { DownOutlined } from '@ant-design/icons';
-
-
-
 import { useEffect, useState } from "react";
-import { getCourses } from "../../api/api";
+import { getCourses, getRequestError } from "../../api/api";
 import { CourseWithEmailAndName } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import { User } from "../../types/User";
+import { getErrorMessageString } from "../../types/RequestError";
 
 
 
@@ -28,7 +25,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
 
     const onFinish = (values: any) => {
         
-        setIsTutorialOfferModalVisible(false);
+        
         const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
         Hochschule/Universität: ${values.university}%0D%0A
         Studiengang: ${values.ownCourse}%0D%0A
@@ -39,7 +36,9 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
         //get Emailadresses of the directors by the selected Courses
         const mailEmailsString = values.offeredCourses.map((course: String) => courses.find(innerCourse => course === innerCourse.title)?.leadBy.map((user: User) => user.email)).flat().join(";");
         window.location.href="mailto:" + mailEmailsString + "?body="+mailBodyString;
+        setIsTutorialOfferModalVisible(false);
         form.resetFields();
+        
     };
 
     const onCancel = () => {
@@ -51,7 +50,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
         getCourses().then(Courses => {
             setCourses(Courses);
         }, err => {
-            message.error("Böses hui")
+            message.error(getErrorMessageString(getRequestError(err).errorCode))
         });
     }, []);
 

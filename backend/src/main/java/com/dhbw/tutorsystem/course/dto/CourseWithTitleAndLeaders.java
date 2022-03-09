@@ -20,31 +20,18 @@ import com.dhbw.tutorsystem.user.dto.UserWithEmailAndName;
 import org.modelmapper.ModelMapper;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 
+@Data
 public class CourseWithTitleAndLeaders {
 
-    
-    // public CourseWithTitleAndLeaders(int id, String title, Set<Director> leadBy){
-    //     this.title = title; 
-    //     this.id = id; 
-    //     this.leadBy = leadBy.stream().map((director) -> new InnerUser(director.getFirstName(), director.getLastName(), director.getEmail())).collect(Collectors.toSet()); 
-    // }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
-    @Setter
     private Integer id;
 
-    @Getter
-    @Setter
     private String title;
 
-    @Getter
-    @Setter
     private Set<UserWithEmailAndName> leadBy;
 
     public static CourseWithTitleAndLeaders convertToDto(ModelMapper modelMapper, Course course){

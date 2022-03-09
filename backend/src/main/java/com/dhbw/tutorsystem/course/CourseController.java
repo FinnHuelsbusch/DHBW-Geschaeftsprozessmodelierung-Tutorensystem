@@ -32,10 +32,9 @@ public class CourseController {
     private final CourseRepository courseRepository; 
     
 
-    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
+    @Operation(summary = "Get Courses without Specialisation", tags = { "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
-            @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "200", description = " Courses without Specialisation are returned as list."),
     })
     @GetMapping("/withoutSpecialisation")
     public ResponseEntity<List<CourseWithTitleAndLeaders>> getCourses() {
