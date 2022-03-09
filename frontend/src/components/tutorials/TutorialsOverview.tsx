@@ -1,11 +1,7 @@
-import { Button, Card, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Slider, Tag } from 'antd';
-import Meta from 'antd/lib/card/Meta';
+import { Button, Card, Col, DatePicker, Divider, Form, Input, List, message, Row, Skeleton, Tag, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
-import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
-import moment from 'moment';
-import { format } from 'path';
 import React, { useContext, useEffect, useState } from 'react';
 import { getFilteredTutorials, getRequestError } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
@@ -15,6 +11,7 @@ import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tu
 import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList, { PageDefaults } from '../pagingList/PagingList';
 import TutorialDetails from './TutorialDetails';
+import { UserOutlined } from '@ant-design/icons'
 
 const TutorialsOverview: React.FC = () => {
 
@@ -163,8 +160,14 @@ const TutorialsOverview: React.FC = () => {
                     onClick={e => setSelectedTutorial(tutorial)}
                     hoverable
                     title={tutorial.title}
-                    extra={authContext.loggedUser &&
-                        <Button type='link'>Vormerken</Button>
+                    extra={
+                        <>
+                            {authContext.loggedUser &&
+                                <Button type='link'>Vormerken</Button>}
+                            <Tooltip title={`${tutorial.numberOfParticipants} Teilnehmer`}>
+                                <UserOutlined /> {tutorial.numberOfParticipants}
+                            </Tooltip>
+                        </>
                     }
                 >
                     <Paragraph ellipsis={{ rows: 2, expandable: false }}>

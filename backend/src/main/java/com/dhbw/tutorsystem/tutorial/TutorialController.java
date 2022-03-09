@@ -15,6 +15,7 @@ import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
+import com.dhbw.tutorsystem.user.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -153,16 +154,16 @@ public class TutorialController {
                         Hibernate.initialize(t.getParticipants());
                 }
 
+                List<TutorialDto> tutorialDtos = filteredTutorials.stream().map(
+                                t -> convertToDto(t)).collect(Collectors.toList());
+
                 entityManager.getTransaction().commit();
                 entityManager.close();
 
                 int totalPages = (int) Math.ceil((double) totalResultCount / pageable.getPageSize());
 
-                // List<TutorialDto> tutorialDtos = filteredTutorials.stream().map(
-                //                 t -> convertToDto(t)).collect(Collectors.toList());
-
                 return ResponseEntity.ok(new FindTutorialsWithFilterResponse(
-                                filteredTutorials,
+                                tutorialDtos,
                                 pageable.getPageNumber(),
                                 totalPages,
                                 totalResultCount));
@@ -170,9 +171,16 @@ public class TutorialController {
 
         private TutorialDto convertToDto(Tutorial tutorial) {
                 TutorialDto tutorialDto = modelMapper.map(tutorial, TutorialDto.class);
-                tutorialDto.setTutorNames(tutorial.getTutors().stream().map(tutor -> tutor.getFirstName())
+                // map tutors to tutorDtos
+                tutorialDto.setTutors(tutorial.getTutors().stream().map(tutor -> convertToDto(tutor))
                                 .collect(Collectors.toSet()));
+                int numberOfParticipants = tutorial.getParticipants() != null ? tutorial.getParticipants().size() : 0;
+                tutorialDto.setNumberOfParticipants(numberOfParticipants);
                 return tutorialDto;
+        }
+
+        private UserDto convertToDto(User user) {
+                return modelMapper.map(user, UserDto.class);
         }
 
 }

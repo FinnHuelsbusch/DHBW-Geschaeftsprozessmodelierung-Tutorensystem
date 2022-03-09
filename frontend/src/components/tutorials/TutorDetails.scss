@@ -1,0 +1,11 @@
+@media (max-width: 826px) {
+    .view-only-label {
+        text-align: left;
+    }
+}
+
+@media (min-width: 827px) {
+    .view-only-label {
+        text-align: right;
+    }
+}

@@ -8,8 +8,16 @@ export interface Tutorial {
     start: Date,
     end: Date,
     durationMinutes: number,
-    tutors: any,
-    specialisationCourses: Array<Course>
+    tutors: Array<Tutor>,
+    specialisationCourses: Array<Course>,
+    numberOfParticipants: number
+}
+
+export interface Tutor {
+    id: number,
+    firstName: string,
+    lastName: string,
+    email: string
 }
 
 export interface TutorialFilter {

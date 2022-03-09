@@ -1,4 +1,4 @@
-import { Col, Descriptions, Modal, Row, Tag, Typography } from 'antd';
+import { Col, Modal, Row, Tag, Typography } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React from 'react';
@@ -14,8 +14,8 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
 
     const getDetailsRow = (label: string, content: any) => {
         return (
-            <Row>
-                <Col flex="100px">{label}</Col>
+            <Row gutter={{ xs: 1, sm: 16, md: 24, lg: 32 }}>
+                <Col span={6}>{label}</Col>
                 <Col flex="auto">{content}</Col>
             </Row>
         );
@@ -29,6 +29,13 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
         >
             {tutorial &&
                 <Typography>
+                    <Title level={4}>Details</Title>
+                    <Paragraph>
+                        {getDetailsRow("Umfang", tutorial.durationMinutes)}
+                        {getDetailsRow("Zeitraum", `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
+                        {getDetailsRow("Anzahl Teilnehmer", tutorial.numberOfParticipants)}
+                    </Paragraph>
+
                     <Title level={4}>Inhalt</Title>
                     <Paragraph>{tutorial.description}</Paragraph>
 
@@ -37,12 +44,6 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
                         {tutorial.specialisationCourses.map(course => (
                             <Tag>{course.specialization}</Tag>
                         ))}
-                    </Paragraph>
-
-                    <Title level={4}>Ablauf</Title>
-                    <Paragraph>
-                        {getDetailsRow("Umfang", tutorial.durationMinutes)}
-                        {getDetailsRow("Zeitraum", `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
                     </Paragraph>
                 </Typography>
             }
