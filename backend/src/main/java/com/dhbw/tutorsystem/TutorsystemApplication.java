@@ -1,19 +1,14 @@
 package com.dhbw.tutorsystem;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.dhbw.tutorsystem.course.CourseRepository;
 import com.dhbw.tutorsystem.role.RoleRepository;
-import com.dhbw.tutorsystem.tutorial.Tutorial;
-import com.dhbw.tutorsystem.tutorial.TutorialController;
-import com.dhbw.tutorsystem.tutorial.TutorialDto;
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.TutorialRepository;
 import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.director.DirectorRepository;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,9 +23,8 @@ public class TutorsystemApplication {
 	}
 
 	@Bean
-	public ModelMapper modelMapper() {
-		ModelMapper mapper = new ModelMapper();
-		return mapper;
+	public ModelMapper modelMapper(){
+		return new ModelMapper();
 	}
 
 	@Bean
@@ -39,11 +33,12 @@ public class TutorsystemApplication {
 			UserRepository userRepository,
 			PasswordEncoder encoder,
 			DirectorRepository directorRepository,
-			StudentRepository studentRepository,
-			TutorialRepository tutorialRepository) {
+			StudentRepository studentRepository, 
+			TutorialRepository tutorialRepository,
+			CourseRepository courseRepository, 
+			SpecialisationCourseRepository specialisationCourseRepository) {
 		return (args) -> {
-			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository,
-					tutorialRepository)
+			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository, tutorialRepository, courseRepository, specialisationCourseRepository)
 					.initDatabaseForDevelopment();
 		};
 	}

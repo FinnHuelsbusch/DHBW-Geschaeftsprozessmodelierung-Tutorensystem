@@ -1,5 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
+import { CourseWithEmailAndName, SpecialisationCourse } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
 import { User } from '../types/User';
@@ -170,4 +171,9 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
                 totalElements: data.totalElements
             } as TutorialFilterResponse;
         });
+}
+
+export const getCourses = (): Promise<CourseWithEmailAndName[]> => {
+    return api.get('/courses/withoutSpecialisation')
+        .then(res => res.data);
 }

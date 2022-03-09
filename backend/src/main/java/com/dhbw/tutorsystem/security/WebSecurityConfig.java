@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // correspond to REST
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests().antMatchers("/ping").permitAll()
+            .antMatchers("/courses/**").permitAll()
             .antMatchers("/authentication/**").permitAll()
             .antMatchers("/authentication/changePassword").authenticated()
             .antMatchers("/tutorials/findWithFilter").permitAll()
