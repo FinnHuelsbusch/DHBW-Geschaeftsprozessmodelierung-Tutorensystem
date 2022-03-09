@@ -15,7 +15,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class JwtUtils {
-    private static final Logger logger = LoggerFactory.getLogger("com");
+    private static final Logger logger = LoggerFactory.getLogger("main");
 
     @Value("${backend.app.jwtSecret}")
     private String jwtSecret;
