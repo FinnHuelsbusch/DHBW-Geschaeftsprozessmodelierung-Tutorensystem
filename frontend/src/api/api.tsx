@@ -154,13 +154,14 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
             .map(sort => `&sort=${sort.attribute},${sort.order}`)
             .reduce((prev, curr) => prev + curr)
         : "";
-    const filterRequest = {
+    const attributesFilter = {
         text: filter.text,
         startDateFrom: filter.startDateFrom,
         startDateTo: filter.startDateTo,
         specialisationCourseIds: filter.specialisationCourseIds
     } as TutorialFilter;
-    return api.post(`/tutorials/findWithFilter?page=${filter.currentPage}&size=${filter.elementsPerPage}${sorting}`, filterRequest)
+    console.log("sending filter:", attributesFilter);
+    return api.post(`/tutorials/findWithFilter?page=${filter.page}&size=${filter.elementsPerPage}${sorting}`, attributesFilter)
         .then(res => {
             const data = res.data;
             return {

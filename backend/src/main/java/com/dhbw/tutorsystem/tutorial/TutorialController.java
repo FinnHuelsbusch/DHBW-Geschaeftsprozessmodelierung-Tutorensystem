@@ -67,13 +67,12 @@ public class TutorialController {
 
                 // search text: any word matches title or description
                 BooleanBuilder textMatches = new BooleanBuilder();
-                if (filterRequest.getTitle() != null) {
-                        List<String> textsToMatch = Arrays.asList(filterRequest.getTitle().split(" "));
+                if (filterRequest.getText() != null) {
+                        List<String> textsToMatch = Arrays.asList(filterRequest.getText().split(" "));
                         for (String text : textsToMatch) {
                                 text = "%" + text + "%";
-                                textMatches.and(
-                                                tutorial.title.likeIgnoreCase(text)
-                                                                .or(tutorial.description.likeIgnoreCase(text)));
+                                textMatches.and(tutorial.title.likeIgnoreCase(text)
+                                                .or(tutorial.description.likeIgnoreCase(text)));
                         }
                 }
 
@@ -163,7 +162,7 @@ public class TutorialController {
                 for (Tutorial t : filteredTutorials) {
                         Hibernate.initialize(t.getSpecialisationCourses());
                         Hibernate.initialize(t.getTutors());
-                    }
+                }
 
                 entityManager.getTransaction().commit();
                 entityManager.close();

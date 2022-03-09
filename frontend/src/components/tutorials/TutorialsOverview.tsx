@@ -1,4 +1,4 @@
-import { Button, Card, Col, DatePicker, Form, Input, List, Row, Select, Slider, Tag } from 'antd';
+import { Button, Card, Col, DatePicker, Divider, Form, Input, List, Row, Select, Slider, Tag } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
@@ -9,8 +9,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { getFilteredTutorials } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { Page } from '../../types/Paging';
-import { Tutorial, TutorialFilter } from '../../types/Tutorial';
-import PagingList from '../pagingList/PagingList';
+import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
+import PagingList, { PageDefaults } from '../pagingList/PagingList';
 
 const TutorialsOverview: React.FC = () => {
 
@@ -21,29 +21,34 @@ const TutorialsOverview: React.FC = () => {
         startDateFrom: undefined,
         startDateTo: undefined,
         specialisationCourseIds: undefined,
+        sorting: undefined,
+        page: 0,
+        elementsPerPage: PageDefaults.pageSize
+    });
+
+    const [filteredTutorials, setFilteredTutorials] = useState<TutorialFilterResponse>({
+        tutorials: undefined,
         currentPage: 0,
-        elementsPerPage: 2,
         totalElements: 0,
         totalPages: 0,
-        tutorials: undefined
     });
 
     useEffect(() => {
-        fetchNewPage(0);
+        fetchPage(0);
     }, []);
 
-    const fetchNewPage = (newPage: number) => {
-        console.log("fetching page", newPage);
-        return getFilteredTutorials({ ...filter, currentPage: newPage })
-            .then(res => {
-                console.log("received:", res)
-                setFilter({
-                    ...filter,
-                    tutorials: res.tutorials as Array<Tutorial>,
-                    currentPage: res.currentPage,
-                    totalPages: res.totalPages,
-                    totalElements: res.totalElements
-                });
+    useEffect(() => {
+        // re-fetch the first page upon filter change
+        fetchPage(0);
+        console.log("filter after change:", filter);
+    }, [filter]);
+
+    const fetchPage = (page: number) => {
+        console.log("fetching page", page);
+        getFilteredTutorials(filter)
+            .then(filteredTutorials => {
+                console.log("received:", filteredTutorials);
+                setFilteredTutorials(filteredTutorials);
             });
     };
 
@@ -53,20 +58,38 @@ const TutorialsOverview: React.FC = () => {
         setFilter({
             ...filter,
             text: formFilter.text,
-            startDateFrom: formFilter.timerange ?? formFilter.timerange[0],
-            startDateTo: formFilter.timerange ?? formFilter.timerange[1],
+            startDateFrom: formFilter.timerange ? formFilter.timerange[0] : undefined,
+            startDateTo: formFilter.timerange ? formFilter.timerange[1] : undefined,
         });
     };
+
+    const onPageChanged = (page: number, pageSize: number) => {
+        console.log("on page changed");
+        setFilter({
+            ...filter,
+            // if page size has changed, re-fetch the first page
+            page: filter.elementsPerPage !== pageSize ? 0 : page,
+            elementsPerPage: pageSize
+        });
+    }
+
+    const onPageSizeChanged = (currentPage: number, newSize: number) => {
+        // re-fetch the first page after number of page elements was changed
+        console.log("new size:", newSize);
+        setFilter({ ...filter, elementsPerPage: newSize, page: 0 });
+    }
 
     const [form] = useForm();
 
 
     const FilterBar = () => {
 
-        const pageSizeValues = [5, 10, 20];
-
         const resetFilter = () => {
             form.resetFields();
+            onFilterChange();
+        };
+
+        const onSearchClick = () => {
             onFilterChange();
         };
 
@@ -74,7 +97,7 @@ const TutorialsOverview: React.FC = () => {
             <Form
                 form={form}
                 className="product-filter-form"
-                onChange={e => onFilterChange()}
+                // onChange={e => onFilterChange()}
                 onFinish={onFilterChange}
             >
                 <Row gutter={24}>
@@ -83,7 +106,8 @@ const TutorialsOverview: React.FC = () => {
                             name="text"
                             label="Suchen">
                             <Input
-                                placeholder="Titel..." />
+                                allowClear
+                                placeholder="Titel, Beschreibung..." />
                         </Form.Item>
                     </Col>
 
@@ -91,8 +115,7 @@ const TutorialsOverview: React.FC = () => {
                         <Row style={{ display: 'block' }}>
                             <Form.Item
                                 label="Zeitraum"
-                                name="timerange"
-                            >
+                                name="timerange">
                                 <DatePicker.RangePicker
                                     placeholder={["Anfang", "Ende"]}
                                     format="DD.MM.YYYY"
@@ -100,30 +123,11 @@ const TutorialsOverview: React.FC = () => {
                             </Form.Item>
                         </Row>
                     </Col>
-
-                    <Col flex="1 1 300px">
-                        <Form.Item
-                            label="Elemente pro Seite"
-                            name="pageSize"
-                            initialValue={pageSizeValues[0]}>
-                            <Select
-                                style={{ width: 80 }}
-                                onChange={e => onFilterChange()}>
-                                {pageSizeValues.map(number =>
-                                    <Select.Option
-                                        key={`${number}`}
-                                        value={`${number}`}>
-                                        {number}
-                                    </Select.Option>
-                                )}
-                            </Select>
-                        </Form.Item>
-                    </Col>
                 </Row>
 
                 <Row>
                     <Col span={24} style={{ textAlign: 'right' }}>
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType='submit' onClick={e => onSearchClick()}>
                             Suchen
                         </Button>
                         <Button
@@ -173,7 +177,9 @@ const TutorialsOverview: React.FC = () => {
             <Title level={1}>
                 Tutorien
             </Title>
+            <Divider>Suchkriterien</Divider>
             <FilterBar />
+            <Divider />
             <PagingList
                 grid={{
                     gutter: 16,
@@ -184,10 +190,16 @@ const TutorialsOverview: React.FC = () => {
                     xl: 3,
                     xxl: 5,
                 }}
-                listData={filter.tutorials}
+                listData={filteredTutorials.tutorials}
                 listItem={listItem}
-                page={{ ...filter }}
-                onPageChanged={fetchNewPage}
+                page={{
+                    elementsPerPage: filter.elementsPerPage,
+                    currentPage: filteredTutorials.currentPage,
+                    totalElements: filteredTutorials.totalElements,
+                    totalPages: filteredTutorials.totalPages
+                } as Page}
+                onPageChanged={onPageChanged}
+                onPageSizeChanged={onPageSizeChanged}
             />
         </>
     );

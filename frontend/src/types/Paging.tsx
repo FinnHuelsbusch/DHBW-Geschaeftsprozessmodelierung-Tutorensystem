@@ -3,5 +3,7 @@ export interface Page {
     totalElements: number,
     totalPages: number,
     currentPage: number,
-    sorting?: Array<{ attribute: string, order: "asc" | "desc" }>
+    sorting?: Sorting
 }
+
+export type Sorting = Array<{ attribute: string, order: "asc" | "desc" }>;

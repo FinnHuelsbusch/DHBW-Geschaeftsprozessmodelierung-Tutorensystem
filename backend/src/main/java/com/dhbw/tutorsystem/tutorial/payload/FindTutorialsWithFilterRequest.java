@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class FindTutorialsWithFilterRequest {
 
-    private String title;
+    private String text;
 
     private List<Integer> specialisationCourseIds;
 

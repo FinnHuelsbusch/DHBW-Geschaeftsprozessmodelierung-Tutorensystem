@@ -1,4 +1,4 @@
-import { Page } from "./Paging"
+import { Sorting } from "./Paging"
 
 export interface Tutorial {
     title: string,
@@ -7,16 +7,18 @@ export interface Tutorial {
     end: Date
 }
 
-export interface TutorialFilter extends Page {
+export interface TutorialFilter {
     text?: string,
     startDateFrom?: Date,
     startDateTo?: Date,
     specialisationCourseIds?: Array<number>,
-    tutorials?: Array<Tutorial>
+    sorting?: Sorting,
+    page: number,
+    elementsPerPage: number
 }
 
 export interface TutorialFilterResponse {
-    tutorials: Array<Tutorial>,
+    tutorials?: Array<Tutorial>,
     currentPage: number,
     totalPages: number,
     totalElements: number
