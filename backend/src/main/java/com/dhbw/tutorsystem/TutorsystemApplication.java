@@ -1,10 +1,14 @@
 package com.dhbw.tutorsystem;
 
+import com.dhbw.tutorsystem.course.CourseRepository;
 import com.dhbw.tutorsystem.role.RoleRepository;
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.TutorialRepository;
 import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.director.DirectorRepository;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,14 +23,22 @@ public class TutorsystemApplication {
 	}
 
 	@Bean
+	public ModelMapper modelMapper(){
+		return new ModelMapper();
+	}
+
+	@Bean
 	public CommandLineRunner init(
 			RoleRepository roleRepository,
 			UserRepository userRepository,
 			PasswordEncoder encoder,
 			DirectorRepository directorRepository,
-			StudentRepository studentRepository) {
+			StudentRepository studentRepository, 
+			TutorialRepository tutorialRepository,
+			CourseRepository courseRepository, 
+			SpecialisationCourseRepository specialisationCourseRepository) {
 		return (args) -> {
-			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository)
+			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository, tutorialRepository, courseRepository, specialisationCourseRepository)
 					.initDatabaseForDevelopment();
 		};
 	}
