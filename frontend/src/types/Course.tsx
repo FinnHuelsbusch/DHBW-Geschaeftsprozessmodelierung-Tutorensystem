@@ -3,10 +3,10 @@ import { User } from "./User"
 export interface SpecialisationCourse {
     id: number,
     title: string,
-    course: Course
+    course: CourseWithEmailAndName
 }
 
-export interface Course {
+export interface CourseWithEmailAndName {
     id: number,
     title: string,
     leadBy: User[]

@@ -8,6 +8,7 @@ import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.director.DirectorRepository;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,6 +20,11 @@ public class TutorsystemApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TutorsystemApplication.class, args);
+	}
+
+	@Bean
+	public ModelMapper modelMapper(){
+		return new ModelMapper();
 	}
 
 	@Bean

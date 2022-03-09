@@ -2,7 +2,7 @@ import { Button, Divider, Form, Input, Modal, Select, Tooltip } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
-import { Course, SpecialisationCourse } from '../../types/Course';
+import { CourseWithEmailAndName, SpecialisationCourse } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
 import EmailFormInput from '../inputs/EmailFormInput';
 import PasswordWithConfirm from '../register/PasswordWithConfirm';
@@ -13,7 +13,7 @@ const Settings: React.FC = () => {
 
 
 
-    const mockCourse: Course = {
+    const mockCourse: CourseWithEmailAndName = {
         title: "Wirtschaftsinformatik", 
         id: 1,
         leadBy: [{

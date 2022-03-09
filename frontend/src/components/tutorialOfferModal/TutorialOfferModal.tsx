@@ -6,7 +6,7 @@ import { DownOutlined } from '@ant-design/icons';
 
 import { useEffect, useState } from "react";
 import { getCourses } from "../../api/api";
-import { Course } from "../../types/Course";
+import { CourseWithEmailAndName } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import { User } from "../../types/User";
@@ -23,7 +23,7 @@ interface Props {
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
     const [form] = useForm();
-    const [courses, setCourses] = useState<Course[]>([]);
+    const [courses, setCourses] = useState<CourseWithEmailAndName[]>([]);
 
 
     const onFinish = (values: any) => {
