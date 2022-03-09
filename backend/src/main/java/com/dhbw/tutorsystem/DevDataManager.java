@@ -64,6 +64,13 @@ public class DevDataManager {
         uDirector2.setLastPasswordAction(LocalDateTime.now());
         uDirector2 = directorRepository.save(uDirector2);
 
+        Director uDirector3 = new Director("doris.director@dhbw-mannheim.de", "1234");
+        uDirector3.setRoles(Set.of(rDirector));
+        uDirector3.setPassword(encoder.encode(uDirector3.getPassword()));
+        uDirector3.setEnabled(true);
+        uDirector3.setLastPasswordAction(LocalDateTime.now());
+        uDirector3 = directorRepository.save(uDirector3);
+
         Student uStudent1 = new Student("s111111@student.dhbw-mannheim.de", "1234");
 		uStudent1.setRoles(Set.of(rStudent));
 		uStudent1.setPassword(encoder.encode(uStudent1.getPassword()));
@@ -80,28 +87,38 @@ public class DevDataManager {
 		directors.add(uDirector1);
         directors.add(uDirector2);
 
-        Course course = new Course(); 
-        course.setLeadBy(directors);
-        course.setTitle("Wirtschaftsinformatik");
-        course = courseRepository.save(course);
+        Course course1 = new Course(); 
+        course1.setLeadBy(directors);
+        course1.setTitle("Wirtschaftsinformatik");
+        course1 = courseRepository.save(course1);
+
+        Course course2 = new Course(); 
+        course2.setLeadBy(Set.of(uDirector3));
+        course2.setTitle("Maschinenbau");
+        course2 = courseRepository.save(course2);
         
 
         SpecialisationCourse specialisationCourseSE = new SpecialisationCourse(); 
-        specialisationCourseSE.setCourse(course);
+        specialisationCourseSE.setCourse(course1);
         specialisationCourseSE.setTitle("Software Engineering");
         specialisationCourseSE = specialisationCourseRepository.save(specialisationCourseSE);
 
         SpecialisationCourse specialisationCourseSC = new SpecialisationCourse(); 
-        specialisationCourseSC.setCourse(course);
+        specialisationCourseSC.setCourse(course1);
         specialisationCourseSC.setTitle("Sales and Consulting");
         specialisationCourseSC = specialisationCourseRepository.save(specialisationCourseSC);
+
+        SpecialisationCourse specialisationCourseAMB = new SpecialisationCourse(); 
+        specialisationCourseAMB.setCourse(course1);
+        specialisationCourseAMB.setTitle("Allgemeiner Maschinenbau");
+        specialisationCourseAMB = specialisationCourseRepository.save(specialisationCourseAMB);
 
         HashSet<User> tutors = new HashSet<>(); 
 		tutors.add(uStudent1);
 
-		HashSet<SpecialisationCourse> specialisationCourses = new HashSet<>(); 
-		specialisationCourses.add(specialisationCourseSC); 
-        specialisationCourses.add(specialisationCourseSE);
+		HashSet<SpecialisationCourse> specialisationCourses1 = new HashSet<>(); 
+		specialisationCourses1.add(specialisationCourseSC); 
+        specialisationCourses1.add(specialisationCourseSE);
 
 		HashSet<Student> participants = new HashSet<>(); 
 		participants.add(uStudent2); 
@@ -115,7 +132,7 @@ public class DevDataManager {
 		tutorial1.setStart(LocalDate.now());
 		tutorial1.setEnd(LocalDate.now().plusDays(21));
 		tutorial1.setParticipants(participants);
-        tutorial1.setSpecialisationCourse(specialisationCourses);
+        tutorial1.setSpecialisationCourse(specialisationCourses1);
 		tutorial1 = tutorialRepository.save(tutorial1);
 
 
@@ -128,7 +145,7 @@ public class DevDataManager {
 		tutorial2.setStart(LocalDate.now().plusWeeks(4));
 		tutorial2.setEnd(LocalDate.now().plusWeeks(12));
 		tutorial2.setParticipants(participants);
-        tutorial2.setSpecialisationCourse(specialisationCourses);
+        tutorial2.setSpecialisationCourse(specialisationCourses1);
 		tutorial2 = tutorialRepository.save(tutorial2);
 
     }
