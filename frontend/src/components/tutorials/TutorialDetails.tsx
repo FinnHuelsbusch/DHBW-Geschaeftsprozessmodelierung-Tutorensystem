@@ -43,7 +43,7 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
                     <Title level={4}>Für Studiengänge</Title>
                     <Paragraph>
                         {tutorial.specialisationCourses.map(course => (
-                            <Tag>{course.specialization}</Tag>
+                            <Tag>{"Specialisation"}</Tag>
                         ))}
                     </Paragraph>
                 </Typography>
