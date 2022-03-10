@@ -5,7 +5,7 @@ import { getCoursesWithTitleAndSpecialisations, getRequestError } from "../../ap
 import { CourseWithTitleAndSpecialisations } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
-import { User } from "../../types/User";
+import { User, UserWithMailAndName } from "../../types/User";
 import { getErrorMessageString } from "../../types/RequestError";
 import { TreeNode } from "antd/lib/tree-select";
 import EmailFormInput from '../inputs/EmailFormInput';
@@ -17,6 +17,20 @@ interface Props {
 
 const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
+    const mockUser: UserWithMailAndName[] = [
+        {
+            id: 1,
+            email: "hui@hui.mail",
+            firstname: "name",
+            lastname: "Nachname"
+        },
+        {
+            id: 2,
+            email: "zwei@hui.mail",
+            firstname: "Toll",
+            lastname: "nochToller"
+        }
+    ]
     const [form] = useForm();
     const [courses, setCourses] = useState<CourseWithTitleAndSpecialisations[]>([]);
 
@@ -118,12 +132,16 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
                         </TreeSelect>
                     </Form.Item>
                     <Form.Item>
-                        <Select mode="tags" tokenSeparators={[" ",","]}>
-                            
+                        <Select mode="tags" tokenSeparators={[" ", ","]}>
+                            {mockUser.map(user => (
+                                <Select.Option key={user.id} value={user.firstname}>
+                                    {user.firstname} {user.lastname} ({user.email})
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
                 </Form>
-                                        
+
 
 
 
