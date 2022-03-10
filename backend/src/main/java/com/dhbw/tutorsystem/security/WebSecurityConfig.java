@@ -63,6 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/authentication/changePassword").authenticated()
             .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
             .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
+            .antMatchers("/tutorial").permitAll()
             .anyRequest().authenticated();
 
         http.cors();
