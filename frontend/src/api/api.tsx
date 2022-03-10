@@ -1,6 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
-import { CourseWithEmailAndName, SpecialisationCourse } from '../types/Course';
+import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { User } from '../types/User';
 
@@ -148,7 +148,12 @@ export const changePassword = (newPassword: string): Promise<User> => {
     });
 }
 
-export const getCourses = (): Promise<CourseWithEmailAndName[]> => {
-    return api.get('/courses/withoutSpecialisation')
+export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeaders[]> => {
+    return api.get('/courses/withTitleAndLeaders')
+        .then(res => res.data);
+}
+
+export const getCoursesWithTitleAndSpecialisations = (): Promise<CourseWithTitleAndSpecialisations[]> => {
+    return api.get('/courses/withTitleAndSpecialisations')
         .then(res => res.data);
 }
