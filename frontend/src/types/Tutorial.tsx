@@ -27,7 +27,7 @@ export interface TutorialFilter {
     specialisationCourseIds?: Array<number>,
     sorting?: Sorting,
     page: number,
-    elementsPerPage: number
+    elementsPerPage: number,
 }
 
 export interface TutorialFilterResponse {

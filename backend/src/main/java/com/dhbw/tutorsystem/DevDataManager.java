@@ -46,6 +46,13 @@ public class DevDataManager {
     private SpecialisationCourse specialisationCourseSE, specialisationCourseSC, specialisationCourseAMB;
 
     public void initDatabaseForDevelopment() {
+        // ordering of these methods is important, because of existing dependencies between entities
+        insertUsers();
+        insertCoursesWithSpecialisation();
+        insertTutorials();
+    }
+
+    public void insertUsers() {
         Role rStudent = roleRepository.save(new Role(ERole.ROLE_STUDENT));
         Role rDirector = roleRepository.save(new Role(ERole.ROLE_DIRECTOR));
         Role rAdmin = roleRepository.save(new Role(ERole.ROLE_ADMIN));
@@ -57,34 +64,34 @@ public class DevDataManager {
         uAdmin.setLastPasswordAction(LocalDateTime.now());
         uAdmin = userRepository.save(uAdmin);
 
-        Director uDirector1 = new Director("dirk.director@dhbw-mannheim.de", "1234");
+        uDirector1 = new Director("dirk.director@dhbw-mannheim.de", "1234");
         uDirector1.setRoles(Set.of(rDirector));
         uDirector1.setPassword(encoder.encode(uDirector1.getPassword()));
         uDirector1.setEnabled(true);
         uDirector1.setLastPasswordAction(LocalDateTime.now());
         uDirector1 = directorRepository.save(uDirector1);
 
-        Director uDirector2 = new Director("daniel.director@dhbw-mannheim.de", "1234");
+        uDirector2 = new Director("daniel.director@dhbw-mannheim.de", "1234");
         uDirector2.setRoles(Set.of(rDirector));
         uDirector2.setPassword(encoder.encode(uDirector2.getPassword()));
         uDirector2.setEnabled(true);
         uDirector2.setLastPasswordAction(LocalDateTime.now());
         uDirector2 = directorRepository.save(uDirector2);
 
-        Director uDirector3 = new Director("doris.director@dhbw-mannheim.de", "1234");
+        uDirector3 = new Director("doris.director@dhbw-mannheim.de", "1234");
         uDirector3.setRoles(Set.of(rDirector));
         uDirector3.setPassword(encoder.encode(uDirector3.getPassword()));
         uDirector3.setEnabled(true);
         uDirector3.setLastPasswordAction(LocalDateTime.now());
         uDirector3 = directorRepository.save(uDirector3);
 
-        Student uStudent1 = new Student("s111111@student.dhbw-mannheim.de", "1234");
+        uStudent1 = new Student("s111111@student.dhbw-mannheim.de", "1234");
         uStudent1.setRoles(Set.of(rStudent));
         uStudent1.setPassword(encoder.encode(uStudent1.getPassword()));
         uStudent1.setEnabled(true);
         uStudent1 = studentRepository.save(uStudent1);
 
-        Student uStudent2 = new Student("s222222@student.dhbw-mannheim.de", "1234");
+        uStudent2 = new Student("s222222@student.dhbw-mannheim.de", "1234");
         uStudent2.setRoles(Set.of(rStudent));
         uStudent2.setPassword(encoder.encode(uStudent2.getPassword()));
         uStudent2.setEnabled(true);
@@ -98,10 +105,6 @@ public class DevDataManager {
         uTutor.setEnabled(true);
         uTutor.setLastPasswordAction(LocalDateTime.now());
         uTutor = studentRepository.save(uTutor);
-
-        insertTutorials();
-        insertCourses();
-        insertSpecialisationCourses();
     }
 
     public void insertTutorials() {
@@ -124,7 +127,7 @@ public class DevDataManager {
                 LocalDate.now().plusWeeks(3), LocalDate.now().plusWeeks(12), Set.of(uTutor),
                 Set.of(uStudent1), null);
 
-        Tutorial tutorial1 = createTutorial(
+        createTutorial(
                 "Mathe 1",
                 "Jeden Dienstag von 18 bis 19 Uhr.",
                 "Mathe für alle, die den ersten Versuch nicht bestanden haben. Schwerpunkt Analysis.",
@@ -135,7 +138,7 @@ public class DevDataManager {
                 Set.of(uStudent1),
                 Set.of(specialisationCourseSE, specialisationCourseSC));
 
-        Tutorial tutorial2 = createTutorial(
+        createTutorial(
                 "Programmieren 1",
                 "Jeden Dienstag von 18 bis 19 Uhr.",
                 "Aufgaben im Bereich programmieren mit Java. Schwerpunkt Objektorientierung",
@@ -173,9 +176,13 @@ public class DevDataManager {
         return t;
     }
 
-    public void insertCourses() {
+    public void insertCoursesWithSpecialisation() {
         course1 = createCourse(Set.of(uDirector1, uDirector2), "Wirtschaftsinformatik");
-        course1 = createCourse(Set.of(uDirector3), "Maschinenbau");
+        specialisationCourseSE = createSpecialisationCourse(course1, "Software Engineering");
+        specialisationCourseSC = createSpecialisationCourse(course1, "Sales and Consulting");
+
+        course2 = createCourse(Set.of(uDirector3), "Maschinenbau");
+        specialisationCourseAMB = createSpecialisationCourse(course2, "Allgemeiner Maschinenbau");
     }
 
     private Course createCourse(Set<Director> directors, String title) {
@@ -183,12 +190,6 @@ public class DevDataManager {
         c.setLeadBy(directors);
         c.setTitle(title);
         return courseRepository.save(c);
-    }
-
-    private void insertSpecialisationCourses() {
-        specialisationCourseSE = createSpecialisationCourse(course1, "Software Engineering");
-        specialisationCourseSC = createSpecialisationCourse(course1, "Sales and Consulting");
-        specialisationCourseAMB = createSpecialisationCourse(course1, "Allgemeiner Maschinenbau");
     }
 
     private SpecialisationCourse createSpecialisationCourse(Course course, String title) {

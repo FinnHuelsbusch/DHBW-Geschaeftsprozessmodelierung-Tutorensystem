@@ -4,14 +4,13 @@ import React, { PropsWithChildren } from 'react';
 import { Page } from '../../types/Paging';
 
 export const PageDefaults = {
-    pageSize: 5,
     possibleSizes: [5, 10, 20]
 };
 
 type PagingListProps<DataType> = {
     listData: Array<DataType> | undefined,
     listItem: (itemData: DataType) => JSX.Element,
-    page: Page | undefined,
+    page: Page,
     onPageChanged: (selectedPageOneBased: number, pageSize: number) => void,
     possiblePageSizes?: number[],
     defaultPageSize?: number,
@@ -27,15 +26,13 @@ const PagingList: React.FC<PagingListProps<DataType>> = (
     {
         listData, listItem, page, onPageChanged,
         possiblePageSizes = PageDefaults.possibleSizes,
-        defaultPageSize = PageDefaults.pageSize,
         showSizeChanger = true,
         isLoading,
         loadingItem,
         ...varargs
     }: PropsWithChildren<PagingListProps<DataType>>
 ) => {
-
-    if (!listData || listData.length === 0 || !page) {
+    if (!isLoading && (!listData || listData.length === 0)) {
         return (
             <div className="no-data-info">
                 <Empty
@@ -56,17 +53,19 @@ const PagingList: React.FC<PagingListProps<DataType>> = (
             // note: onChange method is also triggered on page change 
             showSizeChanger: showSizeChanger,
             pageSizeOptions: possiblePageSizes,
-            defaultPageSize: defaultPageSize,
-        }
+            // defaultPageSize: defaultPageSize,
+        };
 
         return (
             <List
                 {...varargs}
-                dataSource={listData}
+                dataSource={isLoading
+                    // loading: fill set page size with loading items
+                    ? Array.apply(null, Array(pagination.pageSize)).map((x, i) => i)
+                    : listData}
                 pagination={pagination}
                 renderItem={(item: DataType) => {
                     if (isLoading) {
-                        // loading: fill given number of elements with loading items
                         return loadingItem();
                     } else {
                         return listItem(item);

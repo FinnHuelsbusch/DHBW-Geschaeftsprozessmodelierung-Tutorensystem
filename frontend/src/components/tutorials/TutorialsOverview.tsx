@@ -1,4 +1,4 @@
-import { Button, Card, Col, DatePicker, Divider, Form, Input, List, message, Row, Skeleton, Tag, Tooltip } from 'antd';
+import { Button, Card, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Tag, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
@@ -9,7 +9,7 @@ import { Page } from '../../types/Paging';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
-import PagingList, { PageDefaults } from '../pagingList/PagingList';
+import PagingList from '../pagingList/PagingList';
 import TutorialDetails from './TutorialDetails';
 import { UserOutlined } from '@ant-design/icons'
 
@@ -28,7 +28,7 @@ const TutorialsOverview: React.FC = () => {
         specialisationCourseIds: undefined,
         sorting: undefined,
         page: 0,
-        elementsPerPage: PageDefaults.pageSize
+        elementsPerPage: 2,
     });
 
     const [filteredTutorials, setFilteredTutorials] = useState<TutorialFilterResponse>({
@@ -39,16 +39,12 @@ const TutorialsOverview: React.FC = () => {
     });
 
     useEffect(() => {
-        // initially fetch first page
-        fetchPage(0);
-    }, []);
-
-    useEffect(() => {
-        // re-fetch the first page upon filter change
-        fetchPage(0);
+        // re-fetch upon filter change (also called on initial loading of the page)
+        fetchPage();
+        console.log("filter", filter);
     }, [filter]);
 
-    const fetchPage = (page: number) => {
+    const fetchPage = () => {
         setLoading(true);
         getFilteredTutorials(filter)
             .then(filteredTutorials => {
@@ -94,11 +90,25 @@ const TutorialsOverview: React.FC = () => {
             onFilterChange();
         };
 
+        const onFormChange = () => {
+            console.log("on formChange");
+            const sortingName = form.getFieldValue("sortingName");
+            if (sortingName !== "none") {
+                const sortingType = form.getFieldValue("sortingType");
+                setFilter({
+                    ...filter,
+                    sorting: [{ attribute: sortingName, order: sortingType }]
+                });
+            }
+        };
+
+
         return (
             <Form
                 form={form}
                 className="product-filter-form"
                 onFinish={onFilterChange}
+                onChange={e => onFormChange()}
             >
                 <Row gutter={24}>
                     <Col flex="1 1 300px">
@@ -114,9 +124,10 @@ const TutorialsOverview: React.FC = () => {
                     <Col flex="1 1 300px">
                         <Row style={{ display: 'block' }}>
                             <Form.Item
-                                label="Zeitraum"
+                                label="Startdatum"
                                 name="timerange">
                                 <DatePicker.RangePicker
+                                    allowClear
                                     placeholder={["Anfang", "Ende"]}
                                     format="DD.MM.YYYY"
                                 />
@@ -126,12 +137,39 @@ const TutorialsOverview: React.FC = () => {
                 </Row>
 
                 <Row>
+                    <Col span={18}>
+                        <Form.Item label="Sortierung">
+                            <Input.Group compact>
+                                <Form.Item
+                                    noStyle
+                                    name="sortingName">
+                                    <Select defaultValue={"none"} style={{ width: '20%' }}>
+                                        <Select.Option key="none">Keine</Select.Option>
+                                        <Select.Option key="title">Titel</Select.Option>
+                                        <Select.Option key="start">Startdatum</Select.Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item
+                                    noStyle
+                                    name="sortingType">
+                                    <Select disabled={!filter.sorting ? true : false} style={{ width: '20%' }}>
+                                        <Select.Option key="asc">Aufsteigend</Select.Option>
+                                        <Select.Option key="desc">Absteigend</Select.Option>
+                                    </Select>
+                                </Form.Item>
+                            </Input.Group>
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row>
                     <Col span={24} style={{ textAlign: 'right' }}>
                         <Button
                             type="primary"
                             loading={loading}
                             htmlType='submit'
-                            onClick={e => onSearchClick()}>
+                            onClick={e => onSearchClick()}
+                        >
                             Suchen
                         </Button>
                         <Button
@@ -189,8 +227,12 @@ const TutorialsOverview: React.FC = () => {
     const loadingItem = () => {
         return (
             <List.Item>
-                <Card>
-                    <Skeleton active paragraph={{ rows: 2 }} />
+                <Card
+                    extra={<></>}
+                >
+                    <Skeleton active paragraph={{ rows: 2 }}>
+
+                    </Skeleton>
                 </Card>
             </List.Item>
         );
@@ -225,6 +267,8 @@ const TutorialsOverview: React.FC = () => {
                 listItem={listItem}
                 isLoading={loading}
                 loadingItem={loadingItem}
+                defaultPageSize={2}
+                possiblePageSizes={[1, 2, 3]}
             />
 
             <TutorialDetails

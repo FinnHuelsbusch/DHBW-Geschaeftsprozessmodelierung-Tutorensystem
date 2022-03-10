@@ -152,7 +152,13 @@ export const changePassword = (newPassword: string): Promise<User> => {
 export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFilterResponse> => {
     const sorting = filter.sorting ?
         filter.sorting
-            .map(sort => `&sort=${sort.attribute},${sort.order}`)
+            .map(sort => {
+                if (sort.attribute && sort.order) {
+                    return `&sort=${sort.attribute},${sort.order}`
+                } else {
+                    return "";
+                }
+            })
             .reduce((prev, curr) => prev + curr)
         : "";
     const attributesFilter = {

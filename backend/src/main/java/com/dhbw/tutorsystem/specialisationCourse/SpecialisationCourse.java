@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import com.dhbw.tutorsystem.course.Course;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class SpecialisationCourse {
     @Getter
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Course course; 
     
 
