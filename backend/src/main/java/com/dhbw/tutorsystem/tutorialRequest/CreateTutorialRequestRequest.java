@@ -22,4 +22,9 @@ public class CreateTutorialRequestRequest {
     @Setter
     @NotBlank
     private int semester;
+
+    @Getter
+    @Setter
+    @NotBlank
+    private int specialisationCourseId;
 }

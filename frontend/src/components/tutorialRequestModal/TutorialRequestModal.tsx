@@ -65,15 +65,34 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                     <Input placeholder="Titel der Vorlesung" allowClear disabled={loading} />
                 </Form.Item>
                 <Form.Item label="Semester" name="semester" rules={[{required:true}]}>
-                    <Select style={{ width: 60 }} allowClear disabled={loading}>
-                        <Option value="1">1</Option>
-                        <Option value="2">2</Option>
-                        <Option value="3">3</Option>
-                        <Option value="4">4</Option>
-                        <Option value="5">5</Option>
-                        <Option value="6">6</Option>
+                    <Select
+                        showSearch
+                        placeholder="Semester wählen"
+                        disabled = {loading}
+                        allowClear
+                    >
+                        {Array.from(Array(6).keys()).map(i => (
+                            <Select.Option key={i + 1} value={i + 1}>
+                                {i + 1}
+                            </Select.Option>
+                        ))}
                     </Select>
-                </Form.Item>
+                </Form.Item >
+                <Form.Item label="Spezialisierung" name="specialisation" rules={[{required:true}]}>
+                    <Select
+                        showSearch
+                        placeholder="Spezialsierung wählen"
+                        disabled = {loading}
+                        allowClear
+                    >
+                        {Array.from(Array(6).keys()).map(i => (
+                            <Select.Option key={i + 1} value={i + 1}>
+                                {i + 1}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item >
+                    
                 <Form.Item label="Beschreibung" name="description" rules={[{required: true}]}>
                     <TextArea rows={4} placeholder="Beschreiben Sie hier, bei welchen Themen Sie Unterstützung brauchen." maxLength={500} showCount disabled={loading}/>
                 </Form.Item>
