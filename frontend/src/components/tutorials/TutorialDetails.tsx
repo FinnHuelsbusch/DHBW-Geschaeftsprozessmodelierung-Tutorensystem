@@ -32,7 +32,7 @@ const TutorialDetails: React.FC<Props> = ({ tutorial, onClose }) => {
                 <Typography>
                     <Title level={4}>Details</Title>
                     <Paragraph>
-                        {getDetailsRow("Umfang", `${tutorial.durationMinutes} Minuten`)}
+                        {getDetailsRow("Gesamtumfang", `${tutorial.durationMinutes} Minuten`)}
                         {getDetailsRow("Zeitraum", `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
                         {getDetailsRow("Anzahl Teilnehmer", tutorial.numberOfParticipants)}
                     </Paragraph>

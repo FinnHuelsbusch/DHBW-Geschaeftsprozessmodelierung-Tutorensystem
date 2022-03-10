@@ -26,7 +26,7 @@ const TutorialsOverview: React.FC = () => {
         startDateFrom: undefined,
         startDateTo: undefined,
         specialisationCourseIds: undefined,
-        sorting: undefined,
+        sorting: { attribute: "none", order: undefined },
         page: 0,
         elementsPerPage: 2,
     });
@@ -90,14 +90,20 @@ const TutorialsOverview: React.FC = () => {
             onFilterChange();
         };
 
-        const onFormChange = () => {
-            console.log("on formChange");
-            const sortingName = form.getFieldValue("sortingName");
-            if (sortingName !== "none") {
+        const onSortingChange = (value: any, option: any) => {
+            // called whenever any of the two sorting inputs are changed
+            const sortingAttribute = form.getFieldValue("sortingAttribute");
+            if (sortingAttribute !== "none") {
                 const sortingType = form.getFieldValue("sortingType");
                 setFilter({
                     ...filter,
-                    sorting: [{ attribute: sortingName, order: sortingType }]
+                    sorting: { attribute: sortingAttribute, order: sortingType }
+                });
+            } else {
+                // reset sorting
+                setFilter({
+                    ...filter,
+                    sorting: { attribute: sortingAttribute, order: undefined }
                 });
             }
         };
@@ -108,7 +114,6 @@ const TutorialsOverview: React.FC = () => {
                 form={form}
                 className="product-filter-form"
                 onFinish={onFilterChange}
-                onChange={e => onFormChange()}
             >
                 <Row gutter={24}>
                     <Col flex="1 1 300px">
@@ -127,6 +132,7 @@ const TutorialsOverview: React.FC = () => {
                                 label="Startdatum"
                                 name="timerange">
                                 <DatePicker.RangePicker
+                                    style={{ width: '100%' }}
                                     allowClear
                                     placeholder={["Anfang", "Ende"]}
                                     format="DD.MM.YYYY"
@@ -134,16 +140,19 @@ const TutorialsOverview: React.FC = () => {
                             </Form.Item>
                         </Row>
                     </Col>
-                </Row>
+                    {/* </Row> */}
 
-                <Row>
-                    <Col span={18}>
+                    {/* <Row> */}
+                    <Col flex="1 1 300px">
                         <Form.Item label="Sortierung">
                             <Input.Group compact>
                                 <Form.Item
                                     noStyle
-                                    name="sortingName">
-                                    <Select defaultValue={"none"} style={{ width: '20%' }}>
+                                    name="sortingAttribute">
+                                    <Select
+                                        defaultValue={"none"}
+                                        style={{ minWidth: '100pt' }}
+                                        onChange={onSortingChange}>
                                         <Select.Option key="none">Keine</Select.Option>
                                         <Select.Option key="title">Titel</Select.Option>
                                         <Select.Option key="start">Startdatum</Select.Option>
@@ -152,7 +161,11 @@ const TutorialsOverview: React.FC = () => {
                                 <Form.Item
                                     noStyle
                                     name="sortingType">
-                                    <Select disabled={!filter.sorting ? true : false} style={{ width: '20%' }}>
+                                    <Select
+                                        disabled={filter.sorting.attribute === "none" ? true : false}
+                                        defaultValue={"asc"}
+                                        style={{ minWidth: '100pt' }}
+                                        onChange={onSortingChange}>
                                         <Select.Option key="asc">Aufsteigend</Select.Option>
                                         <Select.Option key="desc">Absteigend</Select.Option>
                                     </Select>

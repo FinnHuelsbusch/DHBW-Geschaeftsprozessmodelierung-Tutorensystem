@@ -6,4 +6,7 @@ export interface Page {
     sorting?: Sorting
 }
 
-export type Sorting = Array<{ attribute: string, order?: "asc" | "desc" }>;
+export type Sorting = {
+    attribute?: string,
+    order?: "asc" | "desc"
+};

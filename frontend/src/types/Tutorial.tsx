@@ -25,7 +25,7 @@ export interface TutorialFilter {
     startDateFrom?: Date,
     startDateTo?: Date,
     specialisationCourseIds?: Array<number>,
-    sorting?: Sorting,
+    sorting: Sorting,
     page: number,
     elementsPerPage: number,
 }
