@@ -120,6 +120,12 @@ public class DevDataManager {
 		specialisationCourses1.add(specialisationCourseSC); 
         specialisationCourses1.add(specialisationCourseSE);
 
+        course1.setSpecialisationCourses(specialisationCourses1);
+        course1 = courseRepository.save(course1);
+
+        course2.setSpecialisationCourses(Set.of(specialisationCourseAMB));
+        course2 = courseRepository.save(course2);
+
 		HashSet<Student> participants = new HashSet<>(); 
 		participants.add(uStudent2); 
 

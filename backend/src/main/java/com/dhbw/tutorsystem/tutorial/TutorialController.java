@@ -1,13 +1,21 @@
 package com.dhbw.tutorsystem.tutorial;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import com.dhbw.tutorsystem.exception.TSBadRequestException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
+import com.dhbw.tutorsystem.exception.TSInternalServerException;
+import com.dhbw.tutorsystem.mails.EmailSenderService;
+import com.dhbw.tutorsystem.mails.MailType;
+import com.dhbw.tutorsystem.user.User;
+import com.dhbw.tutorsystem.user.UserRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +49,8 @@ import lombok.AllArgsConstructor;
 public class TutorialController {
 
     private final TutorialRepository tutorialRepository; 
+    private final UserRepository userRepository; 
+    private final EmailSenderService emailSenderService;
 
     @Operation(
         tags={"tutorial"},
@@ -113,6 +123,24 @@ public class TutorialController {
         
         if(createTutorialRequest == null){
             throw new TSBadRequestException("No tutorial was provided for creation.");
+        }
+        Set<User> tutors = createTutorialRequest.getTutors(); 
+        for(User tutor: tutors){
+            if(!userRepository.existsByEmail(tutor.getEmail())){
+                HashMap<String,Object> mailArguments = new HashMap<>(); 
+                mailArguments.put("tutorialName", createTutorialRequest.getTitel()); 
+                mailArguments.put("tutorialDescription", createTutorialRequest.getDescription());
+                mailArguments.put("tutorialStart", createTutorialRequest.getStart()); 
+                mailArguments.put("tutorialEnd", createTutorialRequest.getEnd()); 
+                User user = new User(); 
+                user.setEmail(tutor.getEmail());
+                user = userRepository.save(user);
+                try {
+                    emailSenderService.sendMail(user.getEmail(), MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL, mailArguments);
+                } catch (MessagingException e) {
+                    throw new TSInternalServerException();
+                }
+            }
         }
         Tutorial tutorial = new Tutorial(); 
         tutorial.setDescription(createTutorialRequest.getDescription());

@@ -150,13 +150,14 @@ public class AuthenticationController {
             if (user.isEnabled()) {
                 throw new EmailAlreadyExistsException();
             }
-            if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+            if (user.getLastPasswordAction()!= null && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
                     .toMinutes() < minimumMinutesBetweenPasswordActions) {
                 throw new LastPasswordActionTooRecentException();
             } else {
                 // existing non-enabled user re-registered after 15minutes: re-send email and
                 // update last changed
                 user.setLastPasswordAction(LocalDateTime.now());
+                user.setPassword(encoder.encode(registerRequest.getPassword()));
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
