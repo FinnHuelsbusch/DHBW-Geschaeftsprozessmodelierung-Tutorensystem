@@ -127,22 +127,28 @@ const TutorialsOverview: React.FC = () => {
                     </Col>
 
                     <Col flex="1 1 300px">
-                        <Row style={{ display: 'block' }}>
-                            <Form.Item
-                                label="Startdatum"
-                                name="timerange">
-                                <DatePicker.RangePicker
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                    placeholder={["Anfang", "Ende"]}
-                                    format="DD.MM.YYYY"
-                                />
-                            </Form.Item>
-                        </Row>
+                        <Form.Item
+                            label="Startdatum"
+                            name="timerange">
+                            <DatePicker.RangePicker
+                                style={{ width: '100%' }}
+                                allowClear
+                                placeholder={["Anfang", "Ende"]}
+                                format="DD.MM.YYYY"
+                            />
+                        </Form.Item>
                     </Col>
-                    {/* </Row> */}
 
-                    {/* <Row> */}
+                    <Col flex="1 1 300px">
+                        <Form.Item
+                            label="Studienrichtung:"
+                            name="specialisationCourses">
+                            <Select>
+                                <Select.Option>Hier TreeSelect mit spec. courses</Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+
                     <Col flex="1 1 300px">
                         <Form.Item label="Sortierung">
                             <Input.Group compact>

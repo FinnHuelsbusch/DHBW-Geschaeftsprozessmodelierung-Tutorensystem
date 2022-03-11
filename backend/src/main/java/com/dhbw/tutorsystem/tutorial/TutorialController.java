@@ -33,6 +33,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController
 @RequestMapping("tutorials")
 public class TutorialController {
@@ -47,6 +51,11 @@ public class TutorialController {
         @Autowired
         ModelMapper modelMapper;
 
+        @Operation(summary = "Query tutorials with filter", description = "Query tutorials by supplying a specified paging configuration and a filter, that contains text, specialisation courses and a time range for the start date.", tags = {
+                        "tutorials" })
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
+        })
         @PostMapping("/findWithFilter")
         public ResponseEntity<FindTutorialsWithFilterResponse> findTutorialsWithFilter(Pageable pageable,
                         @Valid @RequestBody FindTutorialsWithFilterRequest filterRequest) {
