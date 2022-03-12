@@ -30,4 +30,14 @@ public class TutorialDto {
 
     private Set<SpecialisationCourse> specialisationCourses;
 
+    private boolean isMarked;
+
+    private boolean participates;
+
+    public TutorialDto addPerspective(boolean isMarked, boolean participates) {
+        this.isMarked = isMarked;
+        this.participates = participates;
+        return this;
+    }
+
 }

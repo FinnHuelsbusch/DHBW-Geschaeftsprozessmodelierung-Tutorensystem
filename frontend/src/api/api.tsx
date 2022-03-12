@@ -2,7 +2,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { CourseWithEmailAndName, SpecialisationCourse } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
-import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
+import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
 import { User } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -163,11 +163,40 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
         .then(res => {
             const data = res.data;
             return {
-                tutorials: data.tutorials as Array<Tutorial>,
+                tutorials: data.tutorials.map((t: any) => mapTutorialFromResponse(t)) as Array<Tutorial>,
                 currentPage: data.currentPage,
                 totalPages: data.totalPages,
                 totalElements: data.totalElements
             } as TutorialFilterResponse;
+        });
+}
+
+export const getTutorial = (tutorialId: number): Promise<Tutorial> => {
+    return api.get(`/tutorials/${tutorialId}`)
+        .then(res => {
+            const data = res.data;
+            return mapTutorialFromResponse(data);
+        });
+}
+
+export const participateInTutorial = (tutorialId: number): Promise<any> => {
+    return api.put(`/tutorials/participate/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
+export const markTutorial = (tutorialId: number): Promise<any> => {
+    return api.put(`/tutorials/mark/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
+export const unmarkTutorial = (tutorialId: number): Promise<any> => {
+    return api.delete(`/tutorials/mark/${tutorialId}`)
+        .then(res => {
+            return res.data;
         });
 }
 

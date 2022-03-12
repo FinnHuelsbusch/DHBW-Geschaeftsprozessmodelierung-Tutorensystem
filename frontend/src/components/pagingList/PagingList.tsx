@@ -13,7 +13,6 @@ type PagingListProps<DataType> = {
     page: Page,
     onPageChanged: (selectedPageOneBased: number, pageSize: number) => void,
     possiblePageSizes?: number[],
-    defaultPageSize?: number,
     showSizeChanger?: boolean,
     isLoading: boolean,
     loadingItem: () => JSX.Element,
@@ -53,7 +52,6 @@ const PagingList: React.FC<PagingListProps<DataType>> = (
             // note: onChange method is also triggered on page change 
             showSizeChanger: showSizeChanger,
             pageSizeOptions: possiblePageSizes,
-            // defaultPageSize: defaultPageSize,
         };
 
         return (

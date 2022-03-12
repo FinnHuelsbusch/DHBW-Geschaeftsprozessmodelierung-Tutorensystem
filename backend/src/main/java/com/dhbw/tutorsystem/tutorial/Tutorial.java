@@ -63,6 +63,12 @@ public class Tutorial {
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
+    @JsonIgnore
+    private Set<Student> markedBy;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Getter
+    @Setter
     private Set<SpecialisationCourse> specialisationCourses;
 
     @Getter

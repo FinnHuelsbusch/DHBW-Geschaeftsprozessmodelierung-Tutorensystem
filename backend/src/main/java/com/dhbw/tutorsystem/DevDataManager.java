@@ -97,6 +97,13 @@ public class DevDataManager {
         uStudent2.setEnabled(true);
         uStudent2 = studentRepository.save(uStudent2);
 
+        // private mail, only used for debugging
+        Student uStudent3 = new Student("s190212@student.dhbw-mannheim.de", "1234");
+        uStudent3.setRoles(Set.of(rStudent));
+        uStudent3.setPassword(encoder.encode(uStudent3.getPassword()));
+        uStudent3.setEnabled(true);
+        uStudent3 = studentRepository.save(uStudent3);
+
         uTutor = new Student("s999999@student.dhbw-mannheim.de", "1234");
         uTutor.setFirstName("Tarik");
         uTutor.setLastName("Tutor");

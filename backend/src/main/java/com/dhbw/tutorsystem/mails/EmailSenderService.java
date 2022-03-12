@@ -47,6 +47,8 @@ public class EmailSenderService {
             sendRegistrationMail(mailTo, arguments);
         } else if (mailType == MailType.RESET_PASSWORD) {
             sendResetPasswordMail(mailTo, arguments);
+        } else if (mailType == MailType.TUTORIAL_PARTICIPATION) {
+            sendTutorialParticipationMail(mailTo, arguments);
         } else {
             throw new IllegalArgumentException("MailType is not known.");
         }
@@ -80,6 +82,23 @@ public class EmailSenderService {
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
         helper.setSubject("Tutorensystem Passwort vergessen");
+        helper.setText(htmlBody, true);
+        sendMimeMessage(helper.getMimeMessage());
+    }
+
+    private void sendTutorialParticipationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        String tutorialTitle = (String) arguments.get("tutorialTitle");
+        Integer tutorialId = (Integer) arguments.get("tutorialId");
+
+        Context thymeleafContext = new Context();
+        String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
+        thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
+        thymeleafContext.setVariable("tutorialLinkUrl", tutorialLinkUrl);
+        String htmlBody = thymeTemplateEngine.process("tutorialParticipationMail.html", thymeleafContext);
+
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("Tutorensystem Teilnahme am Tutorium");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }

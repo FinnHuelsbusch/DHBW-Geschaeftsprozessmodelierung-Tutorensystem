@@ -1,4 +1,4 @@
-import { Button, Card, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Tag, Tooltip } from 'antd';
+import { Button, Card, Checkbox, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Tag, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
@@ -10,16 +10,15 @@ import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList from '../pagingList/PagingList';
-import TutorialDetails from './TutorialDetails';
-import { UserOutlined } from '@ant-design/icons'
+import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom';
 
 const TutorialsOverview: React.FC = () => {
 
     const authContext = useContext(AuthContext);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [form] = useForm();
-
-    const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | undefined>(undefined);
 
     const [filter, setFilter] = useState<TutorialFilter>({
         text: undefined,
@@ -28,7 +27,7 @@ const TutorialsOverview: React.FC = () => {
         specialisationCourseIds: undefined,
         sorting: { attribute: "none", order: undefined },
         page: 0,
-        elementsPerPage: 2,
+        elementsPerPage: 5,
     });
 
     const [filteredTutorials, setFilteredTutorials] = useState<TutorialFilterResponse>({
@@ -39,9 +38,18 @@ const TutorialsOverview: React.FC = () => {
     });
 
     useEffect(() => {
+        // apply saved filter if it exists
+        const savedFilter = sessionStorage.getItem("tutorialFilter");
+        if (savedFilter) {
+            sessionStorage.removeItem("tutorialFilter");
+            const filterObj = JSON.parse(savedFilter);
+            form.setFieldsValue({ ...filterObj });
+            setFilter(filterObj);
+            return;
+        }
         // re-fetch upon filter change (also called on initial loading of the page)
         fetchPage();
-        console.log("filter", filter);
+
     }, [filter]);
 
     const fetchPage = () => {
@@ -61,7 +69,7 @@ const TutorialsOverview: React.FC = () => {
 
     const onFilterChange = () => {
         const formFilter = { ...form.getFieldsValue() };
-        console.log(form.getFieldsValue());
+        console.log(formFilter);
         setFilter({
             ...filter,
             text: formFilter.text,
@@ -112,7 +120,6 @@ const TutorialsOverview: React.FC = () => {
         return (
             <Form
                 form={form}
-                className="product-filter-form"
                 onFinish={onFilterChange}
             >
                 <Row gutter={24}>
@@ -179,6 +186,25 @@ const TutorialsOverview: React.FC = () => {
                             </Input.Group>
                         </Form.Item>
                     </Col>
+
+                    {authContext.loggedUser && <>
+                        <Col flex="1 1 300px">
+                            <Form.Item name="filterMarked">
+                                <Checkbox>
+                                    <StarFilled style={{ color: '#ffd805' }} /> Markierte
+                                </Checkbox>
+                            </Form.Item>
+                        </Col>
+
+                        <Col flex="1 1 300px">
+                            <Form.Item name="filterParticipates">
+                                <Checkbox>
+                                    <UserOutlined /> Teilgenommene
+                                </Checkbox>
+                            </Form.Item>
+                        </Col>
+                    </>}
+
                 </Row>
 
                 <Row>
@@ -210,28 +236,31 @@ const TutorialsOverview: React.FC = () => {
         { id: 4, name: "AI" },
     ];
 
+    const onTutorialClick = (tutorialId: number) => {
+        sessionStorage.setItem("tutorialFilter", JSON.stringify(filter));
+        navigate(`/tutorials/${tutorialId}`);
+    };
+
     const listItem = (tutorial: Tutorial) => {
         return (
             <List.Item>
                 <Card
-                    onClick={e => setSelectedTutorial(tutorial)}
+                    onClick={e => onTutorialClick(tutorial.id)}
                     hoverable
                     title={tutorial.title}
-                    extra={
-                        <>
-                            {authContext.loggedUser &&
-                                <Button type='link'>Vormerken</Button>}
-                            <Tooltip title={`${tutorial.numberOfParticipants} Teilnehmer`}>
-                                <UserOutlined /> {tutorial.numberOfParticipants}
-                            </Tooltip>
-                        </>
+                    extra={authContext.loggedUser && (tutorial.isMarked ?
+                        <StarFilled style={{ color: '#ffd805', fontSize: '18pt' }} />
+                        : <StarOutlined style={{ fontSize: '18pt' }} />)
                     }
                 >
                     <Paragraph ellipsis={{ rows: 2, expandable: false }}>
                         {tutorial.description}
                     </Paragraph>
                     <Paragraph>
-                        {formatDate(tutorial.start)} - {formatDate(tutorial.end)}, Umfang {tutorial.durationMinutes} Minuten
+                        <ClockCircleOutlined /> {formatDate(tutorial.start)} - {formatDate(tutorial.end)}, Gesamtumfang {tutorial.durationMinutes} Minuten
+                    </Paragraph>
+                    <Paragraph>
+                        <UserOutlined /> {tutorial.numberOfParticipants} Teilnehmer
                     </Paragraph>
                     <div>
                         {mockSpecialisationCourses.map(course => (
@@ -239,7 +268,7 @@ const TutorialsOverview: React.FC = () => {
                         ))}
                     </div>
                 </Card>
-            </List.Item>
+            </List.Item >
         );
     };
 
@@ -247,6 +276,7 @@ const TutorialsOverview: React.FC = () => {
         return (
             <List.Item>
                 <Card
+                    // extra is here to achieve similar looks to normal card
                     extra={<></>}
                 >
                     <Skeleton active paragraph={{ rows: 2 }}>
@@ -264,7 +294,7 @@ const TutorialsOverview: React.FC = () => {
             </Title>
             <Divider>Suchkriterien</Divider>
             <FilterBar />
-            <Divider />
+            <Divider>{filteredTutorials.totalElements} Ergebnisse</Divider>
             <PagingList
                 grid={{
                     gutter: 16,
@@ -286,13 +316,7 @@ const TutorialsOverview: React.FC = () => {
                 listItem={listItem}
                 isLoading={loading}
                 loadingItem={loadingItem}
-                defaultPageSize={2}
-                possiblePageSizes={[1, 2, 3]}
-            />
-
-            <TutorialDetails
-                tutorial={selectedTutorial}
-                onClose={() => setSelectedTutorial(undefined)}
+                possiblePageSizes={[5, 10, 20]}
             />
         </>
     );

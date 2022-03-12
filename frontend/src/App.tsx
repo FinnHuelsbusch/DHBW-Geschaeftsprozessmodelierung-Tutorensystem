@@ -23,6 +23,7 @@ import { validateMessages } from './utils/Messages';
 import locale from 'antd/lib/locale/de_DE';
 import 'moment/locale/de'
 import TutorialsOverview from './components/tutorials/TutorialsOverview';
+import TutorialDetails from './components/tutorials/TutorialDetails';
 
 
 const App: React.FC = () => {
@@ -107,6 +108,8 @@ const App: React.FC = () => {
             <Route path={AppRoutes.Main.Path} element={<Overview />} />
             <Route path={AppRoutes.Main.Subroutes.Login} element={<Login />} />
             <Route path={AppRoutes.Main.Subroutes.Register} element={<Register />} />
+            <Route path={"tutorials/:tutorialId"}
+              element={<TutorialDetails />} />
             <Route path={AppRoutes.Main.Subroutes.Tutorials} element={<TutorialsOverview />} />
             <Route
               path={AppRoutes.Main.Subroutes.AdminOverview}

@@ -10,7 +10,25 @@ export interface Tutorial {
     durationMinutes: number,
     tutors: Array<Tutor>,
     specialisationCourses: Array<CourseWithEmailAndName>,
-    numberOfParticipants: number
+    numberOfParticipants: number,
+    isMarked?: boolean,
+    participates?: boolean,
+}
+
+export const mapTutorialFromResponse = (data: any): Tutorial => {
+    return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        start: data.start,
+        end: data.end,
+        durationMinutes: data.durationMinutes,
+        tutors: data.tutors,
+        specialisationCourses: data.specialisationCourses,
+        numberOfParticipants: data.numberOfParticipants,
+        isMarked: data.marked,
+        participates: data.participates
+    } as Tutorial;
 }
 
 export interface Tutor {

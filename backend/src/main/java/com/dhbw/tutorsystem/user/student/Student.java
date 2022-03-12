@@ -16,12 +16,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-public class Student extends User{
-    
+public class Student extends User {
+
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Tutorial> participates;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Getter
+    @Setter
+    private Set<Tutorial> markedTutorials;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
@@ -38,15 +43,15 @@ public class Student extends User{
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<TutorialRequest> tutorialRequestsOfInterest;
 
-    public Student(){
-        
+    public Student() {
+
     }
 
     public Student(String firstname, String lastname, String email, String password) {
-        super(firstname, lastname, email, password); 
+        super(firstname, lastname, email, password);
     }
 
     public Student(String email, String password) {
-        super(email, password); 
+        super(email, password);
     }
 }
