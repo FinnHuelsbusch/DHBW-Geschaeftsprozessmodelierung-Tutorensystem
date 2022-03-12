@@ -12,9 +12,9 @@ export interface User {
     loginExpirationDate: Date
 }
 
-export interface UserWithMailAndName {
+export interface UserWithMailAndNameAndId {
     id: number,
     email: string,
-    firstname: string, 
-    lastname:string
+    firstName: string, 
+    lastName:string
 }
