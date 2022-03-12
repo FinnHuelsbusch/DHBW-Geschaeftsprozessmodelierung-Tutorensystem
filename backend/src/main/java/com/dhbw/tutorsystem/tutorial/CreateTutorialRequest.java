@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -41,15 +42,16 @@ public class CreateTutorialRequest {
     @Getter
     @Setter
     @NotNull
+    @Min(1)
     private int durationMinutes; 
     
     @Getter
     @Setter
     @NotEmpty
-    private Set<String> tutors; 
+    private Set<String> tutorEmails; 
 
     @Getter
     @Setter
     @NotEmpty
-    private Set<Integer> specialisationCourses;
+    private Set<Integer> specialisationCoursesIds;
 }

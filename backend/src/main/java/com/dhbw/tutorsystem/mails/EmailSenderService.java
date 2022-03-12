@@ -48,9 +48,9 @@ public class EmailSenderService {
         } else if (mailType == MailType.RESET_PASSWORD) {
             sendResetPasswordMail(mailTo, arguments);
         } else if (mailType == MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL) {
-            sendUnregisterdUserWasAddedToTutorialAsTutor(mailTo, arguments);
+            sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
         } else if(mailType == MailType.USER_ADDED_TO_TUTORIAL){
-            sendUserWasAddedToTutorialAsTutor(mailTo, arguments); 
+            sendUserAddedToTutorialAsTutorMail(mailTo, arguments); 
         }    else {
             throw new IllegalArgumentException("MailType is not known.");
         }
@@ -88,11 +88,11 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-    private void sendUnregisterdUserWasAddedToTutorialAsTutor(String mailTo, Map<String, Object> arguments) throws MessagingException {
+    private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         
     }
 
-    private void sendUserWasAddedToTutorialAsTutor(String mailTo, Map<String, Object> arguments) throws MessagingException {
+    private void sendUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         
     }
 }

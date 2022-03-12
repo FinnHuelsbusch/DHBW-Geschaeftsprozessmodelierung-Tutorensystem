@@ -8,21 +8,21 @@ import { UserWithMailAndNameAndId } from "../../types/User";
 import { getErrorMessageString } from "../../types/RequestError";
 import { TreeNode } from "antd/lib/tree-select";
 import moment from "moment";
+import { isValidEmail } from "../inputs/EmailFormInput";
 
 
 interface Props {
     isModalVisible: boolean,
-    setIsTutorialOfferModalVisible: (visible: boolean) => void
+    setIsTutorialCreateModalVisible: (visible: boolean) => void
 }
 
-const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
+const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCreateModalVisible }) => {
 
     const [users, setUsers] = useState<UserWithMailAndNameAndId[]>([]);
     const [form] = useForm();
     const [courses, setCourses] = useState<CourseWithTitleAndSpecialisations[]>([]);
 
     const onFinish = (values: any) => {
-        console.log("values", values);
         const durationMinutes = parseInt(values.durationMinutes.split(":")[0]) * 60 + parseInt(values.durationMinutes.split(":")[1]);
         const tutorial = {
             title: values.title,
@@ -30,12 +30,12 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
             start: moment(values.timerange[0]).format("YYYY-MM-DD"),
             end: moment(values.timerange[1]).format("YYYY-MM-DD"),
             durationMinutes: durationMinutes,
-            tutors: values.tutors,
-            specialisationCourses: values.specialisationCourses,
+            tutorEmails: values.tutorEmails,
+            specialisationCoursesIds: values.specialisationCoursesIds,
             appointment:values.appointment
         }
         putTutorial(tutorial).then(() => {
-            setIsTutorialOfferModalVisible(false);
+            setIsTutorialCreateModalVisible(false);
             form.resetFields();
         }, err => {
             message.error(getErrorMessageString(getRequestError(err).errorCode))
@@ -44,7 +44,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
     };
 
     const onCancel = () => {
-        setIsTutorialOfferModalVisible(false);
+        setIsTutorialCreateModalVisible(false);
         form.resetFields();
     }
 
@@ -65,18 +65,13 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
         }
     }, [isModalVisible]);
 
-    const mailPatternStudent = /^s[0-9]{6}@student\.dhbw-mannheim\.de$/g;
-    const mailPatternOthers = /^[a-z]*\.[a-z]*@dhbw-mannheim\.de$/g;
-
     const validateTutorEmails = (rule: any, value: string[], callback: any) => {
         if (!value) {
             callback("Pflichtfeld");
             return;
         }
         value.forEach(element => {
-            element = element.trim().toLowerCase();
-            if (!!!(element.match(mailPatternStudent)
-                || element.match(mailPatternOthers))) {
+            if (!isValidEmail(element)) {
                 callback("Ungültiges Format");
                 return;
             }
@@ -87,7 +82,6 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
     };
 
     const validateDuration = (rule: any, value: String, callback: any) => {
-        console.log("value", value)
         const durationPattern = /^\d{1,2}:\d{2}$/g
 
         if (!value) {
@@ -111,7 +105,6 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
     return (
 
         <Modal
-            destroyOnClose={true}
             visible={isModalVisible}
             onCancel={onCancel}
             title={"Tutorium erstellen"}
@@ -180,13 +173,13 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
                         label="Termine:"
                         name="appointment"
                     >
-                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
+                        <TextArea rows={4} placeholder="Termine des Tutoriums eintragen." maxLength={500} showCount />
                     </Form.Item>
 
                     <Form.Item
                         rules={[{ required: true }]}
                         label="Studiengänge:"
-                        name="specialisationCourses"
+                        name="specialisationCoursesIds"
 
                     >
                         <TreeSelect
@@ -206,7 +199,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
                     </Form.Item>
                     <Form.Item
                         label="Tutoren:"
-                        name="tutors"
+                        name="tutorEmails"
                         rules={[{
                             required: true,
                             validator: validateTutorEmails

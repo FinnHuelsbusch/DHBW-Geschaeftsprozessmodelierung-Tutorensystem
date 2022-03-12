@@ -9,6 +9,7 @@ import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.dto.SpecialisationCourseWithoutCourse;
 import com.dhbw.tutorsystem.tutorial.Tutorial;
 import com.dhbw.tutorsystem.user.User;
+import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
 import com.dhbw.tutorsystem.user.student.Student;
 
 import org.modelmapper.ModelMapper;
@@ -16,7 +17,7 @@ import org.modelmapper.ModelMapper;
 import lombok.Data;
 
 @Data
-public class TutorialWithSpecialisationcoursesWithoutCourses {
+public class TutorialWithSpecialisationCoursesWithoutCourses {
 
     private Integer id;
 
@@ -32,19 +33,19 @@ public class TutorialWithSpecialisationcoursesWithoutCourses {
 
     private LocalDate end;
 
-    private Set<User> tutors;
+    private Set<UserWithEmailAndNameAndId> tutors;
 
-    private Set<Student> participants;
+    private Set<UserWithEmailAndNameAndId> participants;
 
     private Set<SpecialisationCourseWithoutCourse> specialisationCourses;
 
-    public static TutorialWithSpecialisationcoursesWithoutCourses convertToDto(ModelMapper modelMapper, Tutorial tutorial){
-        TutorialWithSpecialisationcoursesWithoutCourses tutorialWithSpecialisationcoursesWithoutCourses = modelMapper.map(tutorial, TutorialWithSpecialisationcoursesWithoutCourses.class); 
+    public static TutorialWithSpecialisationCoursesWithoutCourses convertToDto(ModelMapper modelMapper, Tutorial tutorial){
+        TutorialWithSpecialisationCoursesWithoutCourses tutorialWithSpecialisationcoursesWithoutCourses = modelMapper.map(tutorial, TutorialWithSpecialisationCoursesWithoutCourses.class); 
         return tutorialWithSpecialisationcoursesWithoutCourses;
     }
 
-    public static List<TutorialWithSpecialisationcoursesWithoutCourses> convertToDto(ModelMapper modelMapper, Iterable<Tutorial> tutorials){
-        ArrayList<TutorialWithSpecialisationcoursesWithoutCourses> tutorialWithSpecialisationcoursesWithoutCoursesList = new ArrayList<>(); 
+    public static List<TutorialWithSpecialisationCoursesWithoutCourses> convertToDto(ModelMapper modelMapper, Iterable<Tutorial> tutorials){
+        ArrayList<TutorialWithSpecialisationCoursesWithoutCourses> tutorialWithSpecialisationcoursesWithoutCoursesList = new ArrayList<>(); 
         for (Tutorial tutorial : tutorials) {
             tutorialWithSpecialisationcoursesWithoutCoursesList.add(convertToDto(modelMapper, tutorial)); 
         }

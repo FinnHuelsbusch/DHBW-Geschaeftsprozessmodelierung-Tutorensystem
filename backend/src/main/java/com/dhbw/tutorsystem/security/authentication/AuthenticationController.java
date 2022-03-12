@@ -96,7 +96,7 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
+    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
@@ -298,7 +298,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Change a password while being logged in.", description = "Change the password into a new password when being logged in. Only Students and Directors can reset their passwords.", tags = {
-            "authentication" })
+            "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was changed successfully. The user will be directly logged in using the token in the response."),
             @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))

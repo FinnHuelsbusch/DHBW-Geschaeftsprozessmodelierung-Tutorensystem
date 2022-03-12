@@ -19,8 +19,6 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     const [courses, setCourses] = useState<CourseWithTitleAndLeaders[]>([]);
 
     const onFinish = (values: any) => {
-        console.log("values", values);
-
         const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
         Hochschule/Universität: ${values.university}%0D%0A
         Studiengang: ${values.ownCourse}%0D%0A
@@ -55,17 +53,16 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     return (
 
         <Modal
-            destroyOnClose={true}
             visible={isModalVisible}
             onCancel={onCancel}
-            title={"Tutorium erstellen"}
+            title={"Tutoriumsangebot erstellen"}
             width={600}
             footer={[
                 <Button
                     type="primary"
                     htmlType="submit"
                     onClick={e => form.submit()}>
-                    Erstellen
+                    Kontaktieren
                 </Button>
             ]}
         >

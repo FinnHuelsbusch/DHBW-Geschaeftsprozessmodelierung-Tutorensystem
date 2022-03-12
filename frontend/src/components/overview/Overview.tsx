@@ -30,7 +30,7 @@ const Overview: React.FC = () => {
       </Button>
       <TutorialCreateModal
         isModalVisible={isTutorialCreateModalVisible}
-        setIsTutorialOfferModalVisible={setIsTutorialCreateModalVisible}
+        setIsTutorialCreateModalVisible={setIsTutorialCreateModalVisible}
       />
     </div>
 
