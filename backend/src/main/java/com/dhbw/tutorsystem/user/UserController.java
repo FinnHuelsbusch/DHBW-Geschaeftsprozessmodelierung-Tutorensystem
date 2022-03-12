@@ -34,8 +34,9 @@ public class UserController {
     })
     @GetMapping("")
 
-    //TODO: Exclude Admins
+
     public ResponseEntity<List<UserWithEmailAndNameAndId>> getAllUsers() {
-        return new ResponseEntity<List<UserWithEmailAndNameAndId>>(UserWithEmailAndNameAndId.convertToDto(modelMapper, userRepository.findAll()), HttpStatus.OK);
+        List<User> users = userRepository.findAllUsersThatAreNotAdmin();
+        return new ResponseEntity<List<UserWithEmailAndNameAndId>>(UserWithEmailAndNameAndId.convertToDto(modelMapper, users), HttpStatus.OK);
     }
 }

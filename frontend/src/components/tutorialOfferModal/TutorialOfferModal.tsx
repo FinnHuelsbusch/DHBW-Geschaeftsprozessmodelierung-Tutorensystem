@@ -135,6 +135,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
+                            disabledDate={(current) => current && current < moment().startOf('day')}
                         />
                     </Form.Item>
                     <Form.Item

@@ -2,6 +2,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
+import { Tutorial } from '../types/Tutorial';
 import { User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -160,5 +161,10 @@ export const getCoursesWithTitleAndSpecialisations = (): Promise<CourseWithTitle
 
 export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId[]> => {
     return api.get('/users')
+        .then(res => res.data);
+}
+
+export const putTutorial = (newTutorial: Object): Promise<Tutorial> => {
+    return api.put('/tutorial', newTutorial)
         .then(res => res.data);
 }

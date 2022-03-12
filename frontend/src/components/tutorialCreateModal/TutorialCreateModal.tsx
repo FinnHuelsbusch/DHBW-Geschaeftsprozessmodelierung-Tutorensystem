@@ -1,13 +1,12 @@
-import { Button, DatePicker, Divider, Form, Input, InputNumber, message, Modal, Select, TimePicker, TreeSelect } from "antd"
+import { Button, DatePicker, Form, Input, message, Modal, Select, TreeSelect } from "antd"
 import { useForm } from "antd/lib/form/Form";
-import { useDebugValue, useEffect, useState } from "react";
-import { getCoursesWithTitleAndSpecialisations, getRequestError, getUsersWithNameAndMailAndId } from "../../api/api";
+import { useEffect, useState } from "react";
+import { getCoursesWithTitleAndSpecialisations, getRequestError, getUsersWithNameAndMailAndId, putTutorial } from "../../api/api";
 import { CourseWithTitleAndSpecialisations } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
 import { UserWithMailAndNameAndId } from "../../types/User";
 import { getErrorMessageString } from "../../types/RequestError";
 import { TreeNode } from "antd/lib/tree-select";
-import { Tutor, Tutorial } from "../../types/Tutorial";
 import moment from "moment";
 
 
@@ -25,18 +24,23 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
     const onFinish = (values: any) => {
         console.log("values", values);
         const durationMinutes = parseInt(values.durationMinutes.split(":")[0]) * 60 + parseInt(values.durationMinutes.split(":")[1]);
-        const tutorium = {
+        const tutorial = {
             title: values.title,
             description: values.description,
-            start: moment(values.timerange[0]).format("DD.MM.YYYY"),
-            end: moment(values.timerange[1]).format("DD.MM.YYYY"),
+            start: moment(values.timerange[0]).format("YYYY-MM-DD"),
+            end: moment(values.timerange[1]).format("YYYY-MM-DD"),
             durationMinutes: durationMinutes,
             tutors: values.tutors,
             specialisationCourses: values.specialisationCourses,
+            appointment:values.appointment
         }
-        console.log("tutorium", tutorium)
-        setIsTutorialOfferModalVisible(false);
-        form.resetFields();
+        putTutorial(tutorial).then(() => {
+            setIsTutorialOfferModalVisible(false);
+            form.resetFields();
+        }, err => {
+            message.error(getErrorMessageString(getRequestError(err).errorCode))
+        });
+        
     };
 
     const onCancel = () => {
@@ -154,6 +158,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
+                            disabledDate={(current) => current && current < moment().startOf('day')}
                         />
                     </Form.Item>
 
@@ -168,6 +173,14 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOff
                         <Input
                             placeholder="HH:MM"
                         />
+                    </Form.Item>
+
+                    <Form.Item
+                        rules={[{ required: true }]}
+                        label="Termine:"
+                        name="appointment"
+                    >
+                        <TextArea rows={4} placeholder="Maximal 500 Zeichen" maxLength={500} showCount />
                     </Form.Item>
 
                     <Form.Item

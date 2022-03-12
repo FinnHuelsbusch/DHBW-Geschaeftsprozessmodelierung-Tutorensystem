@@ -1,22 +1,32 @@
 package com.dhbw.tutorsystem.tutorial;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.StreamHandler;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import com.dhbw.tutorsystem.exception.TSBadRequestException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.mails.MailType;
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationcoursesWithoutCourses;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +37,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +46,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -51,6 +61,8 @@ public class TutorialController {
     private final TutorialRepository tutorialRepository; 
     private final UserRepository userRepository; 
     private final EmailSenderService emailSenderService;
+    private final SpecialisationCourseRepository specialisationCourseRepository; 
+    private final ModelMapper modelMapper; 
 
     @Operation(
         tags={"tutorial"},
@@ -119,41 +131,77 @@ public class TutorialController {
         })
     @PutMapping()
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public ResponseEntity<Tutorial> createTutorial(@RequestBody @Valid CreateTutorialRequest createTutorialRequest){
+    public ResponseEntity<TutorialWithSpecialisationcoursesWithoutCourses> createTutorial(@RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest){
         
-        if(createTutorialRequest == null){
-            throw new TSBadRequestException("No tutorial was provided for creation.");
+        if(
+            createTutorialRequest.getStart().isBefore(LocalDate.now())|| 
+            createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())
+        ){
+            throw new TSBadRequestException("The start and end are not valid. Earliest start is today.");
         }
-        Set<User> tutors = createTutorialRequest.getTutors(); 
-        for(User tutor: tutors){
-            if(!userRepository.existsByEmail(tutor.getEmail())){
-                HashMap<String,Object> mailArguments = new HashMap<>(); 
-                mailArguments.put("tutorialName", createTutorialRequest.getTitel()); 
-                mailArguments.put("tutorialDescription", createTutorialRequest.getDescription());
-                mailArguments.put("tutorialStart", createTutorialRequest.getStart()); 
-                mailArguments.put("tutorialEnd", createTutorialRequest.getEnd()); 
-                User user = new User(); 
-                user.setEmail(tutor.getEmail());
-                user = userRepository.save(user);
+        
+        if(specialisationCourseRepository.existsByIdIn(createTutorialRequest.getSpecialisationCourses())){
+            throw new TSBadRequestException("One of the specialisationCourses does not exist");
+        }
+
+        if(createTutorialRequest.getDurationMinutes() < 0){
+            throw new TSBadRequestException("The duration can not be negative");
+        }
+
+
+        Tutorial tutorial = new Tutorial(); 
+
+        HashMap<String,Object> mailArguments = new HashMap<>(); 
+        mailArguments.put("tutorialTitle", createTutorialRequest.getTitle()); 
+        mailArguments.put("tutorialDescription", createTutorialRequest.getDescription());
+        mailArguments.put("tutorialStart", createTutorialRequest.getStart()); 
+        mailArguments.put("tutorialEnd", createTutorialRequest.getEnd()); 
+        mailArguments.put("tutorialDurationMinutes", createTutorialRequest.getDurationMinutes());
+        mailArguments.put("tutorialTutorsEmail",createTutorialRequest.getTutors());
+
+        List<User> tutors = handleAddedTutors(createTutorialRequest.getTutors(), mailArguments); 
+        
+        tutorial.setTutors(Set.copyOf(tutors));
+        tutorial.setDescription(createTutorialRequest.getDescription());
+        tutorial.setTitle(createTutorialRequest.getTitle()); 
+        tutorial.setStart(createTutorialRequest.getStart());
+        tutorial.setEnd(createTutorialRequest.getEnd());
+        tutorial.setDurationMinutes(createTutorialRequest.getDurationMinutes());
+        tutorial.setSpecialisationCourses(specialisationCourseRepository.findAllById(createTutorialRequest.getSpecialisationCourses()));
+        tutorial.setAppointment(createTutorialRequest.getAppointment());
+
+        tutorial = tutorialRepository.save(tutorial);
+ 
+        return new ResponseEntity<>(TutorialWithSpecialisationcoursesWithoutCourses.convertToDto(modelMapper, tutorial), HttpStatus.CREATED); 
+    }
+
+    private List<User> handleAddedTutors(Set<String> tutorMails, Map<String, Object> mailArguments){
+        List<User> usersToReturn = new ArrayList<>(); 
+        for(String tutorEmail: tutorMails){
+
+            Optional<User> optionalUser = userRepository.findByEmail(tutorEmail);
+            User user;
+
+            // if user is not registered yet create a new user and send a notification 
+            if(optionalUser.isPresent()){
+                user = optionalUser.get(); 
+                try {
+                    emailSenderService.sendMail(user.getEmail(), MailType.USER_ADDED_TO_TUTORIAL, mailArguments);
+                } catch (MessagingException e) {
+                    throw new TSInternalServerException();
+                }
+            } else{
+                user = new User(); 
+                user.setEmail(tutorEmail);
                 try {
                     emailSenderService.sendMail(user.getEmail(), MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL, mailArguments);
                 } catch (MessagingException e) {
                     throw new TSInternalServerException();
                 }
             }
+            usersToReturn.add(user); 
         }
-        Tutorial tutorial = new Tutorial(); 
-        tutorial.setDescription(createTutorialRequest.getDescription());
-        tutorial.setTitle(createTutorialRequest.getTitel()); 
-        tutorial.setStart(createTutorialRequest.getStart());
-        tutorial.setEnd(createTutorialRequest.getEnd());
-        tutorial.setDurationMinutes(createTutorialRequest.getDurationMinutes());
-        tutorial.setTutors(createTutorialRequest.getTutors());
-        tutorial.setSpecialisationCourses(createTutorialRequest.getSpcialisationCourses());
-
-        tutorial = tutorialRepository.save(tutorial);
- 
-        return new ResponseEntity<>(tutorial, HttpStatus.CREATED); 
+        return userRepository.saveAll(usersToReturn);
     }
 
     @Operation(
@@ -180,4 +228,5 @@ public class TutorialController {
  
         
     }
+
 }
