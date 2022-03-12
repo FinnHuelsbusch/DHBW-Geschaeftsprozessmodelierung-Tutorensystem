@@ -105,7 +105,7 @@ public class TutorialController {
             "tutorial" }, summary = "Create new tutorial.", description = "Create a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Returns the created tutorial."),
-            @ApiResponse(responseCode = "400", description = "One of the parameters was not set corretly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
 
     })
     @PutMapping()
