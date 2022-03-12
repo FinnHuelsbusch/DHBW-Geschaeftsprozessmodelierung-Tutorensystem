@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -34,7 +35,7 @@ public class PingController {
         return ResponseEntity.ok("Pong Student");
     }
 
-    @Operation(summary = "Ping backend for admin routes", tags = { "ping" })
+    @Operation(summary = "Ping backend for admin routes", tags = { "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to admins"),
         @ApiResponse(responseCode = "401", description = "The user is not allowed to access routes only available to admins")
@@ -46,7 +47,7 @@ public class PingController {
     }
 
    
-    @Operation(summary = "Ping backend for admin directors", tags = { "ping" })
+    @Operation(summary = "Ping backend for admin directors", tags = { "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to directors"),
         @ApiResponse(responseCode = "401", description = "The user is not allowed to access routes only available to directors")

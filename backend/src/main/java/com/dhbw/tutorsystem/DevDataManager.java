@@ -48,6 +48,8 @@ public class DevDataManager {
         uAdmin.setPassword(encoder.encode(uAdmin.getPassword()));
         uAdmin.setEnabled(true);
         uAdmin.setLastPasswordAction(LocalDateTime.now());
+        uAdmin.setFirstName("Adam");
+        uAdmin.setLastName("Admin");
         uAdmin = userRepository.save(uAdmin);
 
         Director uDirector1 = new Director("dirk.director@dhbw-mannheim.de", "1234");
@@ -55,6 +57,8 @@ public class DevDataManager {
         uDirector1.setPassword(encoder.encode(uDirector1.getPassword()));
         uDirector1.setEnabled(true);
         uDirector1.setLastPasswordAction(LocalDateTime.now());
+        uDirector1.setFirstName("Dirk");
+        uDirector1.setLastName("Director");
         uDirector1 = directorRepository.save(uDirector1);
 
         Director uDirector2 = new Director("daniel.director@dhbw-mannheim.de", "1234");
@@ -62,6 +66,8 @@ public class DevDataManager {
         uDirector2.setPassword(encoder.encode(uDirector2.getPassword()));
         uDirector2.setEnabled(true);
         uDirector2.setLastPasswordAction(LocalDateTime.now());
+        uDirector2.setFirstName("Daniel");
+        uDirector2.setLastName("Director");
         uDirector2 = directorRepository.save(uDirector2);
 
         Director uDirector3 = new Director("doris.director@dhbw-mannheim.de", "1234");
@@ -69,18 +75,24 @@ public class DevDataManager {
         uDirector3.setPassword(encoder.encode(uDirector3.getPassword()));
         uDirector3.setEnabled(true);
         uDirector3.setLastPasswordAction(LocalDateTime.now());
+        uDirector3.setFirstName("Doris");
+        uDirector3.setLastName("Director");
         uDirector3 = directorRepository.save(uDirector3);
 
         Student uStudent1 = new Student("s111111@student.dhbw-mannheim.de", "1234");
 		uStudent1.setRoles(Set.of(rStudent));
 		uStudent1.setPassword(encoder.encode(uStudent1.getPassword()));
 		uStudent1.setEnabled(true);
+        uStudent1.setFirstName("Leon");
+        uStudent1.setLastName("Bauer");
 		uStudent1 = studentRepository.save(uStudent1);
 
 		Student uStudent2 = new Student("s222222@student.dhbw-mannheim.de", "1234");
 		uStudent2.setRoles(Set.of(rStudent));
 		uStudent2.setPassword(encoder.encode(uStudent2.getPassword()));
 		uStudent2.setEnabled(true);
+        uStudent2.setFirstName("Elon");
+        uStudent2.setLastName("Musk");
 		uStudent2 = studentRepository.save(uStudent2);
 
         HashSet<Director> directors = new HashSet<>(); 
@@ -119,6 +131,12 @@ public class DevDataManager {
 		HashSet<SpecialisationCourse> specialisationCourses1 = new HashSet<>(); 
 		specialisationCourses1.add(specialisationCourseSC); 
         specialisationCourses1.add(specialisationCourseSE);
+
+        course1.setSpecialisationCourses(specialisationCourses1);
+        course1 = courseRepository.save(course1);
+
+        course2.setSpecialisationCourses(Set.of(specialisationCourseAMB));
+        course2 = courseRepository.save(course2);
 
 		HashSet<Student> participants = new HashSet<>(); 
 		participants.add(uStudent2); 
