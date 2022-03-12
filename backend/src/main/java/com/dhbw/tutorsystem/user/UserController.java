@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.dhbw.tutorsystem.course.dto.CourseWithTitleAndLeaders;
 import com.dhbw.tutorsystem.user.dto.UserWithEmailAndName;
+import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class UserController {
     @GetMapping("")
 
     //TODO: Exclude Admins
-    public ResponseEntity<List<UserWithEmailAndName>> getAllUsers() {
-        return new ResponseEntity<List<UserWithEmailAndName>>(UserWithEmailAndName.convertToDto(modelMapper, userRepository.findAll()), HttpStatus.OK);
+    public ResponseEntity<List<UserWithEmailAndNameAndId>> getAllUsers() {
+        return new ResponseEntity<List<UserWithEmailAndNameAndId>>(UserWithEmailAndNameAndId.convertToDto(modelMapper, userRepository.findAll()), HttpStatus.OK);
     }
 }
