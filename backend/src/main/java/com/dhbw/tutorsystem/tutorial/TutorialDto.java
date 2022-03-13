@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
+import com.dhbw.tutorsystem.specialisationCourse.dto.SpecialisationCourseWithoutCourse;
+import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
+
+import org.modelmapper.ModelMapper;
 
 import lombok.Data;
 
@@ -24,11 +28,11 @@ public class TutorialDto {
 
     private LocalDate end;
 
-    private Set<UserDto> tutors;
+    private Set<UserWithEmailAndNameAndId> tutors;
 
     private int numberOfParticipants;
 
-    private Set<SpecialisationCourse> specialisationCourses;
+    private Set<SpecialisationCourseWithoutCourse> specialisationCourses;
 
     private boolean isMarked;
 
@@ -38,6 +42,16 @@ public class TutorialDto {
         this.isMarked = isMarked;
         this.participates = participates;
         return this;
+    }
+
+    public static TutorialDto convertToDto(ModelMapper modelMapper, Tutorial tutorial) {
+        TutorialDto tutorialDto = modelMapper.map(tutorial, TutorialDto.class);
+        // tutorialDto.setTutors(tutorial.getTutors().stream().map(tutor ->
+        // UserWithEmailAndNameAndId.convertToDto(tutor))
+        // .collect(Collectors.toSet()));
+        int numberOfParticipants = tutorial.getParticipants() != null ? tutorial.getParticipants().size() : 0;
+        tutorialDto.setNumberOfParticipants(numberOfParticipants);
+        return tutorialDto;
     }
 
 }

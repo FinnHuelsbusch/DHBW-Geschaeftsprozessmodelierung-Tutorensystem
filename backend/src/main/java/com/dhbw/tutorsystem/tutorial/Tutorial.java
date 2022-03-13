@@ -39,6 +39,10 @@ public class Tutorial {
 
     @Getter
     @Setter
+    private String title;
+
+    @Getter
+    @Setter
     private int durationMinutes;
 
     @Getter
@@ -49,7 +53,7 @@ public class Tutorial {
     @Setter
     private LocalDate end;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<User> tutors;
@@ -71,7 +75,17 @@ public class Tutorial {
     @Setter
     private Set<SpecialisationCourse> specialisationCourses;
 
-    @Getter
-    @Setter
-    private String title;
+    public boolean isStudentParticipating(Student student) {
+        return student != null
+                && this.getParticipants() != null
+                && this.getParticipants().stream().filter(s -> s.getId() == student.getId())
+                        .findFirst().isPresent();
+    }
+
+    public boolean isMarkedByStudent(Student student) {
+        return student != null
+                && this.getMarkedBy() != null
+                && this.getMarkedBy().stream().filter(s -> s.getId() == student.getId())
+                        .findFirst().isPresent();
+    }
 }

@@ -46,7 +46,8 @@ public class DevDataManager {
     private SpecialisationCourse specialisationCourseSE, specialisationCourseSC, specialisationCourseAMB;
 
     public void initDatabaseForDevelopment() {
-        // ordering of these methods is important, because of existing dependencies between entities
+        // ordering of these methods is important, because of existing dependencies
+        // between entities
         insertUsers();
         insertCoursesWithSpecialisation();
         insertTutorials();
@@ -62,6 +63,8 @@ public class DevDataManager {
         uAdmin.setPassword(encoder.encode(uAdmin.getPassword()));
         uAdmin.setEnabled(true);
         uAdmin.setLastPasswordAction(LocalDateTime.now());
+        uAdmin.setFirstName("Adam");
+        uAdmin.setLastName("Admin");
         uAdmin = userRepository.save(uAdmin);
 
         uDirector1 = new Director("dirk.director@dhbw-mannheim.de", "1234");
@@ -69,6 +72,8 @@ public class DevDataManager {
         uDirector1.setPassword(encoder.encode(uDirector1.getPassword()));
         uDirector1.setEnabled(true);
         uDirector1.setLastPasswordAction(LocalDateTime.now());
+        uDirector1.setFirstName("Dirk");
+        uDirector1.setLastName("Director");
         uDirector1 = directorRepository.save(uDirector1);
 
         uDirector2 = new Director("daniel.director@dhbw-mannheim.de", "1234");
@@ -76,6 +81,8 @@ public class DevDataManager {
         uDirector2.setPassword(encoder.encode(uDirector2.getPassword()));
         uDirector2.setEnabled(true);
         uDirector2.setLastPasswordAction(LocalDateTime.now());
+        uDirector2.setFirstName("Daniel");
+        uDirector2.setLastName("Director");
         uDirector2 = directorRepository.save(uDirector2);
 
         uDirector3 = new Director("doris.director@dhbw-mannheim.de", "1234");
@@ -83,26 +90,25 @@ public class DevDataManager {
         uDirector3.setPassword(encoder.encode(uDirector3.getPassword()));
         uDirector3.setEnabled(true);
         uDirector3.setLastPasswordAction(LocalDateTime.now());
+        uDirector3.setFirstName("Doris");
+        uDirector3.setLastName("Director");
         uDirector3 = directorRepository.save(uDirector3);
 
         uStudent1 = new Student("s111111@student.dhbw-mannheim.de", "1234");
         uStudent1.setRoles(Set.of(rStudent));
         uStudent1.setPassword(encoder.encode(uStudent1.getPassword()));
         uStudent1.setEnabled(true);
+        uStudent1.setFirstName("Leon");
+        uStudent1.setLastName("Bauer");
         uStudent1 = studentRepository.save(uStudent1);
 
         uStudent2 = new Student("s222222@student.dhbw-mannheim.de", "1234");
         uStudent2.setRoles(Set.of(rStudent));
         uStudent2.setPassword(encoder.encode(uStudent2.getPassword()));
         uStudent2.setEnabled(true);
+        uStudent2.setFirstName("Elon");
+        uStudent2.setLastName("Musk");
         uStudent2 = studentRepository.save(uStudent2);
-
-        // private mail, only used for debugging
-        Student uStudent3 = new Student("s190212@student.dhbw-mannheim.de", "1234");
-        uStudent3.setRoles(Set.of(rStudent));
-        uStudent3.setPassword(encoder.encode(uStudent3.getPassword()));
-        uStudent3.setEnabled(true);
-        uStudent3 = studentRepository.save(uStudent3);
 
         uTutor = new Student("s999999@student.dhbw-mannheim.de", "1234");
         uTutor.setFirstName("Tarik");
@@ -142,7 +148,7 @@ public class DevDataManager {
                 LocalDate.now().plusWeeks(3),
                 LocalDate.now().plusDays(21),
                 Set.of(uTutor),
-                Set.of(uStudent1),
+                Set.of(uStudent1, uStudent2),
                 Set.of(specialisationCourseSE, specialisationCourseSC));
 
         createTutorial(
@@ -203,7 +209,13 @@ public class DevDataManager {
         SpecialisationCourse specialisationCourse = new SpecialisationCourse();
         specialisationCourse.setCourse(course);
         specialisationCourse.setTitle(title);
-        return specialisationCourseRepository.save(specialisationCourse);
+        specialisationCourse = specialisationCourseRepository.save(specialisationCourse);
+        if (course.getSpecialisationCourses() == null) {
+            course.setSpecialisationCourses(Set.of(specialisationCourse));
+        } else {
+            course.getSpecialisationCourses().add(specialisationCourse);
+        }
+        course = courseRepository.save(course);
+        return specialisationCourse;
     }
-
 }

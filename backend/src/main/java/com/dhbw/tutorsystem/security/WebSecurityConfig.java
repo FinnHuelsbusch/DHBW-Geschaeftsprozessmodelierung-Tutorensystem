@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // correspond to REST
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests().antMatchers("/ping").permitAll()
+            .antMatchers("/users/**").permitAll()
             .antMatchers("/courses/**").permitAll()
             .antMatchers("/authentication/**").permitAll()
             .antMatchers("/authentication/changePassword").authenticated()
@@ -65,6 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/tutorials/*").permitAll()
             .antMatchers("/v3/api-docs/**").permitAll()// TODO: in the future .hasRole(ERole.ROLE_ADMIN.name())
             .antMatchers("/swagger-ui/**").permitAll()// TODO: in the future.hasRole(ERole.ROLE_ADMIN.name())
+            .antMatchers("/tutorial").permitAll()
             .anyRequest().authenticated();
 
         http.cors();

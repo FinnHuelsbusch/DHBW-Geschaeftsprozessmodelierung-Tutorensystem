@@ -1,9 +1,9 @@
 import axios from 'axios';
 import moment from 'moment';
-import { CourseWithEmailAndName, SpecialisationCourse } from '../types/Course';
+import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
-import { User } from '../types/User';
+import { User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -200,7 +200,22 @@ export const unmarkTutorial = (tutorialId: number): Promise<any> => {
         });
 }
 
-export const getCourses = (): Promise<CourseWithEmailAndName[]> => {
-    return api.get('/courses/withoutSpecialisation')
+export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeaders[]> => {
+    return api.get('/courses/withTitleAndLeaders')
+        .then(res => res.data);
+}
+
+export const getCoursesWithTitleAndSpecialisations = (): Promise<CourseWithTitleAndSpecialisations[]> => {
+    return api.get('/courses/withTitleAndSpecialisations')
+        .then(res => res.data);
+}
+
+export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId[]> => {
+    return api.get('/users')
+        .then(res => res.data);
+}
+
+export const putTutorial = (newTutorial: Object): Promise<Tutorial> => {
+    return api.put('/tutorials', newTutorial)
         .then(res => res.data);
 }

@@ -1,8 +1,8 @@
 import { Button, DatePicker, Divider, Form, Input, message, Modal, Select } from "antd"
 import { useForm } from "antd/lib/form/Form";
 import { useEffect, useState } from "react";
-import { getCourses, getRequestError } from "../../api/api";
-import { CourseWithEmailAndName } from "../../types/Course";
+import { getCoursesWithTitleAndLeaders, getRequestError } from "../../api/api";
+import { CourseWithTitleAndLeaders } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import { User } from "../../types/User";
@@ -16,11 +16,9 @@ interface Props {
 const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOfferModalVisible }) => {
 
     const [form] = useForm();
-    const [courses, setCourses] = useState<CourseWithEmailAndName[]>([]);
+    const [courses, setCourses] = useState<CourseWithTitleAndLeaders[]>([]);
 
     const onFinish = (values: any) => {
-        console.log("values", values);
-
         const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
         Hochschule/Universität: ${values.university}%0D%0A
         Studiengang: ${values.ownCourse}%0D%0A
@@ -42,7 +40,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     useEffect(() => {
         // initial opening of page: get available courses
         if (isModalVisible) {
-            getCourses().then(Courses => {
+            getCoursesWithTitleAndLeaders().then(Courses => {
                 setCourses(Courses);
             }, err => {
                 message.error(getErrorMessageString(getRequestError(err).errorCode))
@@ -55,7 +53,6 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     return (
 
         <Modal
-            destroyOnClose={true}
             visible={isModalVisible}
             onCancel={onCancel}
             title={"Tutoriumsangebot erstellen"}
@@ -135,6 +132,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                         <DatePicker.RangePicker
                             placeholder={["Anfang", "Ende"]}
                             format="DD.MM.YYYY"
+                            disabledDate={(current) => current && current < moment().startOf('day')}
                         />
                     </Form.Item>
                     <Form.Item

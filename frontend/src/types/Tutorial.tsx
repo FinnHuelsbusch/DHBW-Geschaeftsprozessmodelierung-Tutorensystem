@@ -1,5 +1,5 @@
 import { Sorting } from "./Paging";
-import { CourseWithEmailAndName } from "./Course";
+import { SpecialisationCourse } from "./Course"
 
 export interface Tutorial {
     id: number,
@@ -9,7 +9,7 @@ export interface Tutorial {
     end: Date,
     durationMinutes: number,
     tutors: Array<Tutor>,
-    specialisationCourses: Array<CourseWithEmailAndName>,
+    specialisationCourses: Array<SpecialisationCourse>,
     numberOfParticipants: number,
     isMarked?: boolean,
     participates?: boolean,

@@ -49,6 +49,10 @@ public class EmailSenderService {
             sendResetPasswordMail(mailTo, arguments);
         } else if (mailType == MailType.TUTORIAL_PARTICIPATION) {
             sendTutorialParticipationMail(mailTo, arguments);
+        } else if (mailType == MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL) {
+            sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
+        } else if(mailType == MailType.USER_ADDED_TO_TUTORIAL){
+            sendUserAddedToTutorialAsTutorMail(mailTo, arguments); 
         } else {
             throw new IllegalArgumentException("MailType is not known.");
         }
@@ -101,5 +105,13 @@ public class EmailSenderService {
         helper.setSubject("Tutorensystem Teilnahme am Tutorium");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
+    }
+    
+    private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        
+    }
+
+    private void sendUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        
     }
 }
