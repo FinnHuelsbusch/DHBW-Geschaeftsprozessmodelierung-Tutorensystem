@@ -15,6 +15,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.validation.Valid;
 
+import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.mails.MailType;
@@ -54,6 +55,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @RestController
 @RequestMapping("tutorials")
@@ -79,8 +82,8 @@ public class TutorialController {
                         "tutorials" })
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Tutorial was found."),
-                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer."),
-                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found."),
+                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
         @GetMapping("/{id}")
         public ResponseEntity<TutorialDto> getTutorial(@PathVariable Integer id) {
@@ -103,8 +106,8 @@ public class TutorialController {
                         "tutorials" })
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Participation was successful."),
-                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer."),
-                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found."),
+                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
         @PutMapping("/participate/{id}")
         public ResponseEntity<Void> participateInTutorial(@PathVariable Integer id) {
@@ -153,8 +156,8 @@ public class TutorialController {
                         "tutorials" })
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Marking was successful."),
-                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer or tutorial is already marked."),
-                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found."),
+                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer or tutorial is already marked.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
         @PutMapping("/mark/{id}")
         public ResponseEntity<Void> markTutorial(@PathVariable Integer id) {
@@ -192,8 +195,8 @@ public class TutorialController {
                         "tutorials" })
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Unmarking was successful."),
-                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer."),
-                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found."),
+                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
         @DeleteMapping("/mark/{id}")
         public ResponseEntity<Void> unmarkTutorial(@PathVariable Integer id) {
@@ -207,7 +210,7 @@ public class TutorialController {
                         throw new UserNotFoundException();
                 }
                 if (!isMarkedByStudent(student, tutorial)) {
-                        throw new TSInvalidTutorialMarkException("Tutorial is already marked");
+                        throw new TSInvalidTutorialMarkException("Tutorial is already unmarked");
                 }
                 // associate student with tutorial, then tutorial with student
                 if (tutorial.getMarkedBy() == null) {
