@@ -40,8 +40,8 @@ export interface Tutor {
 
 export interface TutorialFilter {
     text?: string,
-    startDateFrom?: Date,
-    startDateTo?: Date,
+    startDateFrom?: string,
+    startDateTo?: string,
     specialisationCourseIds?: Array<number>,
     sorting: Sorting,
     page: number,

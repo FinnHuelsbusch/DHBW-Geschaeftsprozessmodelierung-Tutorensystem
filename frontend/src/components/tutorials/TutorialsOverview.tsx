@@ -11,7 +11,7 @@ import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tu
 import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList from '../pagingList/PagingList';
 import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom';
+import { NavigationType, useNavigate, useNavigationType } from 'react-router-dom';
 
 const TutorialsOverview: React.FC = () => {
 
@@ -37,10 +37,12 @@ const TutorialsOverview: React.FC = () => {
         totalPages: 0,
     });
 
+    const navigationType = useNavigationType();
+
     useEffect(() => {
-        // apply saved filter if it exists
+        // apply saved filter if it exists and if user navigated back
         const savedFilter = sessionStorage.getItem("tutorialFilter");
-        if (savedFilter) {
+        if (savedFilter && navigationType === "POP") {
             sessionStorage.removeItem("tutorialFilter");
             const filterObj = JSON.parse(savedFilter);
             form.setFieldsValue({ ...filterObj });
@@ -49,7 +51,6 @@ const TutorialsOverview: React.FC = () => {
         }
         // re-fetch upon filter change (also called on initial loading of the page)
         fetchPage();
-
     }, [filter]);
 
     const fetchPage = () => {
@@ -70,11 +71,14 @@ const TutorialsOverview: React.FC = () => {
     const onFilterChange = () => {
         const formFilter = { ...form.getFieldsValue() };
         console.log(formFilter);
+        const dateFormat = "YYYY-MM-DD";
+        const startDateFromString = formFilter.timerange ? formatDate(formFilter.timerange[0], dateFormat) : undefined;
+        const startDateToString = formFilter.timerange ? formatDate(formFilter.timerange[1], dateFormat) : undefined;
         setFilter({
             ...filter,
             text: formFilter.text,
-            startDateFrom: formFilter.timerange ? formFilter.timerange[0] : undefined,
-            startDateTo: formFilter.timerange ? formFilter.timerange[1] : undefined,
+            startDateFrom: startDateFromString,
+            startDateTo: startDateToString,
         });
     };
 

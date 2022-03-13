@@ -193,9 +193,13 @@ public class DevDataManager {
         course1 = createCourse(Set.of(uDirector1, uDirector2), "Wirtschaftsinformatik");
         specialisationCourseSE = createSpecialisationCourse(course1, "Software Engineering");
         specialisationCourseSC = createSpecialisationCourse(course1, "Sales and Consulting");
+        course1.setSpecialisationCourses(Set.of(specialisationCourseSE, specialisationCourseSC));
+        course1 = courseRepository.save(course1);
 
         course2 = createCourse(Set.of(uDirector3), "Maschinenbau");
         specialisationCourseAMB = createSpecialisationCourse(course2, "Allgemeiner Maschinenbau");
+        course2.setSpecialisationCourses(Set.of(specialisationCourseAMB));
+        course2 = courseRepository.save(course2);
     }
 
     private Course createCourse(Set<Director> directors, String title) {
@@ -209,13 +213,6 @@ public class DevDataManager {
         SpecialisationCourse specialisationCourse = new SpecialisationCourse();
         specialisationCourse.setCourse(course);
         specialisationCourse.setTitle(title);
-        specialisationCourse = specialisationCourseRepository.save(specialisationCourse);
-        if (course.getSpecialisationCourses() == null) {
-            course.setSpecialisationCourses(Set.of(specialisationCourse));
-        } else {
-            course.getSpecialisationCourses().add(specialisationCourse);
-        }
-        course = courseRepository.save(course);
-        return specialisationCourse;
+        return specialisationCourseRepository.save(specialisationCourse);
     }
 }

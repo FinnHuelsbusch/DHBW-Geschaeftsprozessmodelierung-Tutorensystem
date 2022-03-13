@@ -50,6 +50,8 @@ const TutorialDetails: React.FC = () => {
             if (!tutorial) return;
             // if user is not logged in, redirect to login page
             if (!authContext.loggedUser) {
+                // delete saved filter before leaving the page
+                sessionStorage.removeItem("tutorialFilter");
                 navigate(AppRoutes.Main.Subroutes.Login);
             } else {
                 Modal.confirm({

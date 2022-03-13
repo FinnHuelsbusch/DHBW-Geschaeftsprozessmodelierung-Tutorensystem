@@ -9,6 +9,7 @@ import { getErrorMessageString } from "../../types/RequestError";
 import { TreeNode } from "antd/lib/tree-select";
 import moment from "moment";
 import { isValidEmail } from "../inputs/EmailFormInput";
+import { useNavigate } from "react-router-dom";
 
 
 interface Props {
@@ -21,6 +22,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
     const [users, setUsers] = useState<UserWithMailAndNameAndId[]>([]);
     const [form] = useForm();
     const [courses, setCourses] = useState<CourseWithTitleAndSpecialisations[]>([]);
+    const navigate = useNavigate();
 
     const onFinish = (values: any) => {
         const durationMinutes = parseInt(values.durationMinutes.split(":")[0]) * 60 + parseInt(values.durationMinutes.split(":")[1]);
@@ -32,15 +34,17 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             durationMinutes: durationMinutes,
             tutorEmails: values.tutorEmails,
             specialisationCoursesIds: values.specialisationCoursesIds,
-            appointment:values.appointment
+            appointment: values.appointment
         }
-        putTutorial(tutorial).then(() => {
+        putTutorial(tutorial).then(tutorialId => {
             setIsTutorialCreateModalVisible(false);
             form.resetFields();
+            message.success("Tutorium erfolgreich erstellt");
+            navigate(`/tutorials/${tutorialId}`);
         }, err => {
             message.error(getErrorMessageString(getRequestError(err).errorCode))
         });
-        
+
     };
 
     const onCancel = () => {
@@ -75,10 +79,9 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
                 callback("Ungültiges Format");
                 return;
             }
-            callback();
-            return;
         });
-
+        callback();
+        return;
     };
 
     const validateDuration = (rule: any, value: String, callback: any) => {
@@ -91,7 +94,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
         if (value.match(durationPattern)) {
             const hours = parseInt(value.split(":")[0]);
             const minutes = parseInt(value.split(":")[1]);
-            if(minutes < 60 && !(minutes === 0 && hours === 0)){
+            if (minutes < 60 && !(minutes === 0 && hours === 0)) {
                 callback();
                 return;
             }
@@ -122,6 +125,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             <div>
                 <Form
                     form={form}
+                    labelWrap
                     labelCol={{ span: 6 }}
                     wrapperCol={{ span: 18 }}
                     onFinish={onFinish}

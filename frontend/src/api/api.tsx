@@ -215,7 +215,10 @@ export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId
         .then(res => res.data);
 }
 
-export const putTutorial = (newTutorial: Object): Promise<Tutorial> => {
+export const putTutorial = (newTutorial: Object): Promise<number> => {
     return api.put('/tutorials', newTutorial)
-        .then(res => res.data);
+        .then(res => {
+            const data = res.data;
+            return data.id;
+        });
 }

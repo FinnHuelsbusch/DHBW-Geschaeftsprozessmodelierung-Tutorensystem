@@ -22,6 +22,7 @@ import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.mails.MailType;
+import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
@@ -124,6 +125,7 @@ public class TutorialController {
                 }
                 Tutorial tutorial = optionalTutorial.get();
                 // retrieve user and notify by email of the participation
+                // note: email does not have to be checked, logged in user is already valid
                 Student student = studentService.getLoggedInStudent();
                 if (student == null) {
                         throw new UserNotFoundException();
@@ -260,11 +262,12 @@ public class TutorialController {
                 // search start date within specified time range
                 BooleanBuilder startsWithinTimeFrame = new BooleanBuilder();
                 LocalDate defaultStartDateFrom = LocalDate.now().minusMonths(3);
-                if (filterRequest.getStartDateFrom() == null &&
-                                filterRequest.getStartDateTo() == null) {
-                        // nothing specified, default to starting date 2 months in the past until
-                        // infinity
-                        startsWithinTimeFrame.and(tutorial.start.after(defaultStartDateFrom));
+                if (filterRequest.getStartDateFrom() != null &&
+                                filterRequest.getStartDateTo() != null) {
+                        // from and to date specified
+                        startsWithinTimeFrame.and(
+                                        tutorial.start.between(filterRequest.getStartDateFrom(),
+                                                        filterRequest.getStartDateTo()));
                 } else if (filterRequest.getStartDateFrom() != null) {
                         // only from date specified
                         startsWithinTimeFrame.and(
@@ -276,10 +279,9 @@ public class TutorialController {
                                         tutorial.start.between(defaultStartDateFrom,
                                                         filterRequest.getStartDateTo()));
                 } else {
-                        // from and to date specified
-                        startsWithinTimeFrame.and(
-                                        tutorial.start.between(filterRequest.getStartDateFrom(),
-                                                        filterRequest.getStartDateTo()));
+                        // nothing specified, default to starting date 2 months in the past until
+                        // infinity
+                        startsWithinTimeFrame.and(tutorial.start.after(defaultStartDateFrom));
                 }
 
                 // construct pageable details
@@ -372,9 +374,11 @@ public class TutorialController {
                                 createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())) {
                         throw new TutorialInvalidTimerangeException();
                 }
-
                 if (!specialisationCourseRepository.existsByIdIn(createTutorialRequest.getSpecialisationCoursesIds())) {
                         throw new SpecialisationCourseNotFoundException();
+                }
+                if (!createTutorialRequest.getTutorEmails().stream().allMatch(email -> User.isValidEmail(email))) {
+                        throw new InvalidEmailException();
                 }
 
                 Tutorial tutorial = new Tutorial();
