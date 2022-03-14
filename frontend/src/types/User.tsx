@@ -11,3 +11,10 @@ export interface User {
     roles: Array<UserRole>,
     loginExpirationDate: Date
 }
+
+export interface UserWithMailAndNameAndId {
+    id: number,
+    email: string,
+    firstName: string, 
+    lastName:string
+}

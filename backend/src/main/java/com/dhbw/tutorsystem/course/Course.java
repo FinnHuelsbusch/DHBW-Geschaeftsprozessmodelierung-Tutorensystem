@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.director.Director;
 
 import lombok.Getter;
@@ -31,6 +32,15 @@ public class Course {
 
     @Getter
     @Setter
+    private String abbreviation;
+
+    @Getter
+    @Setter
     @OneToMany(fetch = FetchType.LAZY)
     private Set<Director> leadBy;
+
+    @Getter
+    @Setter
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<SpecialisationCourse> specialisationCourses;
 }

@@ -3,6 +3,7 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +37,10 @@ public class Tutorial {
     @Getter
     @Setter
     private String description;
+
+    @Getter
+    @Setter
+    private String title;
 
     @Getter
     @Setter
@@ -61,9 +67,24 @@ public class Tutorial {
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Set<SpecialisationCourse> specialisationCourses;
+    private Set<Student> markedBy;
 
+    @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private String title;
+    private Set<SpecialisationCourse> specialisationCourses;
+
+    public boolean isStudentParticipating(Student student) {
+        return student != null
+                && this.getParticipants() != null
+                && this.getParticipants().stream().filter(s -> s.getId() == student.getId())
+                        .findFirst().isPresent();
+    }
+
+    public boolean isMarkedByStudent(Student student) {
+        return student != null
+                && this.getMarkedBy() != null
+                && this.getMarkedBy().stream().filter(s -> s.getId() == student.getId())
+                        .findFirst().isPresent();
+    }
 }

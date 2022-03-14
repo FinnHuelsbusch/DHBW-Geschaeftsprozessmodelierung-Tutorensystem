@@ -101,7 +101,7 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
+    @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
@@ -159,7 +159,7 @@ public class AuthenticationController {
                 logger.info("Information: User with email {} already exists", user.getEmail());
                 throw new EmailAlreadyExistsException();
             }
-            if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+            if (user.getLastPasswordAction()!= null && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
                     .toMinutes() < minimumMinutesBetweenPasswordActions) {
                 logger.info("Registration link wasn't used in time: {}", LastPasswordActionTooRecentException.class.getSimpleName());
                 throw new LastPasswordActionTooRecentException();
@@ -167,6 +167,7 @@ public class AuthenticationController {
                 // existing non-enabled user re-registered after 15minutes: re-send email and
                 // update last changed
                 user.setLastPasswordAction(LocalDateTime.now());
+                user.setPassword(encoder.encode(registerRequest.getPassword()));
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
@@ -320,7 +321,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Change a password while being logged in.", description = "Change the password into a new password when being logged in. Only Students and Directors can reset their passwords.", tags = {
-            "authentication" })
+            "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was changed successfully. The user will be directly logged in using the token in the response."),
             @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))

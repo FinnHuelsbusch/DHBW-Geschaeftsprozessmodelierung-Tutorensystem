@@ -2,7 +2,7 @@ import { Button, Divider, Form, Input, Modal, Select, Tooltip } from 'antd';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
 import { LockOutlined } from '@ant-design/icons';
-import { CourseWithEmailAndName, SpecialisationCourse } from '../../types/Course';
+import { CourseWithTitleAndLeaders, SpecialisationCourse } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
 import EmailFormInput from '../inputs/EmailFormInput';
 import PasswordWithConfirm from '../register/PasswordWithConfirm';
@@ -13,15 +13,16 @@ const Settings: React.FC = () => {
 
 
 
-    const mockCourse: CourseWithEmailAndName = {
-        title: "Wirtschaftsinformatik", 
+    const mockCourse: CourseWithTitleAndLeaders = {
+        title: "Wirtschaftsinformatik",
         id: 1,
+        abbreviation: "WI",
         leadBy: [{
-            email: "panda@baer.hui", 
-            jwt:"1234",
+            email: "panda@baer.hui",
+            jwt: "1234",
             loginExpirationDate: new Date("2022-03-08T20:51:46.558614"),
-            refreshToken:"gibtsNicht", 
-            roles:[UserRole.ROLE_STUDENT]
+            refreshToken: "gibtsNicht",
+            roles: [UserRole.ROLE_STUDENT]
 
         }]
     }
@@ -30,11 +31,13 @@ const Settings: React.FC = () => {
         {
             id: 1,
             title: "WWI 19 MA SE A",
+            abbreviation: "WI",
             course: mockCourse
         },
         {
             id: 2,
-            title: "WWI 19 MA SE B", 
+            title: "WWI 19 MA SE B",
+            abbreviation: "WI",
             course: mockCourse
         },
     ];
