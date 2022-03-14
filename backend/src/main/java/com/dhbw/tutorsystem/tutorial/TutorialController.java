@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -31,6 +34,7 @@ import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundExcep
 import com.dhbw.tutorsystem.tutorial.exception.TSInvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
+import com.dhbw.tutorsystem.tutorial.payload.DeleteTutorial;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.dhbw.tutorsystem.user.User;
@@ -40,10 +44,14 @@ import com.dhbw.tutorsystem.user.student.StudentRepository;
 import com.dhbw.tutorsystem.user.student.StudentService;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.hibernate.HibernateUtil;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.spi.SessionFactoryBuilderFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -55,9 +63,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,6 +93,8 @@ public class TutorialController {
         private final EntityManagerFactory entityManagerFactory;
         private final ModelMapper modelMapper;
         private final UserRepository userRepository;
+        @PersistenceContext
+        EntityManager entityManager;
 
         @Operation(summary = "Find tutorial by id.", description = "Find a tutorial by its id.", tags = {
                         "tutorials" })
@@ -446,12 +456,48 @@ public class TutorialController {
                         @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
         })
         @DeleteMapping("/{id}")
-        public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id) {
+        @Transactional
+        public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
+                        @RequestBody @Valid DeleteTutorial deleteTutorial) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
+                String reason = deleteTutorial.getReason()
                 if (optionalTutorial.isEmpty()) {
                         throw new TutorialNotFoundException();
                 } else {
+                        Tutorial tutorial = optionalTutorial.get();
+                        Map<String, Object> mailArguments = Map.of(
+                                        "tutorialTitle", tutorial.getTitle(),
+                                        "tutorialDescription", tutorial.getDescription(),
+                                        "tutorialStart", tutorial.getStart(),
+                                        "tutorialEnd", tutorial.getEnd(),
+                                        "tutorialDurationMinutes", tutorial.getDurationMinutes());
+                        try {
+                                if (reason == null || reason.length() == 0) {
+
+                                        emailSenderService.sendMails(
+                                                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                                                        .collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION, mailArguments);
+
+                                        emailSenderService.sendMails(tutorial.getParticipants().stream()
+                                                        .map(tutor -> tutor.getEmail()).collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION, mailArguments);
+                                } else {
+                                        mailArguments.put("reason", reason);
+                                        emailSenderService.sendMails(
+                                                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                                                        .collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION_WITH_REASON, mailArguments);
+                                        emailSenderService.sendMails(tutorial.getParticipants().stream()
+                                                        .map(tutor -> tutor.getEmail()).collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION_WITH_REASON, mailArguments);
+                                }
+                        } catch (MessagingException e) {
+                                throw new TSInternalServerException();
+                        }
+                        tutorial.setParticipants(Set.of());
                         tutorialRepository.deleteById(id);
+
                         return new ResponseEntity<>(HttpStatus.OK);
                 }
         }

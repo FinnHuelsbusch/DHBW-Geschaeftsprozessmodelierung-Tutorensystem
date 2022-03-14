@@ -17,6 +17,10 @@ import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -89,4 +93,6 @@ public class Tutorial {
                 && this.getMarkedBy().stream().filter(s -> s.getId() == student.getId())
                         .findFirst().isPresent();
     }
+
+
 }
