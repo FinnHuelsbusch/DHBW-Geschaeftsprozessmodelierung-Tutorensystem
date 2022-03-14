@@ -3,7 +3,9 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.Set;
 
+import com.dhbw.tutorsystem.course.dto.CourseWithTitleAndSpecialisations;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
+import com.dhbw.tutorsystem.specialisationCourse.dto.SpecialisationCourseWithCourse;
 import com.dhbw.tutorsystem.specialisationCourse.dto.SpecialisationCourseWithoutCourse;
 import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
 
@@ -32,7 +34,7 @@ public class TutorialDto {
 
     private int numberOfParticipants;
 
-    private Set<SpecialisationCourseWithoutCourse> specialisationCourses;
+    private Set<SpecialisationCourseWithCourse> specialisationCourses;
 
     private boolean isMarked;
 

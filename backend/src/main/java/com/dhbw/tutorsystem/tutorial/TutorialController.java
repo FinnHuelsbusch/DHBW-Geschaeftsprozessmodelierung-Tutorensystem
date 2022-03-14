@@ -284,6 +284,21 @@ public class TutorialController {
                         startsWithinTimeFrame.and(tutorial.start.after(defaultStartDateFrom));
                 }
 
+                // apply further criteria for logged in students
+                Student loggedStudent = studentService.getLoggedInStudent();
+                BooleanBuilder isMarked = new BooleanBuilder();
+                BooleanBuilder isParticipating = new BooleanBuilder();
+                if (loggedStudent != null) {
+                        if (filterRequest.isSelectMarked()) {
+                                // apply restriction to show marked courses
+                                isMarked.and(tutorial.markedBy.contains(loggedStudent));
+                        }
+                        if (filterRequest.isSelectParticipates()) {
+                                // apply restriction to show participate courses
+                                isParticipating.and(tutorial.participants.contains(loggedStudent));
+                        }
+                }
+
                 // construct pageable details
                 int start = (int) pageable.getOffset();
                 int size = pageable.getPageSize();
@@ -301,7 +316,10 @@ public class TutorialController {
                                 .selectFrom(tutorial)
                                 .where(textMatches
                                                 .and(specialisationCourseMatches)
-                                                .and(startsWithinTimeFrame))
+                                                .and(startsWithinTimeFrame)
+                                                // isMarked/isParticipating is default true
+                                                .and(isMarked)
+                                                .and(isParticipating))
                                 .offset(start)
                                 .limit(size);
 

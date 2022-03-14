@@ -190,29 +190,31 @@ public class DevDataManager {
     }
 
     public void insertCoursesWithSpecialisation() {
-        course1 = createCourse(Set.of(uDirector1, uDirector2), "Wirtschaftsinformatik");
-        specialisationCourseSE = createSpecialisationCourse(course1, "Software Engineering");
-        specialisationCourseSC = createSpecialisationCourse(course1, "Sales and Consulting");
+        course1 = createCourse(Set.of(uDirector1, uDirector2), "Wirtschaftsinformatik", "WI");
+        specialisationCourseSE = createSpecialisationCourse(course1, "Software Engineering", "SE");
+        specialisationCourseSC = createSpecialisationCourse(course1, "Sales and Consulting", "SC");
         course1.setSpecialisationCourses(Set.of(specialisationCourseSE, specialisationCourseSC));
         course1 = courseRepository.save(course1);
 
-        course2 = createCourse(Set.of(uDirector3), "Maschinenbau");
-        specialisationCourseAMB = createSpecialisationCourse(course2, "Allgemeiner Maschinenbau");
+        course2 = createCourse(Set.of(uDirector3), "Maschinenbau", "MB");
+        specialisationCourseAMB = createSpecialisationCourse(course2, "Allgemeiner Maschinenbau", "AMB");
         course2.setSpecialisationCourses(Set.of(specialisationCourseAMB));
         course2 = courseRepository.save(course2);
     }
 
-    private Course createCourse(Set<Director> directors, String title) {
+    private Course createCourse(Set<Director> directors, String title, String abbreviation) {
         Course c = new Course();
         c.setLeadBy(directors);
         c.setTitle(title);
+        c.setAbbreviation(abbreviation);
         return courseRepository.save(c);
     }
 
-    private SpecialisationCourse createSpecialisationCourse(Course course, String title) {
+    private SpecialisationCourse createSpecialisationCourse(Course course, String title, String abbreviation) {
         SpecialisationCourse specialisationCourse = new SpecialisationCourse();
         specialisationCourse.setCourse(course);
         specialisationCourse.setTitle(title);
+        specialisationCourse.setAbbreviation(abbreviation);
         return specialisationCourseRepository.save(specialisationCourse);
     }
 }

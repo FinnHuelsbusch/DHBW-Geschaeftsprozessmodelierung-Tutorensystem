@@ -43,6 +43,8 @@ export interface TutorialFilter {
     startDateFrom?: string,
     startDateTo?: string,
     specialisationCourseIds?: Array<number>,
+    selectMarked?: boolean,
+    selectParticipates?: boolean,
     sorting: Sorting,
     page: number,
     elementsPerPage: number,

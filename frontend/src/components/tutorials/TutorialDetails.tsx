@@ -1,4 +1,4 @@
-import { Button, Col, message, Modal, Row, Space, Tag, Tooltip, Typography } from 'antd';
+import { Button, Col, message, Modal, PageHeader, Row, Space, Tag, Tooltip, Typography } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
@@ -105,10 +105,12 @@ const TutorialDetails: React.FC = () => {
         };
 
         return (
-            <Typography>
-                <Paragraph>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Title level={4}>{tutorial.title}</Title>
+            <>
+                <PageHeader
+                    ghost={false}
+                    title={tutorial.title}
+                    onBack={() => navigate(-1)}
+                    extra={[
                         <Space wrap align='baseline'>
                             <Button
                                 type='default'
@@ -129,39 +131,43 @@ const TutorialDetails: React.FC = () => {
                                 Am Tutorium teilnehmen
                             </Button>
                         </Space>
-                    </div>
-                </Paragraph>
+                    ]}
+                >
+                    <Typography style={{ marginTop: '16px' }}>
+                        <Title level={4}>Inhalt</Title>
+                        <Paragraph>{tutorial.description}</Paragraph>
 
-                <Paragraph>{tutorial.description}</Paragraph>
+                        <Title level={4}>Details</Title>
+                        <Paragraph>
+                            {getDetailsRow("Gesamtumfang",
+                                `${tutorial.durationMinutes} Minuten`)}
+                            {getDetailsRow("Zeitraum",
+                                `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
+                            {getDetailsRow("Anzahl Teilnehmer",
+                                tutorial.numberOfParticipants)}
+                            {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
+                                tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
+                                    .reduce((prev, curr) => `${prev} ${curr}`))}
+                        </Paragraph>
 
-                <Title level={4}>Details</Title>
-                <Paragraph>
-                    {getDetailsRow("Gesamtumfang",
-                        `${tutorial.durationMinutes} Minuten`)}
-                    {getDetailsRow("Zeitraum",
-                        `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
-                    {getDetailsRow("Anzahl Teilnehmer",
-                        tutorial.numberOfParticipants)}
-                    {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
-                        tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
-                            .reduce((prev, curr) => `${prev} ${curr}`))}
-                </Paragraph>
-
-                <Title level={4}>Studienrichtungen</Title>
-                <Paragraph>
-                    Für folgende Studienrichtungen ist dieses Tutorium geeignet:
-                </Paragraph>
-                <Paragraph>
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(course => (
-                        <Tag>{"Specialisation XY"}</Tag>
-                    ))}
-                </Paragraph>
-            </Typography >
+                        <Title level={4}>Studienrichtungen</Title>
+                        <Paragraph>
+                            Für folgende Studienrichtungen ist dieses Tutorium geeignet:
+                        </Paragraph>
+                        <Paragraph>
+                            {tutorial.specialisationCourses.map(specialisationCourse => (
+                                <Tag>{specialisationCourse.course.abbreviation} {specialisationCourse.abbreviation}</Tag>
+                            ))}
+                        </Paragraph>
+                    </Typography>
+                </PageHeader>
+            </>
         );
     };
 
     return (
-        <>{tutorial && TutorialDetailsPage(tutorial)}
+        <>
+            {tutorial && TutorialDetailsPage(tutorial)}
         </>
     );
 };
