@@ -47,7 +47,11 @@ public class EmailSenderService {
             sendRegistrationMail(mailTo, arguments);
         } else if (mailType == MailType.RESET_PASSWORD) {
             sendResetPasswordMail(mailTo, arguments);
-        } else {
+        } else if (mailType == MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL) {
+            sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
+        } else if(mailType == MailType.USER_ADDED_TO_TUTORIAL){
+            sendUserAddedToTutorialAsTutorMail(mailTo, arguments); 
+        }    else {
             throw new IllegalArgumentException("MailType is not known.");
         }
     }
@@ -60,7 +64,7 @@ public class EmailSenderService {
         String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
-        String htmlBody = thymeTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
+        String htmlBody = thymeTemplateEngine.process("./Email-Template/E-Mail-Registrierung/Email-Template_Registrierung.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
@@ -82,5 +86,13 @@ public class EmailSenderService {
         helper.setSubject("Tutorensystem Passwort vergessen");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
+    }
+
+    private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        
+    }
+
+    private void sendUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        
     }
 }
