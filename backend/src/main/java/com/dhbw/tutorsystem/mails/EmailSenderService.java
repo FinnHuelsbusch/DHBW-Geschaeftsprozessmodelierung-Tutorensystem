@@ -90,8 +90,6 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-<<<<<<< HEAD
-=======
     private void sendTutorialParticipationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
@@ -109,7 +107,6 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
     
->>>>>>> origin/development
     private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         
     }
