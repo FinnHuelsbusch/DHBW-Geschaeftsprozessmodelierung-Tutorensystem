@@ -3,6 +3,7 @@ package com.dhbw.tutorsystem.specialisationCourse.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dhbw.tutorsystem.course.dto.CourseWithTitle;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 
 import org.modelmapper.ModelMapper;
@@ -10,7 +11,7 @@ import org.modelmapper.ModelMapper;
 import lombok.Data;
 
 @Data
-public class SpecialisationCourseWithoutCourse {
+public class SpecialisationCourseWithCourse {
 
     private Integer id;
 
@@ -18,16 +19,18 @@ public class SpecialisationCourseWithoutCourse {
 
     private String abbreviation;
 
-    public static SpecialisationCourseWithoutCourse convertToDto(ModelMapper modelMapper,
+    private CourseWithTitle course;
+
+    public static SpecialisationCourseWithCourse convertToDto(ModelMapper modelMapper,
             SpecialisationCourse specialisationCourse) {
-        SpecialisationCourseWithoutCourse specialisationCourseWithoutCourse = modelMapper.map(specialisationCourse,
-                SpecialisationCourseWithoutCourse.class);
+        SpecialisationCourseWithCourse specialisationCourseWithoutCourse = modelMapper.map(specialisationCourse,
+                SpecialisationCourseWithCourse.class);
         return specialisationCourseWithoutCourse;
     }
 
-    public static List<SpecialisationCourseWithoutCourse> convertToDto(ModelMapper modelMapper,
+    public static List<SpecialisationCourseWithCourse> convertToDto(ModelMapper modelMapper,
             Iterable<SpecialisationCourse> specialisationCourses) {
-        ArrayList<SpecialisationCourseWithoutCourse> coursesList = new ArrayList<>();
+        ArrayList<SpecialisationCourseWithCourse> coursesList = new ArrayList<>();
         for (SpecialisationCourse specialisationCourse : specialisationCourses) {
             coursesList.add(convertToDto(modelMapper, specialisationCourse));
         }

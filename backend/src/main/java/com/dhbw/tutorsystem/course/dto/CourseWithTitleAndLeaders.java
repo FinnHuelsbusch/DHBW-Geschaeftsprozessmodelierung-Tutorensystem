@@ -19,6 +19,8 @@ public class CourseWithTitleAndLeaders {
 
     private String title;
 
+    private String abbreviation;
+
     private Set<UserWithEmailAndName> leadBy;
 
     public static CourseWithTitleAndLeaders convertToDto(ModelMapper modelMapper, Course course){

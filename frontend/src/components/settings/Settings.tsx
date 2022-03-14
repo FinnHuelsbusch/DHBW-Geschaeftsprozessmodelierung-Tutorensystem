@@ -14,14 +14,15 @@ const Settings: React.FC = () => {
 
 
     const mockCourse: CourseWithTitleAndLeaders = {
-        title: "Wirtschaftsinformatik", 
+        title: "Wirtschaftsinformatik",
         id: 1,
+        abbreviation: "WI",
         leadBy: [{
-            email: "panda@baer.hui", 
-            jwt:"1234",
+            email: "panda@baer.hui",
+            jwt: "1234",
             loginExpirationDate: new Date("2022-03-08T20:51:46.558614"),
-            refreshToken:"gibtsNicht", 
-            roles:[UserRole.ROLE_STUDENT]
+            refreshToken: "gibtsNicht",
+            roles: [UserRole.ROLE_STUDENT]
 
         }]
     }
@@ -30,11 +31,13 @@ const Settings: React.FC = () => {
         {
             id: 1,
             title: "WWI 19 MA SE A",
+            abbreviation: "WI",
             course: mockCourse
         },
         {
             id: 2,
-            title: "WWI 19 MA SE B", 
+            title: "WWI 19 MA SE B",
+            abbreviation: "WI",
             course: mockCourse
         },
     ];

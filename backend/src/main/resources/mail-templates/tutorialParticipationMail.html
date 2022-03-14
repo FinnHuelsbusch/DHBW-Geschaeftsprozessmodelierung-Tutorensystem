@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <p>Hallo,</p>
+    <p>Sie haben sich für das Tutorium <b th:text="${tutorialTitle}">Tutorial Name</b> angemeldet.</p>
+    <p>Bitte beachten Sie, dass die Teilnahme verbindlich ist.</p>
+    <p>Details zu diesem Tutorium können Sie unter folgendem Link erhalten: <a th:text="${tutorialTitle}"
+            th:href="${tutorialLinkUrl}">Link</a></p>
+    <p>Mit freundlichen Grüßen<br />
+        Ihr Tutorsystem</p>
+</body>
+
+</html>

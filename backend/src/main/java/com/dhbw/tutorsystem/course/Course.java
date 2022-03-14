@@ -32,6 +32,10 @@ public class Course {
 
     @Getter
     @Setter
+    private String abbreviation;
+
+    @Getter
+    @Setter
     @OneToMany(fetch = FetchType.LAZY)
     private Set<Director> leadBy;
 

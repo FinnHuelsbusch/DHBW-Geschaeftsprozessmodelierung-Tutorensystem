@@ -80,9 +80,6 @@ const Login: React.FC = () => {
             <Title level={1}>
                 Anmeldung
             </Title>
-            <Button onClick={e => navigate(AppRoutes.Main.Path)}>
-                Navigate
-            </Button>
             <LoginForm />
             <ForgotPasswordModal
                 visible={showForgotPasswordModal}
