@@ -1,4 +1,4 @@
-import { Button, Col, message, Modal, Row, Space, Tag, Tooltip, Typography } from 'antd';
+import { Button, Col, message, Modal, Row, Space, Tag, Typography } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
@@ -9,11 +9,14 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
-import { StarOutlined, StarFilled } from '@ant-design/icons'
+import { StarOutlined, StarFilled, DeleteOutlined } from '@ant-design/icons'
 import './TutorialDetails.scss';
+import { UserRole } from '../../types/User';
+import TutorialDeleteModal from './TutorialDeleteModal';
 
 const TutorialDetails: React.FC = () => {
 
+    const [isTutorialDeleteModalVisible, setIsTutorialDeleteModalVisible] = useState(false);
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -104,59 +107,81 @@ const TutorialDetails: React.FC = () => {
             }
         };
 
+        const onDeleteClick = () => {
+            setIsTutorialDeleteModalVisible(true);
+        };
+
         return (
-            <Typography>
-                <Paragraph>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Title level={4}>{tutorial.title}</Title>
-                        <Space wrap align='baseline'>
-                            <Button
-                                type='default'
-                                disabled={loading}
-                                onClick={e => onMarkClick()}>
-                                {tutorial.isMarked
-                                    ? <>
-                                        <StarFilled style={{ color: '#ffd805' }} /> Vorgemerkt
-                                    </>
-                                    : <>
-                                        <StarOutlined /> Vormerken
-                                    </>
-                                }
-                            </Button>
-                            <Button
-                                type='primary'
-                                onClick={e => onParticipateClick()}>
-                                Am Tutorium teilnehmen
-                            </Button>
-                        </Space>
-                    </div>
-                </Paragraph>
+            <div>
+                <Typography>
+                    <Paragraph>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Title level={4}>{tutorial.title}</Title>
+                            <Space wrap align='baseline'>
+                                {authContext.hasRoles([UserRole.ROLE_STUDENT]) && <Button
+                                    type='default'
+                                    disabled={loading}
+                                    onClick={e => onMarkClick()}>
+                                    {tutorial.isMarked
+                                        ? <>
+                                            <StarFilled style={{ color: '#ffd805' }} /> Vorgemerkt
+                                        </>
+                                        : <>
+                                            <StarOutlined /> Vormerken
+                                        </>
+                                    }
+                                </Button>}
 
-                <Paragraph>{tutorial.description}</Paragraph>
+                                {authContext.hasRoles([UserRole.ROLE_DIRECTOR]) && <>
+                                    <Button
+                                        danger
+                                        type='default'
+                                        disabled={loading}
+                                        onClick={e => onDeleteClick()}>
+                                        <DeleteOutlined type='' /> Löschen
+                                    </Button>
 
-                <Title level={4}>Details</Title>
-                <Paragraph>
-                    {getDetailsRow("Gesamtumfang",
-                        `${tutorial.durationMinutes} Minuten`)}
-                    {getDetailsRow("Zeitraum",
-                        `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
-                    {getDetailsRow("Anzahl Teilnehmer",
-                        tutorial.numberOfParticipants)}
-                    {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
-                        tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
-                            .reduce((prev, curr) => `${prev} ${curr}`))}
-                </Paragraph>
+                                </>}
+                                <Button
+                                    type='primary'
+                                    onClick={e => onParticipateClick()}>
+                                    Am Tutorium teilnehmen
+                                </Button>
+                            </Space>
+                        </div>
+                    </Paragraph>
 
-                <Title level={4}>Studienrichtungen</Title>
-                <Paragraph>
-                    Für folgende Studienrichtungen ist dieses Tutorium geeignet:
-                </Paragraph>
-                <Paragraph>
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(course => (
-                        <Tag>{"Specialisation XY"}</Tag>
-                    ))}
-                </Paragraph>
-            </Typography >
+                    <Paragraph>{tutorial.description}</Paragraph>
+
+                    <Title level={4}>Details</Title>
+                    <Paragraph>
+                        {getDetailsRow("Gesamtumfang",
+                            `${tutorial.durationMinutes} Minuten`)}
+                        {getDetailsRow("Zeitraum",
+                            `${formatDate(tutorial.start)} - ${formatDate(tutorial.end)}`)}
+                        {getDetailsRow("Anzahl Teilnehmer",
+                            tutorial.numberOfParticipants)}
+                        {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
+                            tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
+                                .reduce((prev, curr) => `${prev} ${curr}`))}
+                    </Paragraph>
+
+                    <Title level={4}>Studienrichtungen</Title>
+                    <Paragraph>
+                        Für folgende Studienrichtungen ist dieses Tutorium geeignet:
+                    </Paragraph>
+                    <Paragraph>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(course => (
+                            <Tag>{"Specialisation XY"}</Tag>
+                        ))}
+                    </Paragraph>
+                </Typography >
+                <TutorialDeleteModal
+                    isModalVisible={isTutorialDeleteModalVisible}
+                    setIsTutorialDeleteModalVisible={setIsTutorialDeleteModalVisible}
+                    tutorial={tutorial}
+                />
+            </div>
         );
     };
 

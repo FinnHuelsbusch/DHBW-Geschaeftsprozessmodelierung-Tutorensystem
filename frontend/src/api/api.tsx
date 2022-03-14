@@ -194,6 +194,13 @@ export const markTutorial = (tutorialId: number): Promise<any> => {
 }
 
 export const unmarkTutorial = (tutorialId: number): Promise<any> => {
+    return api.delete(`/tutorials/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
+export const deleteTutorial = (tutorialId: number): Promise<any> => {
     return api.delete(`/tutorials/mark/${tutorialId}`)
         .then(res => {
             return res.data;
