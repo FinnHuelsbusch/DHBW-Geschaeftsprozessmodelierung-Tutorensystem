@@ -54,6 +54,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -223,6 +224,7 @@ public class TutorialController {
                         @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
         })
         @PostMapping("/findWithFilter")
+        @Transactional
         public ResponseEntity<FindTutorialsWithFilterResponse> findTutorialsWithFilter(Pageable pageable,
                         @Valid @RequestBody FindTutorialsWithFilterRequest filterRequest) {
 
@@ -280,6 +282,7 @@ public class TutorialController {
                 Student loggedStudent = studentService.getLoggedInStudent();
                 BooleanBuilder isMarked = new BooleanBuilder();
                 BooleanBuilder isParticipating = new BooleanBuilder();
+                BooleanBuilder isHolds = new BooleanBuilder();
                 if (loggedStudent != null) {
                         if (filterRequest.isSelectMarked()) {
                                 // apply restriction to show marked courses
@@ -288,6 +291,10 @@ public class TutorialController {
                         if (filterRequest.isSelectParticipates()) {
                                 // apply restriction to show participate courses
                                 isParticipating.and(qTutorial.participants.contains(loggedStudent));
+                        }
+                        if (filterRequest.isSelectHolds()) {
+                                // apply restriction to show held courses
+                                isHolds.and(qTutorial.tutors.contains(loggedStudent));
                         }
                 }
 
@@ -298,7 +305,6 @@ public class TutorialController {
                         size = 4; // default to 4 in size
                 }
 
-                EntityManager entityManager = entityManagerFactory.createEntityManager();
                 Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
                 HibernateQueryFactory queryFactory = new HibernateQueryFactory(session);
 
@@ -311,7 +317,8 @@ public class TutorialController {
                                                 .and(specialisationCourseMatches)
                                                 .and(startsWithinTimeFrame)
                                                 .and(isMarked)
-                                                .and(isParticipating))
+                                                .and(isParticipating)
+                                                .and(isHolds))
                                 .offset(start)
                                 .limit(size);
 
@@ -323,7 +330,8 @@ public class TutorialController {
                                                 .and(specialisationCourseMatches)
                                                 .and(startsWithinTimeFrame)
                                                 .and(isMarked)
-                                                .and(isParticipating));
+                                                .and(isParticipating)
+                                                .and(isHolds));
 
                 for (Sort.Order order : pageable.getSort()) {
                         com.querydsl.core.types.Order querydslOrder = order.isAscending()
@@ -353,7 +361,7 @@ public class TutorialController {
                                                 t.isStudentParticipating(student)))
                                 .collect(Collectors.toList());
 
-                entityManager.close();
+                session.close();
 
                 int totalPages = (int) Math.ceil((double) totalResultCount / pageable.getPageSize());
 

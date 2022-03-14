@@ -45,6 +45,7 @@ export interface TutorialFilter {
     specialisationCourseIds?: Array<number>,
     selectMarked?: boolean,
     selectParticipates?: boolean,
+    selectHolds?: boolean,
     sorting: Sorting,
     page: number,
     elementsPerPage: number,

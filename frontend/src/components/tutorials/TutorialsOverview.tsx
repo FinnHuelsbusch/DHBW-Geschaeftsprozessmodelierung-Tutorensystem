@@ -10,7 +10,7 @@ import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList from '../pagingList/PagingList';
-import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled, CheckCircleTwoTone } from '@ant-design/icons'
+import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled, CheckCircleTwoTone, SoundOutlined } from '@ant-design/icons'
 import { useNavigate, useNavigationType } from 'react-router-dom';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { TreeNode } from 'antd/lib/tree-select';
@@ -32,6 +32,7 @@ const TutorialsOverview: React.FC = () => {
         specialisationCourseIds: undefined,
         selectMarked: false,
         selectParticipates: false,
+        selectHolds: false,
         sorting: { attribute: "none", order: undefined },
         page: 0,
         elementsPerPage: 5,
@@ -60,12 +61,10 @@ const TutorialsOverview: React.FC = () => {
         if (savedFilter && navigationType === "POP") {
             sessionStorage.removeItem("tutorialFilter");
             const filterObj = JSON.parse(savedFilter);
-            console.log("re-applying filterObject", filterObj);
             form.setFieldsValue({ ...filterObj });
             setFilter(filterObj);
             return;
         }
-        console.log("useEffect filter", filter);
 
         // re-fetch upon filter change (also called on initial loading of the page)
         fetchPage();
@@ -75,11 +74,9 @@ const TutorialsOverview: React.FC = () => {
         setLoading(true);
         getFilteredTutorials(filter)
             .then(filteredTutorials => {
-                console.log("received:", filteredTutorials);
                 setFilteredTutorials(filteredTutorials);
                 setLoading(false);
             }).catch(err => {
-                console.log("err", err);
                 const reqErr = getRequestError(err);
                 message.error(getErrorMessageString(reqErr.errorCode));
                 setLoading(false);
@@ -88,7 +85,6 @@ const TutorialsOverview: React.FC = () => {
 
     const onFilterChange = () => {
         const formFilter = { ...form.getFieldsValue() };
-        console.log("formFilter", formFilter);
         const dateFormat = "YYYY-MM-DD";
         const startDateFromString = formFilter.timerange ? formatDate(formFilter.timerange[0], dateFormat) : undefined;
         const startDateToString = formFilter.timerange ? formatDate(formFilter.timerange[1], dateFormat) : undefined;
@@ -161,6 +157,15 @@ const TutorialsOverview: React.FC = () => {
             setFilter({
                 ...filter,
                 selectParticipates: e.target.checked,
+                // always go back to first page
+                page: 0,
+            });
+        };
+
+        const onSelectHoldsChange = (e: CheckboxChangeEvent) => {
+            setFilter({
+                ...filter,
+                selectHolds: e.target.checked,
                 // always go back to first page
                 page: 0,
             });
@@ -252,30 +257,39 @@ const TutorialsOverview: React.FC = () => {
                             </Input.Group>
                         </Form.Item>
                     </Col>
-
-                    {authContext.loggedUser && <>
-                        <Col flex="1 1 300px">
-                            <Form.Item
-                                name="selectMarked"
-                                valuePropName="checked">
-                                <Checkbox onChange={onSelectMarkedChange}>
-                                    <StarFilled style={{ color: '#ffd805' }} /> Markierte
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-
-                        <Col flex="1 1 300px">
-                            <Form.Item
-                                name="selectParticipates"
-                                valuePropName="checked">
-                                <Checkbox onChange={onSelectParticipatesChange}>
-                                    <UserOutlined /> Teilgenommene
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-                    </>}
-
                 </Row>
+
+                {authContext.loggedUser && <Row>
+                    <Col flex="1 1 100px">
+                        <Form.Item
+                            name="selectMarked"
+                            valuePropName="checked">
+                            <Checkbox onChange={onSelectMarkedChange}>
+                                <StarFilled style={{ color: '#ffd805' }} /> Markiert
+                            </Checkbox>
+                        </Form.Item>
+                    </Col>
+
+                    <Col flex="1 1 100px">
+                        <Form.Item
+                            name="selectParticipates"
+                            valuePropName="checked">
+                            <Checkbox onChange={onSelectParticipatesChange}>
+                                <UserOutlined /> Teilgenommen
+                            </Checkbox>
+                        </Form.Item>
+                    </Col>
+
+                    <Col flex="1 1 100px">
+                        <Form.Item
+                            name="selectHolds"
+                            valuePropName="checked">
+                            <Checkbox onChange={onSelectHoldsChange}>
+                                <SoundOutlined /> Halten
+                            </Checkbox>
+                        </Form.Item>
+                    </Col>
+                </Row>}
 
                 <Row>
                     <Col span={24} style={{ textAlign: 'right' }}>
@@ -300,7 +314,6 @@ const TutorialsOverview: React.FC = () => {
     };
 
     const onTutorialClick = (tutorialId: number) => {
-        console.log("saving filter", filter);
         sessionStorage.setItem("tutorialFilter", JSON.stringify(filter));
         navigate(`/tutorials/${tutorialId}`);
     };

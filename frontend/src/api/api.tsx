@@ -48,7 +48,6 @@ export const getRequestError = (err: any): RequestError => {
 };
 
 export const ping = (): Promise<string> => {
-    console.log(backendUrl)
     return api.get('/ping')
         .then(res => res.data);
 }
@@ -159,11 +158,9 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
         startDateTo: filter.startDateTo,
         specialisationCourseIds: filter.specialisationCourseIds,
         selectMarked: filter.selectMarked,
-        selectParticipates: filter.selectParticipates
+        selectParticipates: filter.selectParticipates,
+        selectHolds: filter.selectHolds
     } as TutorialFilter;
-    console.log("filter",filter);
-    console.log("attrFilt",attributesFilter);
-    
     return api.post(`/tutorials/findWithFilter?page=${filter.page}&size=${filter.elementsPerPage}${sorting}`, attributesFilter)
         .then(res => {
             const data = res.data;

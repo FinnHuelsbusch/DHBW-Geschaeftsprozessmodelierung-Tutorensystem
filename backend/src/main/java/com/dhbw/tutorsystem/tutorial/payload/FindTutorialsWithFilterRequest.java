@@ -21,4 +21,6 @@ public class FindTutorialsWithFilterRequest {
 
     private boolean selectMarked;
 
+    private boolean selectHolds;
+
 }
