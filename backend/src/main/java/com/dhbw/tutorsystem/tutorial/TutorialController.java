@@ -27,7 +27,7 @@ import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationCoursesWithoutCourses;
 import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundException;
-import com.dhbw.tutorsystem.tutorial.exception.StudentAlreadyParticipatingException;
+import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialParticipationStatusException;
 import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
@@ -108,8 +108,10 @@ public class TutorialController {
                 Student student = studentService.getLoggedInStudent();
                 // optionally add the student perspective attributes
                 if (student != null) {
-                        tutorialDto = tutorialDto.addPerspective(tutorial.isMarkedByStudent(student),
-                                        tutorial.isStudentParticipating(student));
+                        tutorialDto = tutorialDto.addPerspective(
+                                        tutorial.isMarkedByStudent(student),
+                                        tutorial.isStudentParticipating(student),
+                                        tutorial.isHeldByStudent(student));
                 }
                 return ResponseEntity.ok(tutorialDto);
         }
@@ -133,10 +135,10 @@ public class TutorialController {
                 // note: email does not have to be checked, logged in user is already valid
                 Student student = studentService.getLoggedInStudent();
                 if (tutorial.isStudentParticipating(student)) {
-                        throw new StudentAlreadyParticipatingException();
+                        throw new InvalidTutorialParticipationStatusException("Student is already participating.");
                 }
                 try {
-                        emailSenderService.sendMail(student.getEmail(), MailType.TUTORIAL_PARTICIPATION,
+                        emailSenderService.sendMail(student.getEmail(), MailType.TUTORIAL_PARTICIPATION_STUDENT,
                                         Map.of("tutorialTitle", tutorial.getTitle(),
                                                         "tutorialId", tutorial.getId()));
                 } catch (MessagingException e) {
@@ -144,6 +146,39 @@ public class TutorialController {
                 }
                 // add user as participant of this tutorial
                 tutorial.getParticipants().add(student);
+                tutorialRepository.save(tutorial);
+                return ResponseEntity.ok(null);
+        }
+
+        @Operation(summary = "Remove participation in tutorial.", description = "Remove participation in a tutorial by id.", tags = {
+                        "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Participation was successfully removed."),
+                        @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+                        @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+        })
+        @PreAuthorize("hasRole('ROLE_STUDENT')")
+        @DeleteMapping("/participate/{id}")
+        public ResponseEntity<Void> removeParticipationInTutorial(@PathVariable Integer id) {
+                Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
+                if (optionalTutorial.isEmpty()) {
+                        throw new TutorialNotFoundException();
+                }
+                Tutorial tutorial = optionalTutorial.get();
+                // notify user of the removal of participation
+                // note: email does not have to be checked, logged in user is already valid
+                Student student = studentService.getLoggedInStudent();
+                if (!tutorial.isStudentParticipating(student)) {
+                        throw new InvalidTutorialParticipationStatusException("Student is already not participating.");
+                }
+                try {
+                        emailSenderService.sendMail(student.getEmail(), MailType.TUTORIAL_PARTICIPATION_REMOVAL_STUDENT,
+                                        Map.of("tutorialTitle", tutorial.getTitle()));
+                } catch (MessagingException e) {
+                        throw new TSInternalServerException();
+                }
+                // remove user participation
+                tutorial.getParticipants().remove(student);
                 tutorialRepository.save(tutorial);
                 return ResponseEntity.ok(null);
         }
@@ -358,7 +393,8 @@ public class TutorialController {
                                 t -> TutorialForDisplay.convertToDto(modelMapper, t).addPerspective(
                                                 // perspective attributes only added if consumer is a logged-in student
                                                 t.isMarkedByStudent(student),
-                                                t.isStudentParticipating(student)))
+                                                t.isStudentParticipating(student),
+                                                t.isHeldByStudent(student)))
                                 .collect(Collectors.toList());
 
                 session.close();

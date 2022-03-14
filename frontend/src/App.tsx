@@ -72,7 +72,7 @@ const App: React.FC = () => {
 
   const MainLayout = () => {
     return (
-      <Layout>
+      <Layout style={{ minHeight: '100vh' }}>
         <Header>
           <Navigation />
         </Header>

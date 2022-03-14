@@ -188,6 +188,13 @@ export const participateInTutorial = (tutorialId: number): Promise<any> => {
         });
 }
 
+export const removeParticipationInTutorial = (tutorialId: number): Promise<any> => {
+    return api.delete(`/tutorials/participate/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
 export const markTutorial = (tutorialId: number): Promise<any> => {
     return api.put(`/tutorials/mark/${tutorialId}`)
         .then(res => {

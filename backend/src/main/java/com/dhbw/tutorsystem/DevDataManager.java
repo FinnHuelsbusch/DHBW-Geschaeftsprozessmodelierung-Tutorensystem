@@ -103,6 +103,7 @@ public class DevDataManager {
         uStudent1 = studentRepository.save(uStudent1);
 
         uStudent2 = new Student("s222222@student.dhbw-mannheim.de", "1234");
+        uStudent2 = new Student("s190212@student.dhbw-mannheim.de", "1234");
         uStudent2.setRoles(Set.of(rStudent));
         uStudent2.setPassword(encoder.encode(uStudent2.getPassword()));
         uStudent2.setEnabled(true);

@@ -35,6 +35,7 @@ public class TutorsystemApplication {
 				skip(destination.getNumberOfParticipants());
 				skip(destination.isMarked());
 				skip(destination.isParticipates());
+				skip(destination.isHolds());
 			}
 		});
 		return modelMapper;

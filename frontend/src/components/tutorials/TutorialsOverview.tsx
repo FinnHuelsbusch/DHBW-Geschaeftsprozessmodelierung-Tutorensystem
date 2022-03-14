@@ -257,39 +257,40 @@ const TutorialsOverview: React.FC = () => {
                             </Input.Group>
                         </Form.Item>
                     </Col>
+
+
+                    {authContext.loggedUser && <>
+                        <Col flex="1 1 100px">
+                            <Form.Item
+                                name="selectMarked"
+                                valuePropName="checked">
+                                <Checkbox onChange={onSelectMarkedChange}>
+                                    <StarFilled style={{ color: '#ffd805' }} /> Markiert
+                                </Checkbox>
+                            </Form.Item>
+                        </Col>
+
+                        <Col flex="1 1 100px">
+                            <Form.Item
+                                name="selectParticipates"
+                                valuePropName="checked">
+                                <Checkbox onChange={onSelectParticipatesChange}>
+                                    <UserOutlined /> Teilgenommen
+                                </Checkbox>
+                            </Form.Item>
+                        </Col>
+
+                        <Col flex="1 1 100px">
+                            <Form.Item
+                                name="selectHolds"
+                                valuePropName="checked">
+                                <Checkbox onChange={onSelectHoldsChange}>
+                                    <SoundOutlined /> Halten
+                                </Checkbox>
+                            </Form.Item>
+                        </Col>
+                    </>}
                 </Row>
-
-                {authContext.loggedUser && <Row>
-                    <Col flex="1 1 100px">
-                        <Form.Item
-                            name="selectMarked"
-                            valuePropName="checked">
-                            <Checkbox onChange={onSelectMarkedChange}>
-                                <StarFilled style={{ color: '#ffd805' }} /> Markiert
-                            </Checkbox>
-                        </Form.Item>
-                    </Col>
-
-                    <Col flex="1 1 100px">
-                        <Form.Item
-                            name="selectParticipates"
-                            valuePropName="checked">
-                            <Checkbox onChange={onSelectParticipatesChange}>
-                                <UserOutlined /> Teilgenommen
-                            </Checkbox>
-                        </Form.Item>
-                    </Col>
-
-                    <Col flex="1 1 100px">
-                        <Form.Item
-                            name="selectHolds"
-                            valuePropName="checked">
-                            <Checkbox onChange={onSelectHoldsChange}>
-                                <SoundOutlined /> Halten
-                            </Checkbox>
-                        </Form.Item>
-                    </Col>
-                </Row>}
 
                 <Row>
                     <Col span={24} style={{ textAlign: 'right' }}>
@@ -319,20 +320,27 @@ const TutorialsOverview: React.FC = () => {
     };
 
     const listItem = (tutorial: Tutorial) => {
-        const cardExtra = (
-            <Space>
-                {tutorial.participates
-                    &&
-                    <Tooltip
-                        title="Sie nehmen an diesem Tutorium teil"
-                    >
-                        <CheckCircleTwoTone twoToneColor='#52c41a' style={{ fontSize: '18pt' }} />
-                    </Tooltip>
-                }
-                {tutorial.isMarked ?
-                    <StarFilled style={{ color: '#ffd805', fontSize: '18pt' }} />
-                    : <StarOutlined style={{ fontSize: '18pt' }} />}
-            </Space>
+        const iconSize = '14pt';
+
+        const CardExtra = (
+            <> {tutorial.holds ?
+                <Tooltip
+                    title="Sie halten dieses Tutorium">
+                    <SoundOutlined />
+                </Tooltip>
+                : <Space>
+                    {tutorial.participates
+                        &&
+                        <Tooltip
+                            title="Sie nehmen an diesem Tutorium teil">
+                            <CheckCircleTwoTone twoToneColor='#52c41a' style={{ fontSize: iconSize }} />
+                        </Tooltip>
+                    }
+                    {tutorial.isMarked ?
+                        <StarFilled twoToneColor="#ffd805" style={{ color: '#ffd805', fontSize: iconSize }} />
+                        : <StarOutlined style={{ fontSize: iconSize }} />}
+                </Space>}
+            </>
         );
 
         return (
@@ -341,7 +349,7 @@ const TutorialsOverview: React.FC = () => {
                     onClick={e => onTutorialClick(tutorial.id)}
                     hoverable
                     title={tutorial.title}
-                    extra={authContext.loggedUser && cardExtra}
+                    extra={authContext.loggedUser && CardExtra}
                 >
                     <Paragraph ellipsis={{ rows: 2, expandable: false }}>
                         {tutorial.description}
