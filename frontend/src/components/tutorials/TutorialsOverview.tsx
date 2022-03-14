@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Tag, Tooltip, TreeSelect } from 'antd';
+import { Button, Card, Checkbox, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Space, Tag, Tooltip, TreeSelect } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
@@ -10,7 +10,7 @@ import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList from '../pagingList/PagingList';
-import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled } from '@ant-design/icons'
+import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled, CheckCircleTwoTone } from '@ant-design/icons'
 import { useNavigate, useNavigationType } from 'react-router-dom';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { TreeNode } from 'antd/lib/tree-select';
@@ -94,6 +94,8 @@ const TutorialsOverview: React.FC = () => {
         const startDateToString = formFilter.timerange ? formatDate(formFilter.timerange[1], dateFormat) : undefined;
         setFilter({
             ...filter,
+            // always go back to first page
+            page: 0,
             // manually map all attributes
             text: formFilter.text,
             startDateFrom: startDateFromString,
@@ -131,13 +133,17 @@ const TutorialsOverview: React.FC = () => {
                 const sortingType = form.getFieldValue("sortingType");
                 setFilter({
                     ...filter,
-                    sorting: { attribute: sortingAttribute, order: sortingType }
+                    sorting: { attribute: sortingAttribute, order: sortingType },
+                    // always go back to first page
+                    page: 0,
                 });
             } else {
                 // reset sorting
                 setFilter({
                     ...filter,
-                    sorting: { attribute: sortingAttribute, order: undefined }
+                    sorting: { attribute: sortingAttribute, order: undefined },
+                    // always go back to first page
+                    page: 0,
                 });
             }
         };
@@ -145,14 +151,18 @@ const TutorialsOverview: React.FC = () => {
         const onSelectMarkedChange = (e: CheckboxChangeEvent) => {
             setFilter({
                 ...filter,
-                selectMarked: e.target.checked
+                selectMarked: e.target.checked,
+                // always go back to first page
+                page: 0,
             });
         };
 
         const onSelectParticipatesChange = (e: CheckboxChangeEvent) => {
             setFilter({
                 ...filter,
-                selectParticipates: e.target.checked
+                selectParticipates: e.target.checked,
+                // always go back to first page
+                page: 0,
             });
         };
 
@@ -296,16 +306,29 @@ const TutorialsOverview: React.FC = () => {
     };
 
     const listItem = (tutorial: Tutorial) => {
+        const cardExtra = (
+            <Space>
+                {tutorial.participates
+                    &&
+                    <Tooltip
+                        title="Sie nehmen an diesem Tutorium teil"
+                    >
+                        <CheckCircleTwoTone twoToneColor='#52c41a' style={{ fontSize: '18pt' }} />
+                    </Tooltip>
+                }
+                {tutorial.isMarked ?
+                    <StarFilled style={{ color: '#ffd805', fontSize: '18pt' }} />
+                    : <StarOutlined style={{ fontSize: '18pt' }} />}
+            </Space>
+        );
+
         return (
             <List.Item>
                 <Card
                     onClick={e => onTutorialClick(tutorial.id)}
                     hoverable
                     title={tutorial.title}
-                    extra={authContext.loggedUser && (tutorial.isMarked ?
-                        <StarFilled style={{ color: '#ffd805', fontSize: '18pt' }} />
-                        : <StarOutlined style={{ fontSize: '18pt' }} />)
-                    }
+                    extra={authContext.loggedUser && cardExtra}
                 >
                     <Paragraph ellipsis={{ rows: 2, expandable: false }}>
                         {tutorial.description}

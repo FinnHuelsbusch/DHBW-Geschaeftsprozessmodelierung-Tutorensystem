@@ -13,9 +13,11 @@ import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
 import com.dhbw.tutorsystem.user.User;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@NoArgsConstructor
 public class Student extends User {
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -42,10 +44,6 @@ public class Student extends User {
     @Setter
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<TutorialRequest> tutorialRequestsOfInterest;
-
-    public Student() {
-
-    }
 
     public Student(String firstname, String lastname, String email, String password) {
         super(firstname, lastname, email, password);

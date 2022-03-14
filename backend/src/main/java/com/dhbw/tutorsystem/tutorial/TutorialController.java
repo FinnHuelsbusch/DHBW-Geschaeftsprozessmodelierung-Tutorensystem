@@ -3,7 +3,6 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import javax.persistence.PersistenceUnit;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.dhbw.tutorsystem.exception.TSBadRequestException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
@@ -26,9 +24,11 @@ import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailExcept
 import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationCoursesWithoutCourses;
 import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundException;
-import com.dhbw.tutorsystem.tutorial.exception.TSInvalidTutorialMarkException;
+import com.dhbw.tutorsystem.tutorial.exception.StudentAlreadyParticipatingException;
+import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
@@ -40,10 +40,14 @@ import com.dhbw.tutorsystem.user.student.StudentRepository;
 import com.dhbw.tutorsystem.user.student.StudentService;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.hibernate.HibernateQuery;
+import com.querydsl.jpa.hibernate.HibernateQueryFactory;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -57,7 +61,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,13 +97,13 @@ public class TutorialController {
                         @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
         @GetMapping("/{id}")
-        public ResponseEntity<TutorialDto> getTutorial(@PathVariable Integer id) {
+        public ResponseEntity<TutorialForDisplay> getTutorial(@PathVariable Integer id) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
                 if (optionalTutorial.isEmpty()) {
                         throw new TutorialNotFoundException();
                 }
                 Tutorial tutorial = optionalTutorial.get();
-                TutorialDto tutorialDto = TutorialDto.convertToDto(modelMapper, tutorial);
+                TutorialForDisplay tutorialDto = TutorialForDisplay.convertToDto(modelMapper, tutorial);
                 Student student = studentService.getLoggedInStudent();
                 // optionally add the student perspective attributes
                 if (student != null) {
@@ -111,12 +114,13 @@ public class TutorialController {
         }
 
         @Operation(summary = "Participate in tutorial.", description = "Participate in a tutorial by id.", tags = {
-                        "tutorials" })
+                        "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Participation was successful."),
                         @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
+        @PreAuthorize("hasRole('ROLE_STUDENT')")
         @PutMapping("/participate/{id}")
         public ResponseEntity<Void> participateInTutorial(@PathVariable Integer id) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
@@ -127,12 +131,8 @@ public class TutorialController {
                 // retrieve user and notify by email of the participation
                 // note: email does not have to be checked, logged in user is already valid
                 Student student = studentService.getLoggedInStudent();
-                if (student == null) {
-                        throw new UserNotFoundException();
-                }
                 if (tutorial.isStudentParticipating(student)) {
-                        // user is not allowed to participate twice
-                        throw new TSInternalServerException();
+                        throw new StudentAlreadyParticipatingException();
                 }
                 try {
                         emailSenderService.sendMail(student.getEmail(), MailType.TUTORIAL_PARTICIPATION,
@@ -154,6 +154,7 @@ public class TutorialController {
                         @ApiResponse(responseCode = "400", description = "Path variable was not an integer or tutorial is already marked.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
+        @PreAuthorize("hasRole('ROLE_STUDENT')")
         @PutMapping("/mark/{id}")
         public ResponseEntity<Void> markTutorial(@PathVariable Integer id) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
@@ -162,11 +163,8 @@ public class TutorialController {
                 }
                 Tutorial tutorial = optionalTutorial.get();
                 Student student = studentService.getLoggedInStudent();
-                if (student == null) {
-                        throw new UserNotFoundException();
-                }
                 if (tutorial.isMarkedByStudent(student)) {
-                        throw new TSInvalidTutorialMarkException("Tutorial is already marked.");
+                        throw new InvalidTutorialMarkException("Tutorial is already marked.");
                 }
                 // associate student with tutorial, then tutorial with student
                 if (tutorial.getMarkedBy() == null) {
@@ -193,6 +191,7 @@ public class TutorialController {
                         @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
         })
+        @PreAuthorize("hasRole('ROLE_STUDENT')")
         @DeleteMapping("/mark/{id}")
         public ResponseEntity<Void> unmarkTutorial(@PathVariable Integer id) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
@@ -201,18 +200,11 @@ public class TutorialController {
                 }
                 Tutorial tutorial = optionalTutorial.get();
                 Student student = studentService.getLoggedInStudent();
-                if (student == null) {
-                        throw new UserNotFoundException();
-                }
                 if (!tutorial.isMarkedByStudent(student)) {
-                        throw new TSInvalidTutorialMarkException("Tutorial is already unmarked.");
+                        throw new InvalidTutorialMarkException("Tutorial is already unmarked.");
                 }
                 // associate student with tutorial, then tutorial with student
-                if (tutorial.getMarkedBy() == null) {
-                        throw new TSInternalServerException();
-                } else {
-                        tutorial.getMarkedBy().remove(student);
-                }
+                tutorial.getMarkedBy().remove(student);
                 tutorial = tutorialRepository.save(tutorial);
 
                 if (student.getMarkedTutorials() == null) {
@@ -235,7 +227,7 @@ public class TutorialController {
                         @Valid @RequestBody FindTutorialsWithFilterRequest filterRequest) {
 
                 // construct filter conditions
-                QTutorial tutorial = QTutorial.tutorial;
+                QTutorial qTutorial = QTutorial.tutorial;
 
                 // search text: any word matches title or description
                 BooleanBuilder textMatches = new BooleanBuilder();
@@ -243,19 +235,19 @@ public class TutorialController {
                         List<String> textsToMatch = Arrays.asList(filterRequest.getText().split(" "));
                         for (String text : textsToMatch) {
                                 text = "%" + text + "%";
-                                textMatches.and(tutorial.title.likeIgnoreCase(text)
-                                                .or(tutorial.description.likeIgnoreCase(text)));
+                                textMatches.and(qTutorial.title.likeIgnoreCase(text)
+                                                .or(qTutorial.description.likeIgnoreCase(text)));
                         }
                 }
 
                 // search specialisation course
                 BooleanBuilder specialisationCourseMatches = new BooleanBuilder();
                 if (filterRequest.getSpecialisationCourseIds() != null) {
-                        Iterable<SpecialisationCourse> specialisationCourses = specialisationCourseRepository
-                                        .findAllById((Iterable<Integer>) filterRequest.getSpecialisationCourseIds());
+                        Set<SpecialisationCourse> specialisationCourses = specialisationCourseRepository
+                                        .findAllById(filterRequest.getSpecialisationCourseIds());
                         for (SpecialisationCourse specialisationCourse : specialisationCourses) {
                                 specialisationCourseMatches
-                                                .or(tutorial.specialisationCourses.contains(specialisationCourse));
+                                                .or(qTutorial.specialisationCourses.contains(specialisationCourse));
                         }
                 }
 
@@ -266,22 +258,22 @@ public class TutorialController {
                                 filterRequest.getStartDateTo() != null) {
                         // from and to date specified
                         startsWithinTimeFrame.and(
-                                        tutorial.start.between(filterRequest.getStartDateFrom(),
+                                        qTutorial.start.between(filterRequest.getStartDateFrom(),
                                                         filterRequest.getStartDateTo()));
                 } else if (filterRequest.getStartDateFrom() != null) {
                         // only from date specified
                         startsWithinTimeFrame.and(
-                                        tutorial.start.after(filterRequest.getStartDateFrom()));
+                                        qTutorial.start.after(filterRequest.getStartDateFrom()));
                 } else if (filterRequest.getStartDateTo() != null) {
                         // only to date specified: default to starting date 2 months in the past until
                         // specified date
                         startsWithinTimeFrame.and(
-                                        tutorial.start.between(defaultStartDateFrom,
+                                        qTutorial.start.between(defaultStartDateFrom,
                                                         filterRequest.getStartDateTo()));
                 } else {
                         // nothing specified, default to starting date 2 months in the past until
                         // infinity
-                        startsWithinTimeFrame.and(tutorial.start.after(defaultStartDateFrom));
+                        startsWithinTimeFrame.and(qTutorial.start.after(defaultStartDateFrom));
                 }
 
                 // apply further criteria for logged in students
@@ -291,11 +283,11 @@ public class TutorialController {
                 if (loggedStudent != null) {
                         if (filterRequest.isSelectMarked()) {
                                 // apply restriction to show marked courses
-                                isMarked.and(tutorial.markedBy.contains(loggedStudent));
+                                isMarked.and(qTutorial.markedBy.contains(loggedStudent));
                         }
                         if (filterRequest.isSelectParticipates()) {
                                 // apply restriction to show participate courses
-                                isParticipating.and(tutorial.participants.contains(loggedStudent));
+                                isParticipating.and(qTutorial.participants.contains(loggedStudent));
                         }
                 }
 
@@ -307,28 +299,31 @@ public class TutorialController {
                 }
 
                 EntityManager entityManager = entityManagerFactory.createEntityManager();
-                JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-                entityManager.getTransaction().begin();
+                Session session = entityManagerFactory.unwrap(SessionFactory.class).openSession();
+                HibernateQueryFactory queryFactory = new HibernateQueryFactory(session);
 
                 // construct query from conditions, one for tutorial objects and one for total
                 // element count
-                JPAQuery<Tutorial> tutorialQuery = queryFactory
-                                .selectFrom(tutorial)
+                // note: empty BooleanBuilder will be ignored in query
+                HibernateQuery<Tutorial> tutorialQuery = queryFactory
+                                .selectFrom(qTutorial)
                                 .where(textMatches
                                                 .and(specialisationCourseMatches)
                                                 .and(startsWithinTimeFrame)
-                                                // isMarked/isParticipating is default true
                                                 .and(isMarked)
                                                 .and(isParticipating))
                                 .offset(start)
                                 .limit(size);
 
-                JPAQuery<Long> countQuery = queryFactory
-                                .from(tutorial)
-                                .select(tutorial.id.countDistinct())
+                // note: this count query must have same conditions as the above query
+                HibernateQuery<Long> countQuery = queryFactory
+                                .from(qTutorial)
+                                .select(qTutorial.id.countDistinct())
                                 .where(textMatches
                                                 .and(specialisationCourseMatches)
-                                                .and(startsWithinTimeFrame));
+                                                .and(startsWithinTimeFrame)
+                                                .and(isMarked)
+                                                .and(isParticipating));
 
                 for (Sort.Order order : pageable.getSort()) {
                         com.querydsl.core.types.Order querydslOrder = order.isAscending()
@@ -338,34 +333,26 @@ public class TutorialController {
                         if ("title".equals(order.getProperty())) {
                                 tutorialQuery.orderBy(new OrderSpecifier<String>(
                                                 querydslOrder,
-                                                tutorial.title));
+                                                qTutorial.title));
                         } else if ("start".equals(order.getProperty())) {
                                 tutorialQuery.orderBy(new OrderSpecifier<LocalDate>(
                                                 querydslOrder,
-                                                tutorial.start));
+                                                qTutorial.start));
                         }
                 }
 
                 List<Tutorial> filteredTutorials = tutorialQuery.fetch();
                 int totalResultCount = countQuery.fetchFirst().intValue();
 
-                for (Tutorial t : filteredTutorials) {
-                        Hibernate.initialize(t.getSpecialisationCourses());
-                        Hibernate.initialize(t.getTutors());
-                        Hibernate.initialize(t.getParticipants());
-                        Hibernate.initialize(t.getMarkedBy());
-                }
-
                 Student student = studentService.getLoggedInStudent();
 
-                List<TutorialDto> tutorialDtos = filteredTutorials.stream().map(
-                                t -> TutorialDto.convertToDto(modelMapper, t).addPerspective(
+                List<TutorialForDisplay> tutorialDtos = filteredTutorials.stream().map(
+                                t -> TutorialForDisplay.convertToDto(modelMapper, t).addPerspective(
                                                 // perspective attributes only added if consumer is a logged-in student
                                                 t.isMarkedByStudent(student),
                                                 t.isStudentParticipating(student)))
                                 .collect(Collectors.toList());
 
-                entityManager.getTransaction().commit();
                 entityManager.close();
 
                 int totalPages = (int) Math.ceil((double) totalResultCount / pageable.getPageSize());

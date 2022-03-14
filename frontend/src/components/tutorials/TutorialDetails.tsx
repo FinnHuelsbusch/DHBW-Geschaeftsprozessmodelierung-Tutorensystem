@@ -9,7 +9,7 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
-import { StarOutlined, StarFilled } from '@ant-design/icons'
+import { StarOutlined, StarFilled, WarningOutlined } from '@ant-design/icons'
 import './TutorialDetails.scss';
 
 const TutorialDetails: React.FC = () => {
@@ -49,11 +49,28 @@ const TutorialDetails: React.FC = () => {
         const onParticipateClick = () => {
             if (!tutorial) return;
             // if user is not logged in, redirect to login page
-            if (!authContext.loggedUser) {
-                // delete saved filter before leaving the page
-                sessionStorage.removeItem("tutorialFilter");
-                navigate(AppRoutes.Main.Subroutes.Login);
+            if (tutorial.participates) {
+                // show remove participation prompt
+                Modal.confirm({
+                    title: "Nicht mehr teilnehmen",
+                    content: <div>
+                        Hiermit melden Sie sich <b>verbindlich</b> von der Teilnahme am Tutorium '{tutorial.title}' ab.
+                    </div>,
+                    okText: 'Teilnahme entfernen (verbindlich)',
+                    icon: <WarningOutlined color='red' />,
+                    okButtonProps: { danger: true },
+                    onOk() {
+                        participateInTutorial(tutorial.id)
+                            .then(res => {
+                                message.success("Teilnahme erfolgreich");
+                            }).catch(err => {
+                                const reqErr = getRequestError(err);
+                                message.error(getErrorMessageString(reqErr.errorCode));
+                            });
+                    }
+                });
             } else {
+                // show participate prompt
                 Modal.confirm({
                     title: "Am Tutorium teilnehmen",
                     content: <div>
@@ -127,8 +144,9 @@ const TutorialDetails: React.FC = () => {
                             </Button>
                             <Button
                                 type='primary'
+                                danger={tutorial.participates ? true : false}
                                 onClick={e => onParticipateClick()}>
-                                Am Tutorium teilnehmen
+                                {tutorial.participates ? "Nicht mehr teilnehmen" : "Am Tutorium teilnehmen"}
                             </Button>
                         </Space>
                     ]}
