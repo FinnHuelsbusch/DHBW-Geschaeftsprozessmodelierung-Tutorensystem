@@ -12,8 +12,6 @@ import com.dhbw.tutorsystem.user.student.StudentRepository;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,12 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @SpringBootApplication
 public class TutorsystemApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(TutorsystemApplication.class);
-
 	public static void main(String[] args) {
 		SpringApplication.run(TutorsystemApplication.class, args);
-		logger.info("DIES IST EINE INFO VERDAMMT");
-		logger.warn("DIES IST EINE WARNING VERDAMMT");
 	}
 
 	@Bean
