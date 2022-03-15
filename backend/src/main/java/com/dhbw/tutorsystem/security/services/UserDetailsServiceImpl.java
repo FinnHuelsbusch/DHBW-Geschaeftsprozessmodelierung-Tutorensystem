@@ -1,7 +1,5 @@
 package com.dhbw.tutorsystem.security.services;
 
-import java.util.Optional;
-
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
 
