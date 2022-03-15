@@ -162,8 +162,9 @@ const TutorialDetails: React.FC = () => {
                             </>}
                             <Button
                                 type='primary'
+                                danger={tutorial.participates ? true : false}
                                 onClick={e => onParticipateClick()}>
-                                Am Tutorium teilnehmen
+                                {tutorial.participates ? "Nicht mehr teilnehmen" : "Am Tutorium teilnehmen"}
                             </Button>
                         </Space>
                     ]}

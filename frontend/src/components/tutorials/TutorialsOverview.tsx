@@ -65,6 +65,7 @@ const TutorialsOverview: React.FC = () => {
             setFilter(filterObj);
             return;
         }
+
         // re-fetch upon filter change (also called on initial loading of the page)
         fetchPage();
     }, [filter]);

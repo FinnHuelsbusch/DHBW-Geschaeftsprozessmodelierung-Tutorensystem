@@ -61,7 +61,6 @@ public class Tutorial {
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    @JsonIgnore
     private Set<Student> participants;
 
     @ManyToMany(fetch = FetchType.LAZY)
