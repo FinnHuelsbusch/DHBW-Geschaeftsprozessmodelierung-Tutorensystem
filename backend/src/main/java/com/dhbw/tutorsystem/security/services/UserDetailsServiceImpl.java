@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDetailsServiceImpl implements UserDetailsService {
     final UserRepository userRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger("main");
+    private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;

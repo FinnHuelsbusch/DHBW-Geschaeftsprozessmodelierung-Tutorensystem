@@ -79,7 +79,7 @@ public class AuthenticationController {
     @Value("${backend.app.minutesBetweenPasswordActions}")
     private int minimumMinutesBetweenPasswordActions;
 
-    private static final Logger logger = LoggerFactory.getLogger("main");
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     final AuthenticationManager authenticationManager;
     final UserRepository userRepository;
@@ -109,7 +109,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         if (!User.isValidEmail(loginRequest.getEmail())) {
-            logger.warn("Information: User tried to login with invalid email adress: {}", loginRequest.getEmail());
+            logger.info("Information: User tried to login with invalid email adress: {}", loginRequest.getEmail());
             throw new LoginFailedException();
         }
         try {

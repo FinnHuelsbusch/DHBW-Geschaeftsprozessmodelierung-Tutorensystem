@@ -12,6 +12,9 @@
 
     <appender name="Everything" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/everything/Log.log</file>
+        <filter class = "ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
         </encoder>
@@ -24,6 +27,9 @@
 
     <appender name="OnlyWarnings" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/warn/Log.log</file>
+        <filter class = "ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
         </encoder>
@@ -36,9 +42,6 @@
     <root level="info">
         <appender-ref ref="Console" />
         <appender-ref ref="Everything"/>
-    </root>
-
-    <logger name="main" level="warn">
         <appender-ref ref="OnlyWarnings"/>
-    </logger>
+    </root>
 </configuration>
