@@ -19,7 +19,7 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
     const navigate = useNavigate();
 
     const onFinish = (values: any) => {
-        deleteTutorial(tutorial.id).then(res => {
+        deleteTutorial(tutorial.id, values.reason).then(res => {
             message.success("Löschen erfolgreich");
             navigate(-1); 
             setIsTutorialDeleteModalVisible(false);

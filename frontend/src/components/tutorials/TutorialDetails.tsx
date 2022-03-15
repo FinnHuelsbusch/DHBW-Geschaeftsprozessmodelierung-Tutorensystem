@@ -136,7 +136,7 @@ const TutorialDetails: React.FC = () => {
                     onBack={() => navigate(-1)}
                     extra={[
                         <Space wrap align='baseline'>
-                            {authContext.hasRoles([UserRole.ROLE_STUDENT]) && <Button
+                            {!authContext.hasRoles([UserRole.ROLE_DIRECTOR]) && <Button
                                 type='default'
                                 disabled={loading}
                                 onClick={e => onMarkClick()}>

@@ -67,11 +67,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("tutorials")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
 public class TutorialController {
 
@@ -497,4 +497,5 @@ public class TutorialController {
 
                         return new ResponseEntity<>(HttpStatus.OK);
                 }
+        }
 }
