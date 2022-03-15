@@ -460,7 +460,7 @@ public class TutorialController {
         public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
                         @RequestBody @Valid DeleteTutorial deleteTutorial) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
-                String reason = deleteTutorial.getReason()
+                String reason = deleteTutorial.getReason();
                 if (optionalTutorial.isEmpty()) {
                         throw new TutorialNotFoundException();
                 } else {
