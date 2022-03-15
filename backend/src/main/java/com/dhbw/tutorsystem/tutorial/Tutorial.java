@@ -3,7 +3,6 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -15,7 +14,6 @@ import javax.persistence.Table;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;

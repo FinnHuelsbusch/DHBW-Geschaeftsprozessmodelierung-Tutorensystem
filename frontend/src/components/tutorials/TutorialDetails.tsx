@@ -9,11 +9,14 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
-import { StarOutlined, StarFilled, WarningOutlined } from '@ant-design/icons'
+import { StarOutlined, StarFilled, WarningOutlined, DeleteOutlined } from '@ant-design/icons'
 import './TutorialDetails.scss';
+import { UserRole } from '../../types/User';
+import TutorialDeleteModal from './TutorialDeleteModal';
 
 const TutorialDetails: React.FC = () => {
 
+    const [isTutorialDeleteModalVisible, setIsTutorialDeleteModalVisible] = useState(false);
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -121,6 +124,10 @@ const TutorialDetails: React.FC = () => {
             }
         };
 
+        const onDeleteClick = () => {
+            setIsTutorialDeleteModalVisible(true);
+        };
+
         return (
             <>
                 <PageHeader
@@ -129,7 +136,7 @@ const TutorialDetails: React.FC = () => {
                     onBack={() => navigate(-1)}
                     extra={[
                         <Space wrap align='baseline'>
-                            <Button
+                            {!authContext.hasRoles([UserRole.ROLE_DIRECTOR]) && <Button
                                 type='default'
                                 disabled={loading}
                                 onClick={e => onMarkClick()}>
@@ -141,7 +148,18 @@ const TutorialDetails: React.FC = () => {
                                         <StarOutlined /> Vormerken
                                     </>
                                 }
-                            </Button>
+                            </Button>}
+
+                            {authContext.hasRoles([UserRole.ROLE_DIRECTOR]) && <>
+                                <Button
+                                    danger
+                                    type='default'
+                                    disabled={loading}
+                                    onClick={e => onDeleteClick()}>
+                                    <DeleteOutlined type='' /> Löschen
+                                </Button>
+
+                            </>}
                             <Button
                                 type='primary'
                                 danger={tutorial.participates ? true : false}
@@ -178,6 +196,11 @@ const TutorialDetails: React.FC = () => {
                             ))}
                         </Paragraph>
                     </Typography>
+                    <TutorialDeleteModal
+                        isModalVisible={isTutorialDeleteModalVisible}
+                        setIsTutorialDeleteModalVisible={setIsTutorialDeleteModalVisible}
+                        tutorial={tutorial}
+                    />
                 </PageHeader>
             </>
         );

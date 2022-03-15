@@ -1,7 +1,6 @@
 package com.dhbw.tutorsystem.tutorial;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.Min;
