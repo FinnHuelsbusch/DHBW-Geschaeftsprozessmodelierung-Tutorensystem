@@ -5,7 +5,7 @@ import { validateMessages } from '../../utils/Messages';
 type Props = {
     disabled?: boolean,
     required?: boolean,
-    onChange?: (value: string) => void
+    onChange?: (e: any) => void
 }
 
 const mailPatternStudent = /^s[0-9]{6}@student\.dhbw-mannheim\.de$/g;
@@ -48,9 +48,8 @@ const EmailFormInput: React.FC<Props> = ({ disabled = false, required = false, o
                 validator: validate
             }]}>
             <Input
-                // key="mymail123"
                 disabled={disabled}
-                onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+                onChange={onChange ? (e) => onChange(e) : undefined}
                 style={style}
             />
         </Form.Item>

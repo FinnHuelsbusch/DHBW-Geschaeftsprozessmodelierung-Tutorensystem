@@ -51,7 +51,14 @@ const Register: React.FC = () => {
                 message: undefined
             });
             setLoading(true);
-            register(values.email, values.password)
+            const specialisationCourseId = isDirectorRegistration ? undefined : parseInt(values.specialisationCourse);
+            register({
+                email: values.email.trim(),
+                password: values.password,
+                firstName: values.firstname,
+                lastName: values.lastname,
+                specialisationCourseId: specialisationCourseId
+            })
                 .then(res => {
                     setLoading(false);
                     setShowRegisterMessage(true);
@@ -63,29 +70,21 @@ const Register: React.FC = () => {
         }
     };
 
-    const onEmailInputChange = (value: string) => {
-        if (isDirectorEmail(value)) {
+    useEffect(() => {
+        // re-focus email field to avoid losing focus after state change re-render
+        form.getFieldInstance("email").focus();
+    }, [isDirectorRegistration]);
+
+    const onEmailInputChange = (e: any) => {
+        if (isDirectorEmail(e.target.value)) {
             setIsDirectorRegistration(true);
+            form.setFieldsValue({
+                ...form.getFieldsValue(),
+                specialisationCourse: undefined,
+            });
         } else {
             setIsDirectorRegistration(false);
         }
-    };
-
-    const CourseOptionsList = (courses: CourseWithTitleAndSpecialisations[]) => {
-
-        const options = courses.map(course =>
-            <Select.OptGroup label={`${course.title} (${course.abbreviation})`}>
-                {course.specialisationCourses.map(
-                    specialisation => (
-                        <Select.Option
-                            key={`${course.id}`}
-                            value={`${course.abbreviation} ${specialisation.abbreviation} ${course.title} ${specialisation.title}`}>
-                            {specialisation.title} <i style={{ color: 'gray' }}>({course.abbreviation} {specialisation.abbreviation})</i>
-                        </Select.Option>)
-                )}
-            </Select.OptGroup>);
-
-        return options;
     };
 
     const UserPasswordForm = () => (
@@ -129,18 +128,31 @@ const Register: React.FC = () => {
             </Form.Item>
 
             {/* Only require course input for non-directors */}
-            {!isDirectorRegistration &&
-                <Form.Item
-                    label="Kurs"
-                    name="course"
-                    rules={[{ required: !isDirectorRegistration }]}>
-                    <Select
-                        disabled={loading}
-                        showSearch>
-                        {CourseOptionsList(courses)}
-                    </Select>
-                </Form.Item>
-            }
+            {/* {!isDirectorRegistration && */}
+            <Form.Item
+                label="Studienrichtung"
+                name="specialisationCourse"
+                tooltip={isDirectorRegistration ? "Personal muss keine Studienrichtung angeben" : undefined}
+                rules={[{ required: !isDirectorRegistration }]}>
+                <Select
+                    disabled={loading || isDirectorRegistration}
+                    optionFilterProp='textForFilter'
+                    showSearch>
+                    {courses.map(course =>
+                        <Select.OptGroup label={`${course.title} (${course.abbreviation})`}>
+                            {course.specialisationCourses.map(
+                                specialisation => (
+                                    <Select.Option
+                                        key={`${specialisation.id}`}
+                                        textForFilter={`${course.abbreviation} ${specialisation.abbreviation} ${course.title} ${specialisation.title}`}
+                                    >
+                                        {specialisation.title} <i style={{ color: 'gray' }}>({course.abbreviation} {specialisation.abbreviation})</i>
+                                    </Select.Option>)
+                            )}
+                        </Select.OptGroup>)}
+                </Select>
+            </Form.Item>
+            {/* } */}
 
             <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                 <Button loading={loading} htmlType='submit' type='primary'>

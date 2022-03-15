@@ -69,10 +69,6 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
-
-
-
-
     public User() {
 
     }
@@ -89,12 +85,12 @@ public class User {
         this.password = password;
     }
 
-    public boolean isStudentMail() {
-        return StringUtils.isNotBlank(this.email) && Pattern.matches(studentMailRegex, this.email);
+    public static boolean isStudentMail(String email) {
+        return StringUtils.isNotBlank(email) && Pattern.matches(studentMailRegex, email);
     }
 
-    public boolean isDirectorMail() {
-        return StringUtils.isNotBlank(this.email) && Pattern.matches(directorMailRegex, this.email);
+    public static boolean isDirectorMail(String email) {
+        return StringUtils.isNotBlank(email) && Pattern.matches(directorMailRegex, email);
     }
 
     public static boolean isValidEmail(String email) {

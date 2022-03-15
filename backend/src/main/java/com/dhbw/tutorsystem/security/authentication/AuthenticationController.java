@@ -26,6 +26,7 @@ import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.security.authentication.exception.AccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
+import com.dhbw.tutorsystem.security.authentication.exception.InvalidUserTypeException;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
 import com.dhbw.tutorsystem.security.authentication.exception.RoleNotFoundException;
@@ -40,9 +41,16 @@ import com.dhbw.tutorsystem.security.authentication.payload.ResetPasswordRequest
 import com.dhbw.tutorsystem.security.authentication.payload.VerifyRequest;
 import com.dhbw.tutorsystem.security.jwt.JwtUtils;
 import com.dhbw.tutorsystem.security.services.UserDetailsImpl;
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundException;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.UserService;
+import com.dhbw.tutorsystem.user.director.Director;
+import com.dhbw.tutorsystem.user.director.DirectorRepository;
+import com.dhbw.tutorsystem.user.student.Student;
+import com.dhbw.tutorsystem.user.student.StudentRepository;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,34 +75,27 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/authentication")
 @SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
+@RequiredArgsConstructor
 public class AuthenticationController {
 
     @Value("${backend.app.minutesBetweenPasswordActions}")
     private int minimumMinutesBetweenPasswordActions;
 
-    final AuthenticationManager authenticationManager;
-    final UserRepository userRepository;
-    final RoleRepository roleRepository;
-    final JwtUtils jwtUtils;
-    final PasswordEncoder encoder;
-    final EmailSenderService emailSenderService;
-    final UserService userService;
-
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository,
-            RoleRepository roleRepository, JwtUtils jwtUtils, PasswordEncoder encoder,
-            EmailSenderService emailSenderService, UserService userService) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.jwtUtils = jwtUtils;
-        this.encoder = encoder;
-        this.emailSenderService = emailSenderService;
-        this.userService = userService;
-    }
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final JwtUtils jwtUtils;
+    private final PasswordEncoder encoder;
+    private final EmailSenderService emailSenderService;
+    private final UserService userService;
+    private final StudentRepository studentRepository;
+    private final DirectorRepository directorRepository;
+    private final SpecialisationCourseRepository specialisationCourseRepository;
 
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
@@ -142,39 +143,59 @@ public class AuthenticationController {
         if (!User.isValidEmail(registerRequest.getEmail())) {
             throw new InvalidEmailException();
         }
-        // check for duplicate registration, then send mail and update or save user
-        Optional<User> optionalUser = userRepository.findByEmail(registerRequest.getEmail());
-        if (optionalUser.isPresent()) {
-            // same email address as an existing user was provided for registration
-            User user = optionalUser.get();
+        // get user (either student or director) to check for duplicate registration
+        User user = null;
+        if (User.isStudentMail(registerRequest.getEmail())) {
+            Optional<Student> optionalStudent = studentRepository.findByEmail(registerRequest.getEmail());
+            if (optionalStudent.isPresent())
+                user = (User) optionalStudent.get();
+        } else if (User.isDirectorMail(registerRequest.getEmail())) {
+            Optional<Director> optionalDirector = directorRepository.findByEmail(registerRequest.getEmail());
+            if (optionalDirector.isPresent())
+                user = (User) optionalDirector.get();
+        }
+        if (user != null) {
+            // existing user is registering again
             if (user.isEnabled()) {
                 throw new EmailAlreadyExistsException();
             }
-            if (user.getLastPasswordAction()!= null && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
-                    .toMinutes() < minimumMinutesBetweenPasswordActions) {
+            if (user.getLastPasswordAction() != null
+                    && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+                            .toMinutes() < minimumMinutesBetweenPasswordActions) {
                 throw new LastPasswordActionTooRecentException();
             } else {
                 // existing non-enabled user re-registered after 15minutes: re-send email and
                 // update last changed
                 user.setLastPasswordAction(LocalDateTime.now());
                 user.setPassword(encoder.encode(registerRequest.getPassword()));
+                user.setFirstName(registerRequest.getFirstName());
+                user.setLastName(registerRequest.getLastName());
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
                     throw new TSInternalServerException();
                 }
-                user = userRepository.save(user);
+                saveUserSubtype(user);
             }
         } else {
-            // new email address was provided for registration: encode password and save new
-            // user
+            // new user registration: encode password and save new user
             String encodedPassword = encoder.encode(registerRequest.getPassword());
-            User user = new User(registerRequest.getEmail(), encodedPassword);
-
+            user = new User(
+                    registerRequest.getFirstName(), registerRequest.getLastName(),
+                    registerRequest.getEmail(), encodedPassword);
             Optional<Role> role = Optional.empty();
-            if (user.isStudentMail()) {
+            if (User.isStudentMail(user.getEmail())) {
+                Student student = new Student(user.getEmail(), user.getPassword());
+                Optional<SpecialisationCourse> specialisationCourse = specialisationCourseRepository
+                        .findById(registerRequest.getSpecialisationCourseId());
+                if (specialisationCourse.isEmpty()) {
+                    throw new SpecialisationCourseNotFoundException();
+                }
+                student.setSpecialisationCourse(specialisationCourse.get());
+                user = student;
                 role = roleRepository.findByName(ERole.ROLE_STUDENT);
-            } else if (user.isDirectorMail()) {
+            } else if (User.isDirectorMail(user.getEmail())) {
+                user = new Director(user.getEmail(), user.getPassword());
                 role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
             }
             // role might not be available in DB
@@ -190,9 +211,19 @@ public class AuthenticationController {
             } catch (NoSuchAlgorithmException | MessagingException e) {
                 throw new TSInternalServerException();
             }
-            user = userRepository.save(user);
+            saveUserSubtype(user);
         }
         return ResponseEntity.ok(null);
+    }
+
+    private User saveUserSubtype(User user) throws InvalidUserTypeException {
+        if (user instanceof Student) {
+            return studentRepository.save((Student) user);
+        } else if (user instanceof Director) {
+            return directorRepository.save((Director) user);
+        } else {
+            throw new InvalidUserTypeException();
+        }
     }
 
     @Operation(summary = "Enable user.", description = "Enable an account using a hash value from an activation link after registration.", tags = {
