@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.validation.Valid;
@@ -21,14 +20,13 @@ import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
-import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationCoursesWithoutCourses;
+import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundException;
 import com.dhbw.tutorsystem.tutorial.exception.StudentAlreadyParticipatingException;
-import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
@@ -42,10 +40,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateQueryFactory;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
@@ -60,7 +55,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -459,7 +453,7 @@ public class TutorialController {
                         @ApiResponse(responseCode = "200", description = "Tutorial was deleted"),
                         @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
         })
-        @DeleteMapping("/{id}")
+        @PostMapping("/{id}")
         public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
                 if (optionalTutorial.isEmpty()) {

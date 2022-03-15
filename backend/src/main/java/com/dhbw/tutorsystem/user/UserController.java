@@ -3,8 +3,6 @@ package com.dhbw.tutorsystem.user;
 
 import java.util.List;
 
-import com.dhbw.tutorsystem.course.dto.CourseWithTitleAndLeaders;
-import com.dhbw.tutorsystem.user.dto.UserWithEmailAndName;
 import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
 
 import org.modelmapper.ModelMapper;
@@ -21,7 +19,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-
 import lombok.AllArgsConstructor;
 
 @RestController

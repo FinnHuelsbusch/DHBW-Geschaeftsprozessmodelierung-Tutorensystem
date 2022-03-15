@@ -21,13 +21,14 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
     const onFinish = (values: any) => {
         deleteTutorial(tutorial.id).then(res => {
             message.success("Löschen erfolgreich");
+            navigate(-1); 
+            setIsTutorialDeleteModalVisible(false);
+            form.resetFields();
         }).catch(err => {
             const reqErr = getRequestError(err);
             message.error(getErrorMessageString(reqErr.errorCode));
         });
-        navigate(-1); 
-        setIsTutorialDeleteModalVisible(false);
-        form.resetFields();
+
     };
 
     const onCancel = () => {
@@ -62,7 +63,6 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
                 >
 
                     <Form.Item
-                        rules={[{ required: true }]}
                         label="Grund:"
                         name="reason"
                     >

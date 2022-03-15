@@ -3,7 +3,6 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.Set;
 
-import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.dto.SpecialisationCourseWithoutCourse;
 import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
 
