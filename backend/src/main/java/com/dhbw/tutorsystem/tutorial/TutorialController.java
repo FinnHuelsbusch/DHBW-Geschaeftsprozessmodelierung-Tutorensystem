@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.validation.Valid;
@@ -21,16 +20,16 @@ import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
 import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
-import com.dhbw.tutorsystem.security.authentication.exception.UserNotFoundException;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationCoursesWithoutCourses;
+import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundException;
 import com.dhbw.tutorsystem.tutorial.exception.StudentAlreadyParticipatingException;
-import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
+import com.dhbw.tutorsystem.tutorial.payload.DeleteTutorialRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.dhbw.tutorsystem.user.User;
@@ -42,10 +41,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateQueryFactory;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
@@ -72,11 +67,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("tutorials")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
 public class TutorialController {
 
@@ -453,18 +448,43 @@ public class TutorialController {
         }
 
         @Operation(tags = {
-                        "tutorial" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ")
+                        "tutorial" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ", security = @SecurityRequirement(name = "jwt-auth"))
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Tutorial was deleted"),
                         @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
         })
-        @DeleteMapping("/{id}")
-        public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id) {
+        @PostMapping("/delete/{id}")
+        @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+        public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
+                        @RequestBody @Valid DeleteTutorialRequest deleteTutorialRequest) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
+                String reason = deleteTutorialRequest.getReason();
                 if (optionalTutorial.isEmpty()) {
                         throw new TutorialNotFoundException();
                 } else {
+                        Tutorial tutorial = optionalTutorial.get();
+                        Map<String, Object> mailArguments = Map.of(
+                                        "tutorialTitle", tutorial.getTitle(),
+                                        "tutorialDescription", tutorial.getDescription(),
+                                        "tutorialStart", tutorial.getStart(),
+                                        "tutorialEnd", tutorial.getEnd(),
+                                        "tutorialDurationMinutes", tutorial.getDurationMinutes(),
+                                        "reason", reason);
+                        try {
+                                emailSenderService.sendMails(
+                                                tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                                                .collect(Collectors.toSet()),
+                                                MailType.TUTORIAL_DELETION, mailArguments);
+
+                                emailSenderService.sendMails(
+                                                tutorial.getParticipants().stream().map(tutor -> tutor.getEmail())
+                                                                .collect(Collectors.toSet()),
+                                                MailType.TUTORIAL_DELETION, mailArguments);
+                        } catch (MessagingException e) {
+                                throw new TSInternalServerException();
+                        }
                         tutorialRepository.deleteById(id);
+
                         return new ResponseEntity<>(HttpStatus.OK);
                 }
         }
