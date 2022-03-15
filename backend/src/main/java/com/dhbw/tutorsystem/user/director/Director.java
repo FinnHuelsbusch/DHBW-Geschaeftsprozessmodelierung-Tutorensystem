@@ -11,23 +11,23 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-public class Director extends User{
+public class Director extends User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Course assignedCourses;
 
-    public Director(){
-        
+    public Director() {
+
     }
 
     public Director(String firstname, String lastname, String email, String password) {
-        super(firstname, lastname, email, password); 
+        super(firstname, lastname, email, password);
     }
 
     public Director(String email, String password) {
-        super(email, password); 
+        super(email, password);
     }
-    
+
 }

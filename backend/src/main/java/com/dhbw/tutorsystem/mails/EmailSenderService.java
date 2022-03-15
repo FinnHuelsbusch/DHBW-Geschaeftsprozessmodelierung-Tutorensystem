@@ -73,7 +73,8 @@ public class EmailSenderService {
         }
     }
 
-    public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments) throws MessagingException {
+    public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments)
+            throws MessagingException {
         for (String mailTo : mailsTo) {
             sendMail(mailTo, mailType, arguments);
         }
@@ -127,7 +128,7 @@ public class EmailSenderService {
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }
-    
+
     private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
 

@@ -17,15 +17,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 
-
 @RestController
 @RequestMapping("/courses")
 @AllArgsConstructor
 public class CourseController {
 
-    private final ModelMapper modelMapper; 
-    private final CourseRepository courseRepository; 
-    
+    private final ModelMapper modelMapper;
+    private final CourseRepository courseRepository;
 
     @Operation(summary = "Get Courses with Title and Leaders", tags = { "courses" })
     @ApiResponses(value = {
@@ -33,9 +31,9 @@ public class CourseController {
     })
     @GetMapping("/withTitleAndLeaders")
     public ResponseEntity<List<CourseWithTitleAndLeaders>> getCoursesWithTitleAndLeaders() {
-        return new ResponseEntity<List<CourseWithTitleAndLeaders>>(CourseWithTitleAndLeaders.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
+        return new ResponseEntity<List<CourseWithTitleAndLeaders>>(
+                CourseWithTitleAndLeaders.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
     }
-
 
     @Operation(summary = "Get Courses with Title and Specialisations", tags = { "courses" })
     @ApiResponses(value = {
@@ -43,6 +41,7 @@ public class CourseController {
     })
     @GetMapping("/withTitleAndSpecialisations")
     public ResponseEntity<List<CourseWithTitleAndSpecialisations>> getCoursesWithTitleAndSpecialisations() {
-        return new ResponseEntity<List<CourseWithTitleAndSpecialisations>>(CourseWithTitleAndSpecialisations.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
+        return new ResponseEntity<List<CourseWithTitleAndSpecialisations>>(
+                CourseWithTitleAndSpecialisations.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
     }
 }
