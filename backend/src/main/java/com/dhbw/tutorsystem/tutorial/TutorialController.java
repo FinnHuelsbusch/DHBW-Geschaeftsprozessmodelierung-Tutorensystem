@@ -29,6 +29,7 @@ import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundExcep
 import com.dhbw.tutorsystem.tutorial.exception.StudentAlreadyParticipatingException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
+import com.dhbw.tutorsystem.tutorial.payload.DeleteTutorial;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.dhbw.tutorsystem.user.User;
@@ -453,13 +454,47 @@ public class TutorialController {
                         @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
         })
         @PostMapping("/{id}")
-        public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id) {
+        public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
+                        @RequestBody @Valid DeleteTutorial deleteTutorial) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
+                String reason = deleteTutorial.getReason();
                 if (optionalTutorial.isEmpty()) {
                         throw new TutorialNotFoundException();
                 } else {
+                        Tutorial tutorial = optionalTutorial.get();
+                        Map<String, Object> mailArguments = Map.of(
+                                        "tutorialTitle", tutorial.getTitle(),
+                                        "tutorialDescription", tutorial.getDescription(),
+                                        "tutorialStart", tutorial.getStart(),
+                                        "tutorialEnd", tutorial.getEnd(),
+                                        "tutorialDurationMinutes", tutorial.getDurationMinutes());
+                        try {
+                                if (reason == null || reason.length() == 0) {
+
+                                        emailSenderService.sendMails(
+                                                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                                                        .collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION, mailArguments);
+
+                                        emailSenderService.sendMails(tutorial.getParticipants().stream()
+                                                        .map(tutor -> tutor.getEmail()).collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION, mailArguments);
+                                } else {
+                                        mailArguments.put("reason", reason);
+                                        emailSenderService.sendMails(
+                                                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                                                        .collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION_WITH_REASON, mailArguments);
+                                        emailSenderService.sendMails(tutorial.getParticipants().stream()
+                                                        .map(tutor -> tutor.getEmail()).collect(Collectors.toSet()),
+                                                        MailType.TUTORIAL_DELETION_WITH_REASON, mailArguments);
+                                }
+                        } catch (MessagingException e) {
+                                throw new TSInternalServerException();
+                        }
+                        tutorial.setParticipants(Set.of());
                         tutorialRepository.deleteById(id);
+
                         return new ResponseEntity<>(HttpStatus.OK);
                 }
-        }
 }

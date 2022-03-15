@@ -196,10 +196,10 @@ export const markTutorial = (tutorialId: number): Promise<any> => {
 }
 
 export const unmarkTutorial = (tutorialId: number): Promise<any> => {
-    return api.delete(`/tutorials/${tutorialId}`)
+    return api.delete(`/tutorials/mark/${tutorialId}`)
         .then(res => {
             return res.data;
-        })
+        });
 }
 
 export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeaders[]> => {
@@ -225,8 +225,8 @@ export const putTutorial = (newTutorial: Object): Promise<number> => {
         });
 }
 
-export const deleteTutorial = (tutorialId: number, reason?: {reson: String}): Promise<number> => {
-    return api.post(`/tutorials/${tutorialId}`, reason)
+export const deleteTutorial = (tutorialId: number, reason?: string): Promise<number> => {
+    return api.post(`/tutorials/${tutorialId}`, { reason: reason })
         .then(res => {
             const data = res.data;
             return data.id;

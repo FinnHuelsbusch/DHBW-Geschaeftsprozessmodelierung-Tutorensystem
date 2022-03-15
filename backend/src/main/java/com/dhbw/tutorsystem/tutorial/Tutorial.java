@@ -14,7 +14,6 @@ import javax.persistence.Table;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.student.Student;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
