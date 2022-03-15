@@ -20,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Student extends User {
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "participants")
     @Getter
     @Setter
     private Set<Tutorial> participates;

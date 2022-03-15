@@ -1,6 +1,7 @@
 package com.dhbw.tutorsystem.mails;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -42,21 +43,43 @@ public class EmailSenderService {
         sendMail(mailTo, mailType, null);
     }
 
+    public void sendMails(Set<String> mailsTo, MailType mailType) throws MessagingException {
+        sendMails(mailsTo, mailType, null);
+    }
+
     public void sendMail(String mailTo, MailType mailType, Map<String, Object> arguments) throws MessagingException {
-        if (mailType == MailType.REGISTRATION) {
-            sendRegistrationMail(mailTo, arguments);
-        } else if (mailType == MailType.RESET_PASSWORD) {
-            sendResetPasswordMail(mailTo, arguments);
-        } else if (mailType == MailType.TUTORIAL_PARTICIPATION_STUDENT) {
-            sendTutorialParticipationStudentMail(mailTo, arguments);
-        } else if (mailType == MailType.TUTORIAL_PARTICIPATION_REMOVAL_STUDENT) {
-            sendTutorialParticipationStudentRemovalMail(mailTo, arguments);
-        } else if (mailType == MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL) {
-            sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
-        } else if (mailType == MailType.USER_ADDED_TO_TUTORIAL) {
-            sendUserAddedToTutorialAsTutorMail(mailTo, arguments);
-        } else {
-            throw new IllegalArgumentException("MailType is not known.");
+
+        switch (mailType) {
+            case REGISTRATION:
+                sendRegistrationMail(mailTo, arguments);
+                break;
+            case RESET_PASSWORD:
+                sendResetPasswordMail(mailTo, arguments);
+                break;
+            case TUTORIAL_PARTICIPATION_STUDENT:
+                sendTutorialParticipationStudentMail(mailTo, arguments);
+                break;
+            case TUTORIAL_PARTICIPATION_REMOVAL_STUDENT:
+                sendTutorialParticipationStudentRemovalMail(mailTo, arguments);
+                break;
+            case UNREGISTERD_USER_ADDED_TO_TUTORIAL:
+                sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
+                break;
+            case TUTORIAL_DELETION:
+                sendUTutorialDelete(mailTo, arguments);
+                break;
+            case USER_ADDED_TO_TUTORIAL:
+                sendUserAddedToTutorialAsTutorMail(mailTo, arguments);
+                break;
+            default:
+                throw new IllegalArgumentException("MailType is not known.");
+        }
+    }
+
+    public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments)
+            throws MessagingException {
+        for (String mailTo : mailsTo) {
+            sendMail(mailTo, mailType, arguments);
         }
     }
 
@@ -92,7 +115,8 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-    private void sendTutorialParticipationStudentMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+    private void sendTutorialParticipationStudentMail(String mailTo, Map<String, Object> arguments)
+            throws MessagingException {
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
 
@@ -133,4 +157,9 @@ public class EmailSenderService {
             throws MessagingException {
 
     }
+
+    private void sendUTutorialDelete(String mailTo, Map<String, Object> arguments) throws MessagingException {
+
+    }
+
 }

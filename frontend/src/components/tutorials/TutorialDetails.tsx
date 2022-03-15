@@ -9,11 +9,14 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
-import { StarOutlined, StarFilled, WarningOutlined } from '@ant-design/icons'
+import { StarOutlined, StarFilled, WarningOutlined, DeleteOutlined } from '@ant-design/icons'
 import './TutorialDetails.scss';
+import { UserRole } from '../../types/User';
+import TutorialDeleteModal from './TutorialDeleteModal';
 
 const TutorialDetails: React.FC = () => {
 
+    const [isTutorialDeleteModalVisible, setIsTutorialDeleteModalVisible] = useState(false);
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -141,37 +144,61 @@ const TutorialDetails: React.FC = () => {
             }
         };
 
-        const TutorialActions = (
-            tutorial.holds
-                ? <Tag style={{
-                    fontSize: '14px',
-                    padding: '6px 12px'
-                }}>
-                    Sie halten dieses Tutorium
-                </Tag>
-                : <Space wrap align='baseline'>
+        const TutorialActions = () => {
+            console.log(tutorial.holds);
+            if (tutorial.holds) {
+                // tutors' view: only show info that he/she is holding the tutorial
+                return (
+                    <Tag style={{
+                        fontSize: '14px',
+                        padding: '6px 12px'
+                    }}>
+                        Sie halten dieses Tutorium
+                    </Tag>
+                );
+            } else if (authContext.hasRoles([UserRole.ROLE_DIRECTOR])) {
+                // directors' view: only show delete button
+                return (
                     <Button
-                        type='default'
-                        disabled={loading}
-                        onClick={e => handleTutorialActionClick(onMarkClick)}>
-                        {tutorial.isMarked
-                            ? <>
-                                <StarFilled style={{ color: '#ffd805' }} /> Vorgemerkt
-                            </>
-                            : <>
-                                <StarOutlined /> Vormerken
-                            </>
-                        }
-                    </Button>
-                    <Button
+                        danger
                         type='primary'
-                        loading={loading}
-                        danger={tutorial.participates ? true : false}
-                        onClick={e => handleTutorialActionClick(onParticipateClick)}>
-                        {tutorial.participates ? "Nicht mehr teilnehmen" : "Am Tutorium teilnehmen"}
+                        disabled={loading}
+                        onClick={e => onDeleteClick()}>
+                        <DeleteOutlined /> Tutorium löschen
                     </Button>
-                </Space>
-        );
+                );
+            } else {
+                // public view: show mark and participate buttons
+                return (
+                    <Space wrap align='baseline'>
+                        <Button
+                            type='default'
+                            disabled={loading}
+                            onClick={e => handleTutorialActionClick(onMarkClick)}>
+                            {tutorial.isMarked
+                                ? <>
+                                    <StarFilled style={{ color: '#ffd805' }} /> Vorgemerkt
+                                </>
+                                : <>
+                                    <StarOutlined /> Vormerken
+                                </>
+                            }
+                        </Button>
+                        <Button
+                            type='primary'
+                            loading={loading}
+                            danger={tutorial.participates ? true : false}
+                            onClick={e => handleTutorialActionClick(onParticipateClick)}>
+                            {tutorial.participates ? "Nicht mehr teilnehmen" : "Am Tutorium teilnehmen"}
+                        </Button>
+                    </Space>
+                );
+            }
+        };
+
+        const onDeleteClick = () => {
+            setIsTutorialDeleteModalVisible(true);
+        };
 
         return (
             <>
@@ -179,7 +206,7 @@ const TutorialDetails: React.FC = () => {
                     ghost={false}
                     title={tutorial.title}
                     onBack={() => navigate(-1)}
-                    extra={[TutorialActions]}
+                    extra={[TutorialActions()]}
                 >
                     <Typography style={{ marginTop: '16px' }}>
                         <Title level={4}>Inhalt</Title>
@@ -208,6 +235,11 @@ const TutorialDetails: React.FC = () => {
                             ))}
                         </Paragraph>
                     </Typography>
+                    <TutorialDeleteModal
+                        isModalVisible={isTutorialDeleteModalVisible}
+                        setIsTutorialDeleteModalVisible={setIsTutorialDeleteModalVisible}
+                        tutorial={tutorial}
+                    />
                 </PageHeader>
             </>
         );
