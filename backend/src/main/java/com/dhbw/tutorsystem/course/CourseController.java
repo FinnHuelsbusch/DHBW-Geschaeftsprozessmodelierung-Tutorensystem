@@ -27,7 +27,7 @@ public class CourseController {
     private final CourseRepository courseRepository; 
     
 
-    @Operation(summary = "Get Courses with Title and Leaders", tags = { "authentication" })
+    @Operation(summary = "Get Courses with Title and Leaders", tags = { "courses" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = " Courses with Title and Leaders are returned as list."),
     })
@@ -37,9 +37,9 @@ public class CourseController {
     }
 
 
-    @Operation(summary = "Get Courses with Title and Specialisations", tags = { "authentication" })
+    @Operation(summary = "Get Courses with Title and Specialisations", tags = { "courses" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = " Courses with Title and Specialisations are returned as list."),
+            @ApiResponse(responseCode = "200", description = "Courses with Title and Specialisations are returned as list."),
     })
     @GetMapping("/withTitleAndSpecialisations")
     public ResponseEntity<List<CourseWithTitleAndSpecialisations>> getCoursesWithTitleAndSpecialisations() {

@@ -1,12 +1,14 @@
 import { Button, message } from 'antd';
 import React, { useState } from 'react';
 import { ping } from '../../api/api';
+import TutorialCreateModal from '../tutorialCreateModal/TutorialCreateModal';
 import TutorialOfferModal from '../tutorialOfferModal/TutorialOfferModal';
 import TutorialRequestModal from '../tutorialRequestModal/TutorialRequestModal';
 
 const Overview: React.FC = () => {
   const [isTutorialOfferModalVisible, setIsTutorialOfferModalVisible] = useState(false);
   const [isTutorialRequestModalVisible, setIsTutorialRequestModalVisible] = useState(false);
+  const [isTutorialCreateModalVisible, setIsTutorialCreateModalVisible] = useState(false);
 
   return (
     <div>
@@ -18,19 +20,32 @@ const Overview: React.FC = () => {
       }}>
         Ping backend
       </Button>
+
       <Button type="link" onClick={() => setIsTutorialOfferModalVisible(true)}>
         OfferModal
       </Button>
+
       <TutorialOfferModal
         isModalVisible={isTutorialOfferModalVisible}
         setIsTutorialOfferModalVisible={setIsTutorialOfferModalVisible}
       />
+
       <Button type="link" onClick={() => { setIsTutorialRequestModalVisible(true) }}>
         RequestModal
       </Button>
+
       <TutorialRequestModal
         isModalVisible={isTutorialRequestModalVisible}
         setIsTutorialRequestModalVisible={setIsTutorialRequestModalVisible}
+      />
+
+      <Button type="link" onClick={() => { setIsTutorialCreateModalVisible(true) }}>
+        CreateModal
+      </Button>
+      
+      <TutorialCreateModal
+        isModalVisible={isTutorialCreateModalVisible}
+        setIsTutorialCreateModalVisible={setIsTutorialCreateModalVisible}
       />
     </div>
 

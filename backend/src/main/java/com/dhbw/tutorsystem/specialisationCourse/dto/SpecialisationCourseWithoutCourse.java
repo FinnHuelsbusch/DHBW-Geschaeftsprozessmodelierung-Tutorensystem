@@ -16,15 +16,20 @@ public class SpecialisationCourseWithoutCourse {
 
     private String title;
 
-    public static SpecialisationCourseWithoutCourse convertToDto(ModelMapper modelMapper, SpecialisationCourse specialisationCourse){
-        SpecialisationCourseWithoutCourse specialisationCourseWithoutCourse = modelMapper.map(specialisationCourse, SpecialisationCourseWithoutCourse.class); 
+    private String abbreviation;
+
+    public static SpecialisationCourseWithoutCourse convertToDto(ModelMapper modelMapper,
+            SpecialisationCourse specialisationCourse) {
+        SpecialisationCourseWithoutCourse specialisationCourseWithoutCourse = modelMapper.map(specialisationCourse,
+                SpecialisationCourseWithoutCourse.class);
         return specialisationCourseWithoutCourse;
     }
 
-    public static List<SpecialisationCourseWithoutCourse> convertToDto(ModelMapper modelMapper, Iterable<SpecialisationCourse> specialisationCourses){
-        ArrayList<SpecialisationCourseWithoutCourse> coursesList = new ArrayList<>(); 
+    public static List<SpecialisationCourseWithoutCourse> convertToDto(ModelMapper modelMapper,
+            Iterable<SpecialisationCourse> specialisationCourses) {
+        ArrayList<SpecialisationCourseWithoutCourse> coursesList = new ArrayList<>();
         for (SpecialisationCourse specialisationCourse : specialisationCourses) {
-            coursesList.add(convertToDto(modelMapper, specialisationCourse)); 
+            coursesList.add(convertToDto(modelMapper, specialisationCourse));
         }
         return coursesList;
     }
