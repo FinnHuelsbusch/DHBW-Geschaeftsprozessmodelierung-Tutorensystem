@@ -29,7 +29,7 @@ import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundExcep
 import com.dhbw.tutorsystem.tutorial.exception.StudentAlreadyParticipatingException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
-import com.dhbw.tutorsystem.tutorial.payload.DeleteTutorial;
+import com.dhbw.tutorsystem.tutorial.payload.DeleteTutorialRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.dhbw.tutorsystem.user.User;
@@ -448,16 +448,17 @@ public class TutorialController {
         }
 
         @Operation(tags = {
-                        "tutorial" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ")
+                        "tutorial" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ", security = @SecurityRequirement(name = "jwt-auth"))
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Tutorial was deleted"),
                         @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
         })
-        @PostMapping("/{id}")
+        @PostMapping("/delete/{id}")
+        @PreAuthorize("hasRole('ROLE_DIRECTOR')")
         public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
-                        @RequestBody @Valid DeleteTutorial deleteTutorial) {
+                        @RequestBody @Valid DeleteTutorialRequest deleteTutorialRequest) {
                 Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
-                String reason = deleteTutorial.getReason();
+                String reason = deleteTutorialRequest.getReason();
                 if (optionalTutorial.isEmpty()) {
                         throw new TutorialNotFoundException();
                 } else {
@@ -467,32 +468,21 @@ public class TutorialController {
                                         "tutorialDescription", tutorial.getDescription(),
                                         "tutorialStart", tutorial.getStart(),
                                         "tutorialEnd", tutorial.getEnd(),
-                                        "tutorialDurationMinutes", tutorial.getDurationMinutes());
+                                        "tutorialDurationMinutes", tutorial.getDurationMinutes(),
+                                        "reason", reason);
                         try {
-                                if (reason == null || reason.length() == 0) {
+                                emailSenderService.sendMails(
+                                                tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                                                .collect(Collectors.toSet()),
+                                                MailType.TUTORIAL_DELETION, mailArguments);
 
-                                        emailSenderService.sendMails(
-                                                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
-                                                                        .collect(Collectors.toSet()),
-                                                        MailType.TUTORIAL_DELETION, mailArguments);
-
-                                        emailSenderService.sendMails(tutorial.getParticipants().stream()
-                                                        .map(tutor -> tutor.getEmail()).collect(Collectors.toSet()),
-                                                        MailType.TUTORIAL_DELETION, mailArguments);
-                                } else {
-                                        mailArguments.put("reason", reason);
-                                        emailSenderService.sendMails(
-                                                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
-                                                                        .collect(Collectors.toSet()),
-                                                        MailType.TUTORIAL_DELETION_WITH_REASON, mailArguments);
-                                        emailSenderService.sendMails(tutorial.getParticipants().stream()
-                                                        .map(tutor -> tutor.getEmail()).collect(Collectors.toSet()),
-                                                        MailType.TUTORIAL_DELETION_WITH_REASON, mailArguments);
-                                }
+                                emailSenderService.sendMails(
+                                                tutorial.getParticipants().stream().map(tutor -> tutor.getEmail())
+                                                                .collect(Collectors.toSet()),
+                                                MailType.TUTORIAL_DELETION, mailArguments);
                         } catch (MessagingException e) {
                                 throw new TSInternalServerException();
                         }
-                        tutorial.setParticipants(Set.of());
                         tutorialRepository.deleteById(id);
 
                         return new ResponseEntity<>(HttpStatus.OK);

@@ -65,9 +65,6 @@ public class EmailSenderService {
             case TUTORIAL_DELETION:
                 sendUTutorialDelete(mailTo, arguments);
                 break;
-            case TUTORIAL_DELETION_WITH_REASON:
-                sendUTutorialDeleteWithReason(mailTo, arguments);
-                break;
             case USER_ADDED_TO_TUTORIAL:
                 sendUserAddedToTutorialAsTutorMail(mailTo, arguments);
                 break;
@@ -145,7 +142,4 @@ public class EmailSenderService {
 
     }
 
-    private void sendUTutorialDeleteWithReason(String mailTo, Map<String, Object> arguments) throws MessagingException {
-
-    }
 }

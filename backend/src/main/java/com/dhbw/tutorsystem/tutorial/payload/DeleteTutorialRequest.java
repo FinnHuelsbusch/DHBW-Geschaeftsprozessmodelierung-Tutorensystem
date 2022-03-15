@@ -3,7 +3,7 @@ package com.dhbw.tutorsystem.tutorial.payload;
 import lombok.Data;
 
 @Data       
-public class DeleteTutorial {
+public class DeleteTutorialRequest {
 
     private String reason; 
 }
