@@ -15,7 +15,7 @@ import lombok.Setter;
 
 @Entity
 public class SpecialisationCourse {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -28,9 +28,11 @@ public class SpecialisationCourse {
 
     @Getter
     @Setter
+    private String abbreviation;
+
+    @Getter
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Course course; 
-    
+    private Course course;
 
 }

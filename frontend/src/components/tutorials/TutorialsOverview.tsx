@@ -1,17 +1,20 @@
-import { Button, Card, Checkbox, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Tag, Tooltip } from 'antd';
+import { Button, Card, Checkbox, Col, DatePicker, Divider, Form, Input, List, message, Row, Select, Skeleton, Space, Tag, Tooltip, TreeSelect } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
-import { getFilteredTutorials, getRequestError } from '../../api/api';
+import { getCoursesWithTitleAndSpecialisations, getFilteredTutorials, getRequestError } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { Page } from '../../types/Paging';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial, TutorialFilter, TutorialFilterResponse } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
 import PagingList from '../pagingList/PagingList';
-import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled } from '@ant-design/icons'
-import { NavigationType, useNavigate, useNavigationType } from 'react-router-dom';
+import { UserOutlined, ClockCircleOutlined, StarOutlined, StarFilled, CheckCircleTwoTone, SoundOutlined } from '@ant-design/icons'
+import { useNavigate, useNavigationType } from 'react-router-dom';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { TreeNode } from 'antd/lib/tree-select';
+import { CourseWithTitleAndSpecialisations } from '../../types/Course';
 
 const TutorialsOverview: React.FC = () => {
 
@@ -20,11 +23,16 @@ const TutorialsOverview: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [form] = useForm();
 
+    const [courses, setCourses] = useState<CourseWithTitleAndSpecialisations[]>([]);
+
     const [filter, setFilter] = useState<TutorialFilter>({
         text: undefined,
         startDateFrom: undefined,
         startDateTo: undefined,
         specialisationCourseIds: undefined,
+        selectMarked: false,
+        selectParticipates: false,
+        selectHolds: false,
         sorting: { attribute: "none", order: undefined },
         page: 0,
         elementsPerPage: 5,
@@ -40,8 +48,16 @@ const TutorialsOverview: React.FC = () => {
     const navigationType = useNavigationType();
 
     useEffect(() => {
-        // apply saved filter if it exists and if user navigated back
+        getCoursesWithTitleAndSpecialisations().then(courses => {
+            setCourses(courses);
+        }, err => {
+            message.error(getErrorMessageString(getRequestError(err).errorCode))
+        });
+    }, []);
+
+    useEffect(() => {
         const savedFilter = sessionStorage.getItem("tutorialFilter");
+        // apply saved filter if it exists and if user navigated back
         if (savedFilter && navigationType === "POP") {
             sessionStorage.removeItem("tutorialFilter");
             const filterObj = JSON.parse(savedFilter);
@@ -57,11 +73,9 @@ const TutorialsOverview: React.FC = () => {
         setLoading(true);
         getFilteredTutorials(filter)
             .then(filteredTutorials => {
-                console.log("received:", filteredTutorials);
                 setFilteredTutorials(filteredTutorials);
                 setLoading(false);
             }).catch(err => {
-                console.log("err", err);
                 const reqErr = getRequestError(err);
                 message.error(getErrorMessageString(reqErr.errorCode));
                 setLoading(false);
@@ -70,15 +84,20 @@ const TutorialsOverview: React.FC = () => {
 
     const onFilterChange = () => {
         const formFilter = { ...form.getFieldsValue() };
-        console.log(formFilter);
         const dateFormat = "YYYY-MM-DD";
         const startDateFromString = formFilter.timerange ? formatDate(formFilter.timerange[0], dateFormat) : undefined;
         const startDateToString = formFilter.timerange ? formatDate(formFilter.timerange[1], dateFormat) : undefined;
         setFilter({
             ...filter,
+            // always go back to first page
+            page: 0,
+            // manually map all attributes
             text: formFilter.text,
             startDateFrom: startDateFromString,
             startDateTo: startDateToString,
+            specialisationCourseIds: formFilter.specialisationCourseIds,
+            selectMarked: formFilter.selectMarked,
+            selectParticipates: formFilter.selectParticipates
         });
     };
 
@@ -109,17 +128,47 @@ const TutorialsOverview: React.FC = () => {
                 const sortingType = form.getFieldValue("sortingType");
                 setFilter({
                     ...filter,
-                    sorting: { attribute: sortingAttribute, order: sortingType }
+                    sorting: { attribute: sortingAttribute, order: sortingType },
+                    // always go back to first page
+                    page: 0,
                 });
             } else {
                 // reset sorting
                 setFilter({
                     ...filter,
-                    sorting: { attribute: sortingAttribute, order: undefined }
+                    sorting: { attribute: sortingAttribute, order: undefined },
+                    // always go back to first page
+                    page: 0,
                 });
             }
         };
 
+        const onSelectMarkedChange = (e: CheckboxChangeEvent) => {
+            setFilter({
+                ...filter,
+                selectMarked: e.target.checked,
+                // always go back to first page
+                page: 0,
+            });
+        };
+
+        const onSelectParticipatesChange = (e: CheckboxChangeEvent) => {
+            setFilter({
+                ...filter,
+                selectParticipates: e.target.checked,
+                // always go back to first page
+                page: 0,
+            });
+        };
+
+        const onSelectHoldsChange = (e: CheckboxChangeEvent) => {
+            setFilter({
+                ...filter,
+                selectHolds: e.target.checked,
+                // always go back to first page
+                page: 0,
+            });
+        };
 
         return (
             <Form
@@ -127,7 +176,7 @@ const TutorialsOverview: React.FC = () => {
                 onFinish={onFilterChange}
             >
                 <Row gutter={24}>
-                    <Col flex="1 1 300px">
+                    <Col flex="0.5 1 300px">
                         <Form.Item
                             name="text"
                             label="Suchen">
@@ -137,7 +186,7 @@ const TutorialsOverview: React.FC = () => {
                         </Form.Item>
                     </Col>
 
-                    <Col flex="1 1 300px">
+                    <Col flex="0.5 1 300px">
                         <Form.Item
                             label="Startdatum"
                             name="timerange">
@@ -152,14 +201,31 @@ const TutorialsOverview: React.FC = () => {
 
                     <Col flex="1 1 300px">
                         <Form.Item
-                            label="Studienrichtung:"
-                            name="specialisationCourses">
-                            <Select>
-                                <Select.Option>Hier TreeSelect mit spec. courses</Select.Option>
-                            </Select>
+                            label="Studienrichtungen:"
+                            name="specialisationCourseIds">
+                            <TreeSelect
+                                placeholder="Auswählen..."
+                                showArrow
+                                allowClear
+                                maxTagCount={3}
+                                filterTreeNode
+                                treeNodeFilterProp="title"
+                                treeCheckable={true}
+                                showCheckedStrategy={TreeSelect.SHOW_CHILD}
+                            >
+                                {courses.map(course => (
+                                    <TreeNode title={course.title} value={course.title}>
+                                        {course.specialisationCourses.map(specialisationCourse => (
+                                            <TreeNode key={specialisationCourse.id} title={specialisationCourse.title} value={specialisationCourse.id} />
+                                        ))}
+                                    </TreeNode>
+                                ))}
+                            </TreeSelect>
                         </Form.Item>
                     </Col>
+                </Row>
 
+                <Row>
                     <Col flex="1 1 300px">
                         <Form.Item label="Sortierung">
                             <Input.Group compact>
@@ -190,26 +256,39 @@ const TutorialsOverview: React.FC = () => {
                             </Input.Group>
                         </Form.Item>
                     </Col>
-
-                    {authContext.loggedUser && <>
-                        <Col flex="1 1 300px">
-                            <Form.Item name="filterMarked">
-                                <Checkbox>
-                                    <StarFilled style={{ color: '#ffd805' }} /> Markierte
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-
-                        <Col flex="1 1 300px">
-                            <Form.Item name="filterParticipates">
-                                <Checkbox>
-                                    <UserOutlined /> Teilgenommene
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-                    </>}
-
                 </Row>
+
+                {authContext.loggedUser && <Row>
+                    <Col flex="1 1 100px">
+                        <Form.Item
+                            name="selectMarked"
+                            valuePropName="checked">
+                            <Checkbox onChange={onSelectMarkedChange}>
+                                <StarFilled style={{ color: '#ffd805' }} /> Markiert
+                            </Checkbox>
+                        </Form.Item>
+                    </Col>
+
+                    <Col flex="1 1 100px">
+                        <Form.Item
+                            name="selectParticipates"
+                            valuePropName="checked">
+                            <Checkbox onChange={onSelectParticipatesChange}>
+                                <UserOutlined /> Teilgenommen
+                            </Checkbox>
+                        </Form.Item>
+                    </Col>
+
+                    <Col flex="1 1 100px">
+                        <Form.Item
+                            name="selectHolds"
+                            valuePropName="checked">
+                            <Checkbox onChange={onSelectHoldsChange}>
+                                <SoundOutlined /> Halten
+                            </Checkbox>
+                        </Form.Item>
+                    </Col>
+                </Row>}
 
                 <Row>
                     <Col span={24} style={{ textAlign: 'right' }}>
@@ -233,29 +312,35 @@ const TutorialsOverview: React.FC = () => {
         );
     };
 
-    const mockSpecialisationCourses = [
-        { id: 1, name: "WI SE" },
-        { id: 2, name: "WI SC" },
-        { id: 3, name: "BWL DBM" },
-        { id: 4, name: "AI" },
-    ];
-
     const onTutorialClick = (tutorialId: number) => {
         sessionStorage.setItem("tutorialFilter", JSON.stringify(filter));
         navigate(`/tutorials/${tutorialId}`);
     };
 
     const listItem = (tutorial: Tutorial) => {
+        const cardExtra = (
+            <Space>
+                {tutorial.participates
+                    &&
+                    <Tooltip
+                        title="Sie nehmen an diesem Tutorium teil"
+                    >
+                        <CheckCircleTwoTone twoToneColor='#52c41a' style={{ fontSize: '18pt' }} />
+                    </Tooltip>
+                }
+                {tutorial.isMarked ?
+                    <StarFilled style={{ color: '#ffd805', fontSize: '18pt' }} />
+                    : <StarOutlined style={{ fontSize: '18pt' }} />}
+            </Space>
+        );
+
         return (
             <List.Item>
                 <Card
                     onClick={e => onTutorialClick(tutorial.id)}
                     hoverable
                     title={tutorial.title}
-                    extra={authContext.loggedUser && (tutorial.isMarked ?
-                        <StarFilled style={{ color: '#ffd805', fontSize: '18pt' }} />
-                        : <StarOutlined style={{ fontSize: '18pt' }} />)
-                    }
+                    extra={authContext.loggedUser && cardExtra}
                 >
                     <Paragraph ellipsis={{ rows: 2, expandable: false }}>
                         {tutorial.description}
@@ -266,11 +351,9 @@ const TutorialsOverview: React.FC = () => {
                     <Paragraph>
                         <UserOutlined /> {tutorial.numberOfParticipants} Teilnehmer
                     </Paragraph>
-                    <div>
-                        {mockSpecialisationCourses.map(course => (
-                            <Tag>{course.name}</Tag>
-                        ))}
-                    </div>
+                    {tutorial.specialisationCourses.map(specialisationCourse => (
+                        <Tag>{specialisationCourse.course.abbreviation} {specialisationCourse.abbreviation}</Tag>
+                    ))}
                 </Card>
             </List.Item >
         );

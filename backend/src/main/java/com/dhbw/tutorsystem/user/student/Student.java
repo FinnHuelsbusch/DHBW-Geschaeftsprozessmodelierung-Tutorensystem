@@ -2,7 +2,6 @@ package com.dhbw.tutorsystem.user.student;
 
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
@@ -14,12 +13,14 @@ import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
 import com.dhbw.tutorsystem.user.User;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@NoArgsConstructor
 public class Student extends User {
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "participants")
+    @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Tutorial> participates;
@@ -43,10 +44,6 @@ public class Student extends User {
     @Setter
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<TutorialRequest> tutorialRequestsOfInterest;
-
-    public Student() {
-
-    }
 
     public Student(String firstname, String lastname, String email, String password) {
         super(firstname, lastname, email, password);

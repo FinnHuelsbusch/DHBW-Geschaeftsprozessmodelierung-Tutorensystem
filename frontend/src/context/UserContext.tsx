@@ -8,13 +8,11 @@ export type UserContext = {
     hasRoles: (roles: Array<UserRole>) => boolean
 }
 
-const hasRoles = (): boolean => {
-    return false;
-}
-
+// must initialize with dummy functions here
+// in App.tsx, the actual functionality is defined
 export const AuthContext = createContext<UserContext>({
     loggedUser: undefined as User | undefined,
     login: (user: User, remember: boolean = false) => { },
     logout: () => { },
-    hasRoles: hasRoles
+    hasRoles: (roles: Array<UserRole>): boolean => false
 });

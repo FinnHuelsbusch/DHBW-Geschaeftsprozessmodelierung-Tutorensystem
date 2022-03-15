@@ -17,4 +17,10 @@ public class FindTutorialsWithFilterRequest {
 
     private LocalDate startDateTo;
 
+    private boolean selectParticipates;
+
+    private boolean selectMarked;
+
+    private boolean selectHolds;
+
 }

@@ -130,7 +130,7 @@ public class EmailSenderService {
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }
-
+    
     private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
 

@@ -4,8 +4,8 @@ import com.dhbw.tutorsystem.course.CourseRepository;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.Tutorial;
-import com.dhbw.tutorsystem.tutorial.TutorialDto;
 import com.dhbw.tutorsystem.tutorial.TutorialRepository;
+import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.director.DirectorRepository;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
@@ -27,11 +27,11 @@ public class TutorsystemApplication {
 
 	@Bean
 	public ModelMapper modelMapper() {
-		// return new ModelMapper();
 		ModelMapper modelMapper = new ModelMapper();
-		modelMapper.addMappings(new PropertyMap<Tutorial, TutorialDto>() {
+		modelMapper.addMappings(new PropertyMap<Tutorial, TutorialForDisplay>() {
 			@Override
 			protected void configure() {
+				// skip properties to prevent failed conversion
 				skip(destination.getNumberOfParticipants());
 				skip(destination.isMarked());
 				skip(destination.isParticipates());

@@ -48,7 +48,6 @@ export const getRequestError = (err: any): RequestError => {
 };
 
 export const ping = (): Promise<string> => {
-    console.log(backendUrl)
     return api.get('/ping')
         .then(res => res.data);
 }
@@ -157,7 +156,10 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
         text: filter.text,
         startDateFrom: filter.startDateFrom,
         startDateTo: filter.startDateTo,
-        specialisationCourseIds: filter.specialisationCourseIds
+        specialisationCourseIds: filter.specialisationCourseIds,
+        selectMarked: filter.selectMarked,
+        selectParticipates: filter.selectParticipates,
+        selectHolds: filter.selectHolds
     } as TutorialFilter;
     return api.post(`/tutorials/findWithFilter?page=${filter.page}&size=${filter.elementsPerPage}${sorting}`, attributesFilter)
         .then(res => {
@@ -197,14 +199,6 @@ export const unmarkTutorial = (tutorialId: number): Promise<any> => {
     return api.delete(`/tutorials/${tutorialId}`)
         .then(res => {
             return res.data;
-        });
-}
-
-export const deleteTutorial = (tutorialId: number): Promise<any> => {
-    return api.delete(`/tutorials/mark/${tutorialId}`)
-        .then(res => {
-            return res.data;
-        });
 }
 
 export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeaders[]> => {
