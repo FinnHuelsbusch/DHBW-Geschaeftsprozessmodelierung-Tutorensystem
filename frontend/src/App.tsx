@@ -68,58 +68,26 @@ const App: React.FC = () => {
     }, []);
 
     const MainLayout = () => {
-
-        const [siderCollapsed, setSiderCollapsed] = useState(true);
-
         return (
             <Layout style={{ minHeight: '100vh' }}>
-                <Layout>
 
-                    <Header style={{ color: 'black', paddingRight: 0 }}>
-                        <div className='logo'>
-                            DHBW
-                        </div>
-                        {siderCollapsed
-                            ? <MenuUnfoldOutlined
-                                className='sider-collapse-trigger'
-                                onClick={e => setSiderCollapsed(false)} />
-                            : <MenuFoldOutlined
-                                className='sider-collapse-trigger'
-                                onClick={e => setSiderCollapsed(true)} />}
-                        {/* <Navigation/> */}
-                    </Header>
-
-                    <Content style={{ padding: '50px' }}>
-                        <ConfigProvider locale={locale} form={{ validateMessages }} renderEmpty={() =>
-                            <Empty
-                                description="Keine Daten verfügbar">
-                            </Empty>
-                        }>
-                            <Outlet />
-                        </ConfigProvider>
-                    </Content>
-
-                    <Footer>
-                        <CopyrightOutlined /> 2022
-                    </Footer>
-                </Layout>
-
-                {/* Navigation is here so that appears on the right hand side */}
-                <Layout.Sider
-                    zeroWidthTriggerStyle={{
-                        position: 'absolute',
-                        top: 0,
-                    }}
-                    theme='light'
-                    // hide default trigger
-                    trigger={null}
-                    collapsed={siderCollapsed}
-                    reverseArrow
-                    breakpoint='sm'
-                    collapsedWidth='0'
-                >
+                <Header style={{ color: 'black', paddingRight: 0 }}>
                     <Navigation />
-                </Layout.Sider>
+                </Header>
+
+                <Content style={{ padding: '50px' }}>
+                    <ConfigProvider locale={locale} form={{ validateMessages }} renderEmpty={() =>
+                        <Empty
+                            description="Keine Daten verfügbar">
+                        </Empty>
+                    }>
+                        <Outlet />
+                    </ConfigProvider>
+                </Content>
+
+                <Footer>
+                    <CopyrightOutlined /> 2022
+                </Footer>
 
             </Layout >
         );

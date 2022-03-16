@@ -6,17 +6,3 @@
     font-size: larger;
     // background: rgba(255, 255, 255, 0.3);
 }
-
-.navbar-profile{
-    position: absolute;
-    right: 24px;
-    place-items: center;
-    button {
-        height: 100%;
-        background-color: initial;
-        color:lightblue;
-    }
-    :hover, :focus {
-        background-color: initial;
-    }
-}
