@@ -158,9 +158,11 @@ public class AuthenticationController {
                 logger.info("User with email {} already exists", user.getEmail());
                 throw new EmailAlreadyExistsException();
             }
-            if (user.getLastPasswordAction()!= null && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
-                    .toMinutes() < minimumMinutesBetweenPasswordActions) {
-                logger.info("Registration link wasn't used in time: {}", LastPasswordActionTooRecentException.class.getSimpleName());
+            if (user.getLastPasswordAction() != null
+                    && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+                            .toMinutes() < minimumMinutesBetweenPasswordActions) {
+                logger.info("Registration link wasn't used in time: {}",
+                        LastPasswordActionTooRecentException.class.getSimpleName());
                 throw new LastPasswordActionTooRecentException();
             } else {
                 // existing non-enabled user re-registered after 15minutes: re-send email and

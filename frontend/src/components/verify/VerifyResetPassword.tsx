@@ -64,7 +64,7 @@ const VerifyResetPassword: React.FC = () => {
                         <Form.Item
                             label="Passwort"
                             name="newPassword"
-                            rules={[{ required: true}]}>
+                            rules={[{ required: true }]}>
                             <Input.Password disabled={loading} />
                         </Form.Item>
                         <Form.Item wrapperCol={{ offset: 8, span: 10 }}>

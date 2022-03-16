@@ -69,10 +69,6 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
-
-
-
-
     public User() {
 
     }
