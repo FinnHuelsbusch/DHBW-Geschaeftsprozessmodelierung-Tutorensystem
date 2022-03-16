@@ -6,6 +6,7 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { User, UserRole } from '../../types/User';
 import './Navigation.scss';
 import { UserOutlined } from '@ant-design/icons'
+import Sider from 'antd/lib/layout/Sider';
 
 const Navigation: React.FC = () => {
 
@@ -34,7 +35,6 @@ const Navigation: React.FC = () => {
         return (
             <Dropdown overlay={profileDropdown}
                 trigger={['click']}>
-                {/* <a className='login-button' onClick={e => e.preventDefault()}> */}
                 <Button type='default'>
                     <UserOutlined /> {user.email}
                 </Button>
@@ -50,35 +50,52 @@ const Navigation: React.FC = () => {
         );
     }
 
+    // note: keys must be unique!
+    const MenuKeys = {
+        Overview: '1',
+        Tutorials: '2',
+        AdminOverview: '3',
+        DirectorOverview: '4',
+        Login: '5'
+    };
+
     return (
-        <Menu mode='horizontal' theme='dark'
+        <Menu
+            mode='vertical'
+            theme='light'
             defaultSelectedKeys={['1']}>
-            <Menu.Item key="1">
+
+            <Menu.Item key={MenuKeys.Overview}>
                 <Link to={AppRoutes.Main.Path}>
                     <div className='app-home'>
                         <i>Tutorensystem</i>
                     </div>
                 </Link>
             </Menu.Item>
-            <Menu.Item key="2">
+
+            <Menu.Item key={MenuKeys.Tutorials}>
                 <Link to={AppRoutes.Main.Subroutes.Tutorials}>
                     Tutorien
                 </Link>
             </Menu.Item>
+
             {authContext.hasRoles([UserRole.ROLE_ADMIN])
-                && <Menu.Item key="11">
+                && <Menu.Item key={MenuKeys.AdminOverview}>
                     <Link to={AppRoutes.Main.Subroutes.AdminOverview}>
                         Übersicht Administrator
                     </Link>
                 </Menu.Item>}
+
             {authContext.hasRoles([UserRole.ROLE_DIRECTOR])
-                && <Menu.Item key="12">
+                && <Menu.Item key={MenuKeys.DirectorOverview}>
+
                     Übersicht Studiengangsleiter
                 </Menu.Item>}
-            <li className='navbar-profile'>
+
+            <Menu.Item key={MenuKeys.Login} icon={<UserOutlined />}>
                 {authContext.loggedUser && <ProfileButton {...authContext.loggedUser} />}
                 {!authContext.loggedUser && <LoginButton />}
-            </li>
+            </Menu.Item>
 
         </Menu >
     );

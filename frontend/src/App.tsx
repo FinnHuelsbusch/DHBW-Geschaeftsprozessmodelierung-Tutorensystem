@@ -12,7 +12,7 @@ import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
 import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
-import { CopyrightOutlined, LoadingOutlined } from '@ant-design/icons';
+import { CopyrightOutlined, LoadingOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { AuthContext, UserContext } from './context/UserContext';
 import Settings from './components/settings/Settings';
 import Register from './components/register/Register';
@@ -24,7 +24,6 @@ import locale from 'antd/lib/locale/de_DE';
 import 'moment/locale/de'
 import TutorialsOverview from './components/tutorials/TutorialsOverview';
 import TutorialDetails from './components/tutorials/TutorialDetails';
-
 
 const App: React.FC = () => {
 
@@ -69,29 +68,60 @@ const App: React.FC = () => {
     }, []);
 
     const MainLayout = () => {
+
+        const [siderCollapsed, setSiderCollapsed] = useState(true);
+
         return (
             <Layout style={{ minHeight: '100vh' }}>
-                <Header>
-                    <Navigation />
-                </Header>
+                <Layout>
 
-                <Content style={{ padding: '50px' }}>
-                    <ConfigProvider locale={locale} form={{ validateMessages }} renderEmpty={() =>
-                        <Empty
-                            description="Keine Daten verfügbar">
-                        </Empty>
-                    }>
-                        <div className="site-layout-content">
-                            <Outlet />
+                    <Header style={{ color: 'black', paddingRight: 0 }}>
+                        <div className='logo'>
+                            DHBW
                         </div>
-                    </ConfigProvider>
-                </Content>
+                        {siderCollapsed
+                            ? <MenuUnfoldOutlined
+                                className='sider-collapse-trigger'
+                                onClick={e => setSiderCollapsed(false)} />
+                            : <MenuFoldOutlined
+                                className='sider-collapse-trigger'
+                                onClick={e => setSiderCollapsed(true)} />}
+                        {/* <Navigation/> */}
+                    </Header>
 
-                <Footer>
-                    <CopyrightOutlined /> 2021
-                </Footer>
+                    <Content style={{ padding: '50px' }}>
+                        <ConfigProvider locale={locale} form={{ validateMessages }} renderEmpty={() =>
+                            <Empty
+                                description="Keine Daten verfügbar">
+                            </Empty>
+                        }>
+                            <Outlet />
+                        </ConfigProvider>
+                    </Content>
 
-            </Layout>
+                    <Footer>
+                        <CopyrightOutlined /> 2022
+                    </Footer>
+                </Layout>
+
+                {/* Navigation is here so that appears on the right hand side */}
+                <Layout.Sider
+                    zeroWidthTriggerStyle={{
+                        position: 'absolute',
+                        top: 0,
+                    }}
+                    theme='light'
+                    // hide default trigger
+                    trigger={null}
+                    collapsed={siderCollapsed}
+                    reverseArrow
+                    breakpoint='sm'
+                    collapsedWidth='0'
+                >
+                    <Navigation />
+                </Layout.Sider>
+
+            </Layout >
         );
     }
 
@@ -138,15 +168,13 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="App">
-            <AuthContext.Provider value={{ ...UserContext }}>
-                {initialPageLoadComplete ? <MainContent />
-                    : <Result
-                        icon={<LoadingOutlined />}>
-                    </Result>
-                }
-            </AuthContext.Provider>
-        </div>
+        <AuthContext.Provider value={{ ...UserContext }}>
+            {initialPageLoadComplete ? <MainContent />
+                : <Result
+                    icon={<LoadingOutlined />}>
+                </Result>
+            }
+        </AuthContext.Provider>
     );
 }
 
