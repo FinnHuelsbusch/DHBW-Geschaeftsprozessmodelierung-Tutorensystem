@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 
-import com.dhbw.tutorsystem.exception.TSBaseException;
 import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.exception.TSInternalServerException;
 import com.dhbw.tutorsystem.mails.EmailSenderService;
