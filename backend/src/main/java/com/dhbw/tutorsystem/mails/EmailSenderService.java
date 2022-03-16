@@ -56,8 +56,11 @@ public class EmailSenderService {
             case RESET_PASSWORD:
                 sendResetPasswordMail(mailTo, arguments);
                 break;
-            case TUTORIAL_PARTICIPATION:
-                sendTutorialParticipationMail(mailTo, arguments);
+            case TUTORIAL_PARTICIPATION_STUDENT:
+                sendTutorialParticipationStudentMail(mailTo, arguments);
+                break;
+            case TUTORIAL_PARTICIPATION_REMOVAL_STUDENT:
+                sendTutorialParticipationStudentRemovalMail(mailTo, arguments);
                 break;
             case UNREGISTERD_USER_ADDED_TO_TUTORIAL:
                 sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
@@ -73,7 +76,8 @@ public class EmailSenderService {
         }
     }
 
-    public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments) throws MessagingException {
+    public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments)
+            throws MessagingException {
         for (String mailTo : mailsTo) {
             sendMail(mailTo, mailType, arguments);
         }
@@ -111,7 +115,8 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-    private void sendTutorialParticipationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+    private void sendTutorialParticipationStudentMail(String mailTo, Map<String, Object> arguments)
+            throws MessagingException {
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
 
@@ -127,7 +132,22 @@ public class EmailSenderService {
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }
-    
+
+    private void sendTutorialParticipationStudentRemovalMail(String mailTo, Map<String, Object> arguments)
+            throws MessagingException {
+        String tutorialTitle = (String) arguments.get("tutorialTitle");
+
+        Context thymeleafContext = new Context();
+        thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
+        String htmlBody = thymeTemplateEngine.process("tutorialParticipationRemovalMail.html", thymeleafContext);
+
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("Tutorensystem Teilnahme am Tutorium");
+        helper.setText(htmlBody, true);
+        sendMimeMessage(helper.getMimeMessage());
+    }
+
     private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
 

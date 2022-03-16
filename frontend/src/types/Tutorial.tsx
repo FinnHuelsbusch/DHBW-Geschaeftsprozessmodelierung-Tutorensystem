@@ -13,6 +13,7 @@ export interface Tutorial {
     numberOfParticipants: number,
     isMarked?: boolean,
     participates?: boolean,
+    holds?: boolean
 }
 
 export const mapTutorialFromResponse = (data: any): Tutorial => {
@@ -27,7 +28,8 @@ export const mapTutorialFromResponse = (data: any): Tutorial => {
         specialisationCourses: data.specialisationCourses,
         numberOfParticipants: data.numberOfParticipants,
         isMarked: data.marked,
-        participates: data.participates
+        participates: data.participates,
+        holds: data.holds
     } as Tutorial;
 }
 
