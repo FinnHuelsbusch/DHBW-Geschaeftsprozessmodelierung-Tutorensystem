@@ -3,7 +3,7 @@ import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getRequestError, getTutorial, markTutorial, participateInTutorial, unmarkTutorial } from '../../api/api';
+import { getRequestError, getTutorial, markTutorial, participateInTutorial, removeParticipationInTutorial, unmarkTutorial } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
@@ -26,7 +26,7 @@ const TutorialDetails: React.FC = () => {
     // get value of tutorialId URL parameter
     const { tutorialId } = useParams();
 
-    useEffect(() => {
+    const fetchTutorial = () => {
         if (tutorialId) {
             getTutorial(parseInt(tutorialId))
                 .then(tutorial => setTutorial(tutorial))
@@ -35,6 +35,10 @@ const TutorialDetails: React.FC = () => {
                     message.error(getErrorMessageString(reqErr.errorCode));
                 });
         }
+    };
+
+    useEffect(() => {
+        fetchTutorial();
     }, [tutorialId]);
 
 
@@ -47,6 +51,16 @@ const TutorialDetails: React.FC = () => {
                     <Col className="view-only-value" flex={"1 1 200px"}>{content}</Col>
                 </Row>
             );
+        };
+
+        const handleTutorialActionClick = (action: () => any) => {
+            if (!tutorial) return;
+            if (!authContext.loggedUser) {
+                // must be logged in, redirect to login page
+                navigate(AppRoutes.Main.Subroutes.Login);
+            } else {
+                action();
+            }
         };
 
         const onParticipateClick = () => {
@@ -63,12 +77,15 @@ const TutorialDetails: React.FC = () => {
                     icon: <WarningOutlined color='red' />,
                     okButtonProps: { danger: true },
                     onOk() {
-                        participateInTutorial(tutorial.id)
+                        setLoading(true);
+                        removeParticipationInTutorial(tutorial.id)
                             .then(res => {
-                                message.success("Teilnahme erfolgreich");
+                                message.success("Teilnahme wurde entfernt");
+                                setLoading(false);
+                                setTutorial({ ...tutorial, participates: false });
                             }).catch(err => {
-                                const reqErr = getRequestError(err);
-                                message.error(getErrorMessageString(reqErr.errorCode));
+                                message.error(getErrorMessageString(getRequestError(err).errorCode));
+                                setLoading(false);
                             });
                     }
                 });
@@ -81,12 +98,15 @@ const TutorialDetails: React.FC = () => {
                     </div>,
                     okText: 'Teilnehmen (verbindlich)',
                     onOk() {
+                        setLoading(true);
                         participateInTutorial(tutorial.id)
                             .then(res => {
                                 message.success("Teilnahme erfolgreich");
+                                setTutorial({ ...tutorial, participates: true });
+                                setLoading(false);
                             }).catch(err => {
-                                const reqErr = getRequestError(err);
-                                message.error(getErrorMessageString(reqErr.errorCode));
+                                message.error(getErrorMessageString(getRequestError(err).errorCode));
+                                setLoading(false);
                             });
                     }
                 });
@@ -124,6 +144,58 @@ const TutorialDetails: React.FC = () => {
             }
         };
 
+        const TutorialActions = () => {
+            console.log(tutorial.holds);
+            if (tutorial.holds) {
+                // tutors' view: only show info that he/she is holding the tutorial
+                return (
+                    <Tag style={{
+                        fontSize: '14px',
+                        padding: '6px 12px'
+                    }}>
+                        Sie halten dieses Tutorium
+                    </Tag>
+                );
+            } else if (authContext.hasRoles([UserRole.ROLE_DIRECTOR])) {
+                // directors' view: only show delete button
+                return (
+                    <Button
+                        danger
+                        type='primary'
+                        disabled={loading}
+                        onClick={e => onDeleteClick()}>
+                        <DeleteOutlined /> Tutorium löschen
+                    </Button>
+                );
+            } else {
+                // public view: show mark and participate buttons
+                return (
+                    <Space wrap align='baseline'>
+                        <Button
+                            type='default'
+                            disabled={loading}
+                            onClick={e => handleTutorialActionClick(onMarkClick)}>
+                            {tutorial.isMarked
+                                ? <>
+                                    <StarFilled style={{ color: '#ffd805' }} /> Vorgemerkt
+                                </>
+                                : <>
+                                    <StarOutlined /> Vormerken
+                                </>
+                            }
+                        </Button>
+                        <Button
+                            type='primary'
+                            loading={loading}
+                            danger={tutorial.participates ? true : false}
+                            onClick={e => handleTutorialActionClick(onParticipateClick)}>
+                            {tutorial.participates ? "Nicht mehr teilnehmen" : "Am Tutorium teilnehmen"}
+                        </Button>
+                    </Space>
+                );
+            }
+        };
+
         const onDeleteClick = () => {
             setIsTutorialDeleteModalVisible(true);
         };
@@ -134,40 +206,7 @@ const TutorialDetails: React.FC = () => {
                     ghost={false}
                     title={tutorial.title}
                     onBack={() => navigate(-1)}
-                    extra={[
-                        <Space wrap align='baseline'>
-                            {!authContext.hasRoles([UserRole.ROLE_DIRECTOR]) && <Button
-                                type='default'
-                                disabled={loading}
-                                onClick={e => onMarkClick()}>
-                                {tutorial.isMarked
-                                    ? <>
-                                        <StarFilled style={{ color: '#ffd805' }} /> Vorgemerkt
-                                    </>
-                                    : <>
-                                        <StarOutlined /> Vormerken
-                                    </>
-                                }
-                            </Button>}
-
-                            {authContext.hasRoles([UserRole.ROLE_DIRECTOR]) && <>
-                                <Button
-                                    danger
-                                    type='default'
-                                    disabled={loading}
-                                    onClick={e => onDeleteClick()}>
-                                    <DeleteOutlined type='' /> Löschen
-                                </Button>
-
-                            </>}
-                            <Button
-                                type='primary'
-                                danger={tutorial.participates ? true : false}
-                                onClick={e => onParticipateClick()}>
-                                {tutorial.participates ? "Nicht mehr teilnehmen" : "Am Tutorium teilnehmen"}
-                            </Button>
-                        </Space>
-                    ]}
+                    extra={[TutorialActions()]}
                 >
                     <Typography style={{ marginTop: '16px' }}>
                         <Title level={4}>Inhalt</Title>

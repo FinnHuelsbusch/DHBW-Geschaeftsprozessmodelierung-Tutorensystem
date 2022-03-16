@@ -110,7 +110,7 @@ const Register: React.FC = () => {
             </Title>
             {showRegisterMessage ? <RegisterMessage /> : <UserPasswordForm />}
         </>
-    )
+    );
 }
 
 export default Register;

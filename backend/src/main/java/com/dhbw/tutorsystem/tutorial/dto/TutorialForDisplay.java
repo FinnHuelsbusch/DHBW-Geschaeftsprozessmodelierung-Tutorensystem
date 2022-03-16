@@ -38,9 +38,12 @@ public class TutorialForDisplay {
 
     private boolean participates;
 
-    public TutorialForDisplay addPerspective(boolean isMarked, boolean participates) {
+    private boolean holds;
+
+    public TutorialForDisplay addPerspective(boolean isMarked, boolean participates, boolean holds) {
         this.isMarked = isMarked;
         this.participates = participates;
+        this.holds = holds;
         return this;
     }
 

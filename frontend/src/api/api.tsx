@@ -188,6 +188,13 @@ export const participateInTutorial = (tutorialId: number): Promise<any> => {
         });
 }
 
+export const removeParticipationInTutorial = (tutorialId: number): Promise<any> => {
+    return api.delete(`/tutorials/participate/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
 export const markTutorial = (tutorialId: number): Promise<any> => {
     return api.put(`/tutorials/mark/${tutorialId}`)
         .then(res => {
@@ -226,7 +233,7 @@ export const putTutorial = (newTutorial: Object): Promise<number> => {
 }
 
 export const deleteTutorial = (tutorialId: number, reason?: string): Promise<number> => {
-    return api.post(`/tutorials/${tutorialId}`, { reason: reason })
+    return api.post(`/tutorials/delete/${tutorialId}`, { reason: reason })
         .then(res => {
             const data = res.data;
             return data.id;

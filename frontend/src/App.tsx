@@ -53,7 +53,6 @@ const App: React.FC = () => {
         loggedUser: loggedUser
     };
 
-
     useEffect(() => {
         // initial opening of page: log in user if persisted
         const user = retrieveUserLocalStorage();
@@ -69,10 +68,9 @@ const App: React.FC = () => {
         setInitialPageLoadComplete(true);
     }, []);
 
-
     const MainLayout = () => {
         return (
-            <Layout>
+            <Layout style={{ minHeight: '100vh' }}>
                 <Header>
                     <Navigation />
                 </Header>
@@ -83,12 +81,9 @@ const App: React.FC = () => {
                             description="Keine Daten verfügbar">
                         </Empty>
                     }>
-
                         <div className="site-layout-content">
                             <Outlet />
                         </div>
-
-
                     </ConfigProvider>
                 </Content>
 
