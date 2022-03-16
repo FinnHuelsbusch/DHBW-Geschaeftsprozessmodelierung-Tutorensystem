@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { getRequestError, requestPasswordReset } from '../../api/api';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
-import PasswordWithConfirm, { PasswordFieldProps } from '../register/PasswordWithConfirm';
+import { PasswordFieldProps, PasswordWithConfirm } from '../inputs/PasswordInput';
 
 type Props = {
     visible: boolean,

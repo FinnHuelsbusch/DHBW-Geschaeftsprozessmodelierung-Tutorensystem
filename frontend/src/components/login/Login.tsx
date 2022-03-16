@@ -8,6 +8,7 @@ import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
+import { PasswordWithConfirm } from '../inputs/PasswordInput';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 
@@ -43,13 +44,13 @@ const Login: React.FC = () => {
                 wrapperCol={{ span: 10 }}
                 form={form}
                 onFinish={onSubmit}>
+
                 <EmailFormInput required disabled={loading} />
-                <Form.Item
-                    label="Passwort"
-                    name="password"
-                    rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                    <Input.Password disabled={loading} />
-                </Form.Item>
+
+                <PasswordWithConfirm.Password
+                    disabled={loading}
+                />
+
                 <Form.Item
                     name="rememberLogin"
                     initialValue={false}
@@ -57,11 +58,13 @@ const Login: React.FC = () => {
                     wrapperCol={{ offset: 8, span: 10 }}>
                     <Checkbox disabled={loading}>Anmeldung speichern</Checkbox>
                 </Form.Item>
+
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <a onClick={e => setShowForgotPasswordModal(true)}>
                         Passwort vergessen?
                     </a>
                 </Form.Item>
+
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <Button loading={loading} htmlType='submit' type='primary'>
                         Anmelden
@@ -71,6 +74,7 @@ const Login: React.FC = () => {
                         registrieren.
                     </a>
                 </Form.Item>
+
             </Form>
         )
     };

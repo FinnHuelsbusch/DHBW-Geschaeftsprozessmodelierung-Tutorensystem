@@ -4,7 +4,7 @@ import React, { useContext, useState } from 'react';
 import { changePassword, getRequestError } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { getErrorMessageString } from '../../types/RequestError';
-import PasswordWithConfirm, { PasswordFieldProps } from '../register/PasswordWithConfirm';
+import { PasswordFieldProps, PasswordWithConfirm } from '../inputs/PasswordInput';
 
 type Props = {
     visible: boolean,

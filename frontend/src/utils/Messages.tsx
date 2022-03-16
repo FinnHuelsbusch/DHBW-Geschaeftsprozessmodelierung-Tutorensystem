@@ -29,7 +29,8 @@ export const validateMessages = {
   },
   pattern: {
     mismatch: "'${label}' stimmt nicht mit dem geforderten Format ${pattern} überein",
+    password: "Min. 8 Zeichen, davon min. eine Ziffer",
     // do not give details about pattern
-    invalid: "Ungültiges Format"
+    invalid: "Ungültiges Format",
   },
 };

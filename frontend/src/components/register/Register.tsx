@@ -11,7 +11,7 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { CourseWithTitleAndSpecialisations } from '../../types/Course';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput, { isDirectorEmail } from '../inputs/EmailFormInput';
-import PasswordWithConfirm, { PasswordFieldProps } from './PasswordWithConfirm';
+import { PasswordFieldProps, PasswordWithConfirm } from '../inputs/PasswordInput';
 
 const Register: React.FC = () => {
 
@@ -40,6 +40,7 @@ const Register: React.FC = () => {
     }, []);
 
     const onSubmit = (values: any) => {
+        console.log("matching", PasswordWithConfirm.passwordsMatch(values.password, values.passwordConfirm));
         if (!PasswordWithConfirm.passwordsMatch(values.password, values.passwordConfirm)) {
             setPasswordFieldsInfo({
                 validateStatus: 'error',
@@ -103,12 +104,14 @@ const Register: React.FC = () => {
                 disabled={loading}
                 validateStatus={passwordFieldsInfo.validateStatus}
                 message={passwordFieldsInfo.message}
+                validator={PasswordWithConfirm.passwordConstraintValidator}
             />
 
             <PasswordWithConfirm.PasswordConfirm
                 disabled={loading}
                 validateStatus={passwordFieldsInfo.validateStatus}
                 message={passwordFieldsInfo.message}
+                validator={PasswordWithConfirm.passwordConstraintValidator}
             />
 
             <Divider />
