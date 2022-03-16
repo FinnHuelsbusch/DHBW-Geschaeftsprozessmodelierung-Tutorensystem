@@ -12,42 +12,42 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class CreateTutorialRequest {
-    
-    @Getter
-    @Setter
-    @NotBlank
-    private String title; 
 
     @Getter
     @Setter
     @NotBlank
-    private String description; 
+    private String title;
 
     @Getter
     @Setter
     @NotBlank
-    private String appointment; 
+    private String description;
+
+    @Getter
+    @Setter
+    @NotBlank
+    private String appointment;
 
     @Getter
     @Setter
     @NotNull
-    private LocalDate start; 
+    private LocalDate start;
 
     @Getter
     @Setter
     @NotNull
-    private LocalDate end; 
-     
+    private LocalDate end;
+
     @Getter
     @Setter
     @NotNull
     @Min(1)
-    private int durationMinutes; 
-    
+    private int durationMinutes;
+
     @Getter
     @Setter
     @NotEmpty
-    private Set<String> tutorEmails; 
+    private Set<String> tutorEmails;
 
     @Getter
     @Setter

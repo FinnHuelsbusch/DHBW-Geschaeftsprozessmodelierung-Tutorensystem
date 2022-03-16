@@ -13,7 +13,7 @@ interface Props {
     tutorial: Tutorial
 }
 
-const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDeleteModalVisible, tutorial}) => {
+const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDeleteModalVisible, tutorial }) => {
 
     const [form] = useForm();
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
     const onFinish = (values: any) => {
         deleteTutorial(tutorial.id, values.reason).then(res => {
             message.success("Löschen erfolgreich");
-            navigate(-1); 
+            navigate(-1);
             setIsTutorialDeleteModalVisible(false);
             form.resetFields();
         }).catch(err => {
@@ -38,42 +38,42 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
 
     return (
 
-            <Modal
-                visible={isModalVisible}
-                onCancel={onCancel}
-                title={"Tutorium löschen"}
-                width={900}
-                footer={[
-                    <Button
-                        danger
-                        type="primary"
-                        htmlType="submit"
-                        onClick={e => form.submit()}>
-                        Löschen
-                    </Button>
-                ]}
+        <Modal
+            visible={isModalVisible}
+            onCancel={onCancel}
+            title={"Tutorium löschen"}
+            width={900}
+            footer={[
+                <Button
+                    danger
+                    type="primary"
+                    htmlType="submit"
+                    onClick={e => form.submit()}>
+                    Löschen
+                </Button>
+            ]}
+        >
+
+            <Form
+                form={form}
+                labelWrap
+                labelCol={{ span: 2 }}
+                wrapperCol={{ span: 22 }}
+                onFinish={onFinish}
             >
 
-                <Form
-                    form={form}
-                    labelWrap
-                    labelCol={{ span: 2 }}
-                    wrapperCol={{ span: 22 }}
-                    onFinish={onFinish}
+                <Form.Item
+                    label="Grund:"
+                    name="reason"
                 >
+                    <TextArea
+                        rows={4}
+                        placeholder='Bei Bedarf, kann ein Grund angegeben werden.  Wird kein Grund angegeben werden die Studierenden und die Tutoren nur über die Absage informiert.'
+                        maxLength={500}
+                        showCount />
+                </Form.Item>
 
-                    <Form.Item
-                        label="Grund:"
-                        name="reason"
-                    >
-                        <TextArea
-                            rows={4}
-                            placeholder='Bei Bedarf, kann ein Grund angegeben werden.  Wird kein Grund angegeben werden die Studierenden und die Tutoren nur über die Absage informiert.'
-                            maxLength={500}
-                            showCount />
-                    </Form.Item>
-
-                </Form>
+            </Form>
 
         </Modal>
     )

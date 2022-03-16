@@ -36,15 +36,18 @@ public class TutorialWithSpecialisationCoursesWithoutCourses {
 
     private Set<SpecialisationCourseWithoutCourse> specialisationCourses;
 
-    public static TutorialWithSpecialisationCoursesWithoutCourses convertToDto(ModelMapper modelMapper, Tutorial tutorial){
-        TutorialWithSpecialisationCoursesWithoutCourses tutorialWithSpecialisationcoursesWithoutCourses = modelMapper.map(tutorial, TutorialWithSpecialisationCoursesWithoutCourses.class); 
+    public static TutorialWithSpecialisationCoursesWithoutCourses convertToDto(ModelMapper modelMapper,
+            Tutorial tutorial) {
+        TutorialWithSpecialisationCoursesWithoutCourses tutorialWithSpecialisationcoursesWithoutCourses = modelMapper
+                .map(tutorial, TutorialWithSpecialisationCoursesWithoutCourses.class);
         return tutorialWithSpecialisationcoursesWithoutCourses;
     }
 
-    public static List<TutorialWithSpecialisationCoursesWithoutCourses> convertToDto(ModelMapper modelMapper, Iterable<Tutorial> tutorials){
-        ArrayList<TutorialWithSpecialisationCoursesWithoutCourses> tutorialWithSpecialisationcoursesWithoutCoursesList = new ArrayList<>(); 
+    public static List<TutorialWithSpecialisationCoursesWithoutCourses> convertToDto(ModelMapper modelMapper,
+            Iterable<Tutorial> tutorials) {
+        ArrayList<TutorialWithSpecialisationCoursesWithoutCourses> tutorialWithSpecialisationcoursesWithoutCoursesList = new ArrayList<>();
         for (Tutorial tutorial : tutorials) {
-            tutorialWithSpecialisationcoursesWithoutCoursesList.add(convertToDto(modelMapper, tutorial)); 
+            tutorialWithSpecialisationcoursesWithoutCoursesList.add(convertToDto(modelMapper, tutorial));
         }
         return tutorialWithSpecialisationcoursesWithoutCoursesList;
     }

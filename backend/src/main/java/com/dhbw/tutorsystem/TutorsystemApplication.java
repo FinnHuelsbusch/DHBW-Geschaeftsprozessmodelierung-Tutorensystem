@@ -21,41 +21,40 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @SpringBootApplication
 public class TutorsystemApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TutorsystemApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TutorsystemApplication.class, args);
+    }
 
-	@Bean
-	public ModelMapper modelMapper() {
-		ModelMapper modelMapper = new ModelMapper();
-		modelMapper.addMappings(new PropertyMap<Tutorial, TutorialForDisplay>() {
-			@Override
-			protected void configure() {
-				// skip properties to prevent failed conversion
-				skip(destination.getNumberOfParticipants());
-				skip(destination.isMarked());
-				skip(destination.isParticipates());
-				skip(destination.isHolds());
-			}
-		});
-		return modelMapper;
-	}
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.addMappings(new PropertyMap<Tutorial, TutorialForDisplay>() {
+            @Override
+            protected void configure() {
+                // skip properties to prevent failed conversion
+                skip(destination.getNumberOfParticipants());
+                skip(destination.isMarked());
+                skip(destination.isParticipates());
+            }
+        });
+        return modelMapper;
+    }
 
-	@Bean
-	public CommandLineRunner init(
-			RoleRepository roleRepository,
-			UserRepository userRepository,
-			PasswordEncoder encoder,
-			DirectorRepository directorRepository,
-			StudentRepository studentRepository,
-			TutorialRepository tutorialRepository,
-			CourseRepository courseRepository,
-			SpecialisationCourseRepository specialisationCourseRepository) {
-		return (args) -> {
-			new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository,
-					tutorialRepository, courseRepository, specialisationCourseRepository)
-					.initDatabaseForDevelopment();
-		};
-	}
+    @Bean
+    public CommandLineRunner init(
+            RoleRepository roleRepository,
+            UserRepository userRepository,
+            PasswordEncoder encoder,
+            DirectorRepository directorRepository,
+            StudentRepository studentRepository,
+            TutorialRepository tutorialRepository,
+            CourseRepository courseRepository,
+            SpecialisationCourseRepository specialisationCourseRepository) {
+        return (args) -> {
+            new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository,
+                    tutorialRepository, courseRepository, specialisationCourseRepository)
+                    .initDatabaseForDevelopment();
+        };
+    }
 
 }
