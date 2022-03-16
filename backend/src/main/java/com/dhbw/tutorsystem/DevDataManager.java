@@ -264,9 +264,10 @@ public class DevDataManager {
         createTutorial(
             "Mathe I", 
             "Wöchentlich jeden Dienstag um 18 Uhr", 
-            "In diesem Tutorium üben wir mit Euch grundlegende Analysis Rechenarten.
-            Gemeinsam erarbeiten wir uns die Grundlagen, errechnen Beispielaufgaben und führen Klausurvorbereitungen durch.
-            WICHTIG: Das Tutorium findet aktuell trotz Pandemie in Präsenz statt! Bitte tragt während des gesamten Tutoriums eine FFP2-Maske und bringt ein aktuelles, negatives Testergebnis mit!",
+            "In diesem Tutorium üben wir mit Euch grundlegende Analysis Rechenarten. Gemeinsam erarbeiten wir uns die " +
+                    "Grundlagen, errechnen Beispielaufgaben und führen Klausurvorbereitungen durch. " +
+                    "WICHTIG: Das Tutorium findet aktuell trotz Pandemie in Präsenz statt! " +
+                    "Bitte tragt während des gesamten Tutoriums eine FFP2-Maske und bringt ein aktuelles, negatives Testergebnis mit!",
             120,
             LocalDate.now(), 
             LocalDate.now().plusWeeks(2), 
@@ -277,8 +278,12 @@ public class DevDataManager {
 
         createTutorial(
             "Elektrotechnik 1", 
-            "Wir bieten während der Vorlesungszeit, mit einem Team bestehend aus drei Tutoren, wöchentlich mehrere Tutorien an. Hier können alle Studienanfänger in kleinen Gruppen Probleme des Studiums und vieles mehr besprechen. Der Terminplan wird zu Beginn des Semesters über den Mailverteiler geschickt und hängt auch im Schaukasten neben der Fachschaft aus.",
-            "Die Tutoren der Fachschaft Elektrotechnik wollen Dir den Studieneinstieg erleichtern. Dazu bieten wir fachliche Unterstützung für Vorlesungen und Übungen der ersten beiden Semester an und helfen bei Fragen rund ums Studium und der Uni weiter.", 
+            "Wir bieten während der Vorlesungszeit, mit einem Team bestehend aus drei Tutoren, wöchentlich mehrere Tutorien an. " +
+                    "Hier können alle Studienanfänger in kleinen Gruppen Probleme des Studiums und vieles mehr besprechen. " +
+                    "Der Terminplan wird zu Beginn des Semesters über den Mailverteiler geschickt und hängt auch im Schaukasten neben der Fachschaft aus.",
+            "Die Tutoren der Fachschaft Elektrotechnik wollen Dir den Studieneinstieg erleichtern. " +
+                    "Dazu bieten wir fachliche Unterstützung für Vorlesungen und Übungen der ersten beiden Semester an und helfen bei Fragen " +
+                    "rund ums Studium und der Uni weiter.",
             120,
             LocalDate.now(), 
             LocalDate.now().plusWeeks(9), 
@@ -290,7 +295,9 @@ public class DevDataManager {
         createTutorial(
             "Elektrotechnik 2", 
             "Jeden zweiten Montag um 19 Uhr",
-            "Das vorlesungsbegleitende Tutorium soll Ihnen die Möglichkeit bieten, die in der Vorlesung, im Hörsaallabor und in der Übung erworbenen Kenntnisse durch selbstständiges Berechnen zu vertiefen. Zur Beantwortung von Fragen zu den Aufgaben und zur Vorlesung, stehen wir Tutoren Ihnen gerne zur Verfügung.", 
+            "Das vorlesungsbegleitende Tutorium soll Ihnen die Möglichkeit bieten, die in der Vorlesung, im " +
+                    "Hörsaallabor und in der Übung erworbenen Kenntnisse durch selbstständiges Berechnen zu vertiefen. " +
+                    "Zur Beantwortung von Fragen zu den Aufgaben und zur Vorlesung, stehen wir Tutoren Ihnen gerne zur Verfügung.",
             120,
             LocalDate.now().plusWeeks(1), 
             LocalDate.now().plusWeeks(10), 
@@ -302,9 +309,9 @@ public class DevDataManager {
         createTutorial(
             "Elektrotechnik 3", 
             "Auf Anfrage", 
-            "Diese Veranstaltung dient als Basispraktikum und der Nachbereitung des Vorlesungsstoffes auf interaktiver Weise. Individuelle Fragen sind ausdrücklich erwünscht.
-
-            Hinweis: Keine Testate, keine Übungszettel, keine Scheine, keine Leistungspunkte! Die Teilnahme ist freiwillig.",
+            "Diese Veranstaltung dient als Basispraktikum und der Nachbereitung des Vorlesungsstoffes auf interaktiver Weise. " +
+                    "Individuelle Fragen sind ausdrücklich erwünscht. Hinweis: Keine Testate, keine Übungszettel, keine Scheine, keine Leistungspunkte! " +
+                    "Die Teilnahme ist freiwillig.",
             120,
             LocalDate.now().plusWeeks(2), 
             LocalDate.now().plusWeeks(11), 
@@ -316,10 +323,9 @@ public class DevDataManager {
         createTutorial(
             "Elektrotechnik 4", 
             "Auf Anfrage",
-            "Das vorlesungsbegleitende Tutorium soll Ihnen die Möglichkeit bieten, die in der Vorlesung, 
-            im Hörsaallabor und in der Übung erworbenen Kenntnisse durch selbstständiges Berechnen 
-            zu vertiefen. Zur Beantwortung von Fragen zu den Aufgaben und zur Vorlesung, stehen wir 
-            Tutoren Ihnen gerne zur Verfügung.", 
+            "Das vorlesungsbegleitende Tutorium soll Ihnen die Möglichkeit bieten, die in der Vorlesung, " +
+                    "im Hörsaallabor und in der Übung erworbenen Kenntnisse durch selbstständiges Berechnen zu vertiefen. " +
+                    "Zur Beantwortung von Fragen zu den Aufgaben und zur Vorlesung, stehen wir Tutoren Ihnen gerne zur Verfügung.",
             120,
             LocalDate.now().plusWeeks(3), 
             LocalDate.now().plusWeeks(12), 
@@ -331,14 +337,10 @@ public class DevDataManager {
         createTutorial(
             "Mathe 1",
             "Jeden Dienstag von 18 bis 19 Uhr.",
-            "Das Tutorium Mathematik findet in jedem Semester statt.
-
-            Im WS liegt der Schwerpunkt des Tutorium bei Mathematische Grundlagen, im SS bei Analysis 1 und Lineare Algebra 1.
-            
-            Das Tutorium Mathematik richtet sich an alle Studierenden, die die Prüfung zum Modul Mathematische Grundlagen (WS) bzw. Analysis 1 und/ oder Lineare Algebra 1 (SS) nicht bestanden haben oder ihre Kenntnisse vertiefen möchten.
-            
-            
-            Das Tutorium findet im SS20 mittwochs 08:15 Uhr bis 09.45 Uhr als Online-Veranstaltung statt.",
+            "Das Tutorium Mathematik findet in jedem Semester statt. Im WS liegt der Schwerpunkt des Tutorium bei " +
+                    "Mathematische Grundlagen, im SS bei Analysis 1 und Lineare Algebra 1. Das Tutorium Mathematik richtet sich an alle " +
+                    "Studierenden, die die Prüfung zum Modul Mathematische Grundlagen (WS) bzw. Analysis 1 und/ oder Lineare Algebra 1 (SS) nicht bestanden " +
+                    "haben oder ihre Kenntnisse vertiefen möchten. Das Tutorium findet im SS20 mittwochs 08:15 Uhr bis 09.45 Uhr als Online-Veranstaltung statt.",
             120,
             LocalDate.now().plusWeeks(3),
             LocalDate.now().plusDays(21),
@@ -350,7 +352,10 @@ public class DevDataManager {
         createTutorial(
             "Programmieren 1",
             "Jeden Donnerstag von 18 bis 19 Uhr.",
-            "Das Vorlesungs- und Übungsmaterial darf ausschließlich zu Zwecken genutzt werden, die in direktem Zusammenhang mit der Veranstaltung Programmieren stehen. Insbesondere die Weitergabe des hier zur Verfügung gestellten Materials an Dritte ist nicht gestattet. Foliensätze, Übungsblätter, Musterlösungen und hier veröffentlichter Java-Code unterliegen dem Copyright des Lehrstuhls Programmierparadigmen (IPD Snelting).",
+            "Das Vorlesungs- und Übungsmaterial darf ausschließlich zu Zwecken genutzt werden, die in direktem Zusammenhang mit der " +
+                    "Veranstaltung Programmieren stehen. Insbesondere die Weitergabe des hier zur Verfügung gestellten Materials an Dritte ist nicht gestattet. " +
+                    "Foliensätze, Übungsblätter, Musterlösungen und hier veröffentlichter Java-Code unterliegen dem Copyright des Lehrstuhls " +
+                    "Programmierparadigmen (IPD Snelting).",
             120,
             LocalDate.now().plusWeeks(3),
             LocalDate.now().plusWeeks(12),
@@ -363,7 +368,8 @@ public class DevDataManager {
     private void insertTutorialRequests(){
         createTutorielRequest(
             Set.of(specialisationCourseSE),
-            "Hey, ich bin gerade im 3. Semester und habe Finanzbuchhaltung bei Herr Heiduk. Ich habe meine Schwierigkeiten mit den Grundlagen und der korrekten Buchung von Geschäftsfällen. Brauche dringend Unterstützung!",
+            "Hey, ich bin gerade im 3. Semester und habe Finanzbuchhaltung bei Herr Heiduk. Ich habe meine Schwierigkeiten mit den Grundlagen und der " +
+                    "korrekten Buchung von Geschäftsfällen. Brauche dringend Unterstützung!",
             "Tutoriums-Anfrage für Finanzbuchhaltung",
             Set.of(uTutor10),
             uTutor14
@@ -371,7 +377,8 @@ public class DevDataManager {
 
         createTutorielRequest(
             Set.of(specialisationCourseSE),
-            "Hallo, ich bin im vierten Semester. Ich habe Herr Pagnia in Verteilte Systeme. Seine Folien sind sehr umfangreich aber ich komme bei dem Stoff nicht wirklich mit und brächte deshalb unbedingt Hilde bei seinen Beispielaufgaben.",
+            "Hallo, ich bin im vierten Semester. Ich habe Herr Pagnia in Verteilte Systeme. Seine Folien sind sehr umfangreich " +
+                    "aber ich komme bei dem Stoff nicht wirklich mit und brächte deshalb unbedingt Hilde bei seinen Beispielaufgaben.",
             "Tutoriums-Anfrage für Verteilte Systeme",
             Set.of(uTutor1),
             uTutor15
@@ -379,7 +386,8 @@ public class DevDataManager {
         
         createTutorielRequest(
             Set.of(specialisationCourseSE),
-            "Hey, ich bin gerade im 2. Semester und habe Probleme bei dem Modul Betriebs- und Kommunikationssysteme. Die Klausur steht in zwei Wochen an und ich verstehe die Beispielaufgaben aus dem Skript nicht.",
+            "Hey, ich bin gerade im 2. Semester und habe Probleme bei dem Modul Betriebs- und Kommunikationssysteme. " +
+                    "Die Klausur steht in zwei Wochen an und ich verstehe die Beispielaufgaben aus dem Skript nicht.",
             "Tutoriums-Anfrage für Betriebs- und Kommunikationssysteme",
             Set.of(uTutor6),
             uTutor9
