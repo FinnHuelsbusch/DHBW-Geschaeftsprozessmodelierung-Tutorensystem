@@ -271,8 +271,8 @@ public class DevDataManager {
             120,
             LocalDate.now(), 
             LocalDate.now().plusWeeks(2), 
-            Set.of(uTutor, tutor3), 
-            Set.of(uStudent1, tutor4, tutor5, tutor6, tutor7), 
+            Set.of(uTutor, uTutor3),
+            Set.of(uStudent1, uTutor4, uTutor5, uTutor6, uTutor7),
             Set.of(specialisationCourseSE, specialisationCourseSC)
         );
 
