@@ -138,7 +138,6 @@ export const createTutorialRequest = (tutorialRequest: TutorialRequest): Promise
             description: tutorialRequest.description,
             title: tutorialRequest.title,
             semester: tutorialRequest.semester,
-            specialisationCourseId: tutorialRequest.specialisationCourseId
         });
 };
 
