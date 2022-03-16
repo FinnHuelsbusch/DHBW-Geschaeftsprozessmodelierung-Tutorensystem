@@ -150,8 +150,9 @@ public class AuthenticationController {
             if (user.isEnabled()) {
                 throw new EmailAlreadyExistsException();
             }
-            if (user.getLastPasswordAction()!= null && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
-                    .toMinutes() < minimumMinutesBetweenPasswordActions) {
+            if (user.getLastPasswordAction() != null
+                    && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
+                            .toMinutes() < minimumMinutesBetweenPasswordActions) {
                 throw new LastPasswordActionTooRecentException();
             } else {
                 // existing non-enabled user re-registered after 15minutes: re-send email and
