@@ -108,7 +108,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         if (!User.isValidEmail(loginRequest.getEmail())) {
-            logger.info("Information: User tried to login with invalid email adress: {}", loginRequest.getEmail());
+            logger.info("User tried to login with invalid email adress: {}", loginRequest.getEmail());
             throw new LoginFailedException();
         }
         try {
@@ -146,7 +146,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
         if (!User.isValidEmail(registerRequest.getEmail())) {
-            logger.info("Information: User tried to register with invalid email: {}", registerRequest.getEmail());
+            logger.info("User tried to register with invalid email: {}", registerRequest.getEmail());
             throw new InvalidEmailException();
         }
         // check for duplicate registration, then send mail and update or save user
@@ -155,7 +155,7 @@ public class AuthenticationController {
             // same email address as an existing user was provided for registration
             User user = optionalUser.get();
             if (user.isEnabled()) {
-                logger.info("Information: User with email {} already exists", user.getEmail());
+                logger.info("User with email {} already exists", user.getEmail());
                 throw new EmailAlreadyExistsException();
             }
             if (user.getLastPasswordAction()!= null && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
