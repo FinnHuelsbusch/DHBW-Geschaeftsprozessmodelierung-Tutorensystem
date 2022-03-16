@@ -8,7 +8,7 @@ import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
-import { PasswordWithConfirm } from '../inputs/PasswordInput';
+import PasswordInput from '../inputs/PasswordInput';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 
@@ -47,7 +47,8 @@ const Login: React.FC = () => {
 
                 <EmailFormInput required disabled={loading} />
 
-                <PasswordWithConfirm.Password
+                <PasswordInput
+                    noRegexValidation
                     disabled={loading}
                 />
 

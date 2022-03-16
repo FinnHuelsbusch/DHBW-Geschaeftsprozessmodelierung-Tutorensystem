@@ -11,7 +11,7 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { CourseWithTitleAndSpecialisations } from '../../types/Course';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput, { isDirectorEmail } from '../inputs/EmailFormInput';
-import { PasswordFieldProps, PasswordWithConfirm } from '../inputs/PasswordInput';
+import PasswordInput from '../inputs/PasswordInput';
 
 const Register: React.FC = () => {
 
@@ -23,13 +23,6 @@ const Register: React.FC = () => {
     const [isDirectorRegistration, setIsDirectorRegistration] = useState(false);
     const [showRegisterMessage, setShowRegisterMessage] = useState(false);
 
-    const [passwordFieldsInfo, setPasswordFieldsInfo] = useState<{
-        validateStatus: PasswordFieldProps['validateStatus'],
-        message: PasswordFieldProps['message']
-    }>({
-        validateStatus: undefined,
-        message: undefined
-    });
 
     useEffect(() => {
         getCoursesWithTitleAndSpecialisations().then(courses => {
@@ -40,35 +33,25 @@ const Register: React.FC = () => {
     }, []);
 
     const onSubmit = (values: any) => {
-        console.log("matching", PasswordWithConfirm.passwordsMatch(values.password, values.passwordConfirm));
-        if (!PasswordWithConfirm.passwordsMatch(values.password, values.passwordConfirm)) {
-            setPasswordFieldsInfo({
-                validateStatus: 'error',
-                message: 'Passwörter stimmen nicht überein'
+        console.log("subm");
+        
+        setLoading(true);
+        const specialisationCourseId = isDirectorRegistration ? undefined : parseInt(values.specialisationCourse);
+        register({
+            email: values.email.trim(),
+            password: values.password,
+            firstName: values.firstname,
+            lastName: values.lastname,
+            specialisationCourseId: specialisationCourseId
+        })
+            .then(res => {
+                setShowRegisterMessage(true);
+                setLoading(false);
+            }, err => {
+                const reqErr = getRequestError(err);
+                message.error(getErrorMessageString(reqErr.errorCode));
+                setLoading(false);
             });
-        } else {
-            setPasswordFieldsInfo({
-                validateStatus: 'success',
-                message: undefined
-            });
-            setLoading(true);
-            const specialisationCourseId = isDirectorRegistration ? undefined : parseInt(values.specialisationCourse);
-            register({
-                email: values.email.trim(),
-                password: values.password,
-                firstName: values.firstname,
-                lastName: values.lastname,
-                specialisationCourseId: specialisationCourseId
-            })
-                .then(res => {
-                    setLoading(false);
-                    setShowRegisterMessage(true);
-                }, err => {
-                    const reqErr = getRequestError(err);
-                    message.error(getErrorMessageString(reqErr.errorCode));
-                    setLoading(false);
-                });
-        }
     };
 
     useEffect(() => {
@@ -100,18 +83,9 @@ const Register: React.FC = () => {
                 disabled={loading}
                 onChange={onEmailInputChange} />
 
-            <PasswordWithConfirm.Password
+            <PasswordInput
                 disabled={loading}
-                validateStatus={passwordFieldsInfo.validateStatus}
-                message={passwordFieldsInfo.message}
-                validator={PasswordWithConfirm.passwordConstraintValidator}
-            />
-
-            <PasswordWithConfirm.PasswordConfirm
-                disabled={loading}
-                validateStatus={passwordFieldsInfo.validateStatus}
-                message={passwordFieldsInfo.message}
-                validator={PasswordWithConfirm.passwordConstraintValidator}
+                withConfirmForm={form}
             />
 
             <Divider />
@@ -130,8 +104,6 @@ const Register: React.FC = () => {
                 <Input disabled={loading} />
             </Form.Item>
 
-            {/* Only require course input for non-directors */}
-            {/* {!isDirectorRegistration && */}
             <Form.Item
                 label="Studienrichtung"
                 name="specialisationCourse"
@@ -155,7 +127,6 @@ const Register: React.FC = () => {
                         </Select.OptGroup>)}
                 </Select>
             </Form.Item>
-            {/* } */}
 
             <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                 <Button loading={loading} htmlType='submit' type='primary'>

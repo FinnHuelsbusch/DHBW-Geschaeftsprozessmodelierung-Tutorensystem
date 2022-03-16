@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { getRequestError, requestPasswordReset } from '../../api/api';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
-import { PasswordFieldProps, PasswordWithConfirm } from '../inputs/PasswordInput';
+import PasswordInput from '../inputs/PasswordInput';
 
 type Props = {
     visible: boolean,
@@ -17,38 +17,18 @@ const ForgotPasswordModal: React.FC<Props> = ({ visible, onClose }) => {
     const [form] = useForm();
     const [loading, setLoading] = useState(false);
 
-    const [passwordFieldsInfo, setPasswordFieldsInfo] = useState<{
-        validateStatus: PasswordFieldProps['validateStatus'],
-        message: PasswordFieldProps['message']
-    }>({
-        validateStatus: undefined,
-        message: undefined
-    });
-
     const onFormSubmit = (values: any) => {
         setLoading(true);
-        if (!PasswordWithConfirm.passwordsMatch(values.password, values.passwordConfirm)) {
-            setPasswordFieldsInfo({
-                validateStatus: 'error',
-                message: 'Passwörter stimmen nicht überein'
+        requestPasswordReset(values.email, values.password)
+            .then(res => {
+                setLoading(false);
+                message.success("E-Mail wurde zugesendet", 2);
+                cleanupAndClose();
+            }, err => {
+                setLoading(false);
+                const reqErr = getRequestError(err);
+                message.error(getErrorMessageString(reqErr.errorCode));
             });
-        } else {
-            setPasswordFieldsInfo({
-                validateStatus: 'success',
-                message: undefined
-            });
-            requestPasswordReset(values.email, values.password)
-                .then(res => {
-                    setLoading(false);
-                    message.success("E-Mail wurde zugesendet", 2);
-                    cleanupAndClose();
-                }, err => {
-                    setLoading(false);
-                    const reqErr = getRequestError(err);
-                    message.error(getErrorMessageString(reqErr.errorCode));
-                });
-        }
-        setLoading(false);
     }
 
     const cleanupAndClose = () => {
@@ -78,24 +58,18 @@ const ForgotPasswordModal: React.FC<Props> = ({ visible, onClose }) => {
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 14 }}
                 onFinish={onFormSubmit}>
+
                 <Paragraph>
                     Geben Sie die E-Mail Addresse Ihres bestehenden Kontos und ein neues Passwort an.
                     Folgen Sie dem Prozess in der E-Mail, die Ihnen anschließend zugesendet wird.
                 </Paragraph>
+
                 <EmailFormInput required disabled={loading} />
 
-                <PasswordWithConfirm.Password
+                <PasswordInput
                     disabled={loading}
-                    validateStatus={passwordFieldsInfo.validateStatus}
-                    message={passwordFieldsInfo.message}
-                    customLabel={"Neues Passwort"}
-                />
-
-                <PasswordWithConfirm.PasswordConfirm
-                    disabled={loading}
-                    validateStatus={passwordFieldsInfo.validateStatus}
-                    message={passwordFieldsInfo.message}
-                    customLabel={"Neues Passwort wiederholen"}
+                    customLabel="Neues Passwort"
+                    withConfirmForm={form}
                 />
             </Form>
         </Modal>

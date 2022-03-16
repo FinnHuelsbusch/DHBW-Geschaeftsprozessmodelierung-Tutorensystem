@@ -24,10 +24,15 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 public class User {
+
     @JsonIgnore
     private static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
+
     @JsonIgnore
     private static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+
+    @JsonIgnore
+    public static final String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

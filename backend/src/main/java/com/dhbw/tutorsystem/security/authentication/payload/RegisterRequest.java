@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+import com.dhbw.tutorsystem.user.User;
 
 public class RegisterRequest {
 
@@ -16,6 +19,7 @@ public class RegisterRequest {
     }
 
     @NotBlank
+    @Pattern(regexp = User.passwordRegex)
     @Getter
     @Setter
     private String password;

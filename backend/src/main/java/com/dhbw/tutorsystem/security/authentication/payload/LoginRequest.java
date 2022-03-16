@@ -14,6 +14,7 @@ public class LoginRequest {
     @NotBlank
     @Getter
     @Setter
+    // intentionally do not check password regex here to not expose details
     private String password;
 
 }
