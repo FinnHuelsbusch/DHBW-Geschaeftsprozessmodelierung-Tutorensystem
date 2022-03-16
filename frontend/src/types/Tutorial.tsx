@@ -16,9 +16,10 @@ export interface Tutorial {
 }
 
 export interface TutorialRequest {
-    description: string
+    description: string,
     title:string,
-    semester:number
+    semester:number,
+    specialisationCourseId:number
 }
 
 export const mapTutorialFromResponse = (data: any): Tutorial => {

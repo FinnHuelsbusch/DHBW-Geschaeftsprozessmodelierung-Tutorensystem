@@ -1,10 +1,13 @@
 import { Form, Modal, Input, Button, message, Select } from 'antd';
 import TextArea from "antd/lib/input/TextArea";
 import { useForm } from "antd/lib/form/Form";
-import { useState } from "react";
-import { createTutorialRequest } from "../../api/api";
+import { useContext, useEffect, useState } from "react";
+import { createTutorialRequest, getCoursesWithTitleAndSpecialisations, getSpecialisationCoursesForUser, getRequestError } from "../../api/api";
 import { TutorialRequest } from "../../types/Tutorial";
 import { validateMessages } from "../../utils/Messages";
+import { AuthContext } from '../../context/UserContext';
+import { getErrorMessageString } from "../../types/RequestError";
+import { SpecialisationCoursesWithoutCourse } from '../../types/Course';
 
 interface Props {
     isModalVisible: boolean,
@@ -16,6 +19,8 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
     const { Option } = Select;
+    const authContext = useContext(AuthContext)
+    const [specialisationCourses, setSpecialisationCourses] =  useState<SpecialisationCoursesWithoutCourse[]>([]);
 
     const onFinish = (values: any) => {
         console.log(values.semester);
@@ -41,6 +46,20 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
         setIsTutorialRequestModalVisible(false)
         form.resetFields()
     }
+
+    useEffect(() => {
+        // initial opening of page: get available courses
+        console.log(authContext.loggedUser?.email)
+        if(isModalVisible && authContext.loggedUser){
+            getSpecialisationCoursesForUser(authContext.loggedUser.email).then(specialisationCourses => {
+                console.log(specialisationCourses)
+                setSpecialisationCourses(specialisationCourses)
+            }, err => {
+                console.log("Error" + err)
+                message.error(getErrorMessageString(getRequestError(err).errorCode))
+            });
+        }
+    }, [isModalVisible]);
 
     return (
         <Modal
@@ -85,9 +104,9 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                         disabled = {loading}
                         allowClear
                     >
-                        {Array.from(Array(6).keys()).map(i => (
-                            <Select.Option key={i + 1} value={i + 1}>
-                                {i + 1}
+                        {specialisationCourses.map(specialisationCourse => (
+                            <Select.Option key={specialisationCourse.id} value={specialisationCourse.title}>
+                                {specialisationCourse.abbreviation}
                             </Select.Option>
                         ))}
                     </Select>

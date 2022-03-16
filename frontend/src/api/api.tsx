@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TutorialRequest } from '../types/Tutorial';
 import moment from 'moment';
-import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
+import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations, SpecialisationCoursesWithoutCourse } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
 import { User, UserWithMailAndNameAndId } from '../types/User';
@@ -137,7 +137,8 @@ export const createTutorialRequest = (tutorialRequest: TutorialRequest): Promise
         {
             description: tutorialRequest.description,
             title: tutorialRequest.title,
-            semester: tutorialRequest.semester
+            semester: tutorialRequest.semester,
+            specialisationCourseId: tutorialRequest.specialisationCourseId
         });
 };
 
@@ -220,6 +221,11 @@ export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeade
 export const getCoursesWithTitleAndSpecialisations = (): Promise<CourseWithTitleAndSpecialisations[]> => {
     return api.get('/courses/withTitleAndSpecialisations')
         .then(res => res.data);
+}
+
+export const getSpecialisationCoursesForUser = (userEmail: string): Promise<SpecialisationCoursesWithoutCourse[]> => {
+    return api.get('courses/specialisationForUser')
+        .then(res => res.data)
 }
 
 export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId[]> => {
