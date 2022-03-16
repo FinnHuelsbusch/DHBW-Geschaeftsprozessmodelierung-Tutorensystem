@@ -47,6 +47,7 @@ public class TutorialRequestController {
             tutorialRequest.setTitle(createTutorialRequestRequest.getTitle());
             tutorialRequest.setSemester(createTutorialRequestRequest.getSemester());
             tutorialRequest.setCreatedBy(student);
+            tutorialRequest.setSpecialisationCourse(student.getSpecialisationCourse());
             tutorialRequestRepository.save(tutorialRequest);
         return new ResponseEntity<Void>(HttpStatus.CREATED);
         } else {
