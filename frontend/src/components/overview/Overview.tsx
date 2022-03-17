@@ -1,13 +1,18 @@
 import { Button, Card, List, message } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ping } from '../../api/api';
+import { AuthContext } from '../../context/UserContext';
 import TutorialCreateModal from '../tutorialCreateModal/TutorialCreateModal';
 import TutorialOfferModal from '../tutorialOfferModal/TutorialOfferModal';
+import TutorialRequestModal from '../tutorialRequestModal/TutorialRequestModal';
 
 const Overview: React.FC = () => {
     const [isTutorialOfferModalVisible, setIsTutorialOfferModalVisible] = useState(false);
+    const [isTutorialRequestModalVisible, setIsTutorialRequestModalVisible] = useState(false);
     const [isTutorialCreateModalVisible, setIsTutorialCreateModalVisible] = useState(false);
+    const authContext = useContext(AuthContext);
+
 
     type CardProps = {
         title: string,
@@ -63,7 +68,9 @@ const Overview: React.FC = () => {
         <OverviewCard
             title='Tutorium anfragen'
             description='Fragen Sie ein neues Tutorium an.'>
-            TODO
+            <Button type="link" disabled={authContext.loggedUser == undefined} onClick={() => { setIsTutorialRequestModalVisible(true) }}>
+                Tutorium anfragen
+            </Button>
         </OverviewCard>,
 
         <OverviewCard
@@ -96,10 +103,14 @@ const Overview: React.FC = () => {
                 isModalVisible={isTutorialOfferModalVisible}
                 setIsTutorialOfferModalVisible={setIsTutorialOfferModalVisible}
             />
-
             <TutorialCreateModal
                 isModalVisible={isTutorialCreateModalVisible}
                 setIsTutorialCreateModalVisible={setIsTutorialCreateModalVisible}
+            />
+
+            <TutorialRequestModal
+                isModalVisible={isTutorialRequestModalVisible}
+                setIsTutorialRequestModalVisible={setIsTutorialRequestModalVisible}
             />
         </>
     );

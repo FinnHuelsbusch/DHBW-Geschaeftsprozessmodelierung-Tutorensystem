@@ -16,6 +16,12 @@ export interface Tutorial {
     holds?: boolean
 }
 
+export interface TutorialRequest {
+    description: string,
+    title:string,
+    semester:number
+}
+
 export const mapTutorialFromResponse = (data: any): Tutorial => {
     return {
         id: data.id,

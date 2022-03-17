@@ -2,7 +2,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
-import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
+import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse, TutorialRequest } from '../types/Tutorial';
 import { RegisterRequest, User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -48,6 +48,7 @@ export const getRequestError = (err: any): RequestError => {
 };
 
 export const ping = (): Promise<string> => {
+    console.log(backendUrl)
     return api.get('/ping')
         .then(res => res.data);
 }
@@ -127,6 +128,15 @@ export const performPasswordReset = (hash: string | null, email: string | null, 
                 loginExpirationDate: data.expirationDate
             } as User;
             return user;
+        });
+}
+
+export const createTutorialRequest = (tutorialRequest: TutorialRequest): Promise<void> => {
+    return api.put('/tutorialrequest',
+        {
+            description: tutorialRequest.description,
+            title: tutorialRequest.title,
+            semester: tutorialRequest.semester,
         });
 }
 

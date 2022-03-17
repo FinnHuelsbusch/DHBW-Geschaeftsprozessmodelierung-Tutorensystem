@@ -5,6 +5,9 @@ import javax.validation.constraints.Pattern;
 
 import com.dhbw.tutorsystem.user.User;
 
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidPassword;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,13 +18,12 @@ public class ResetPasswordRequest {
     @Setter
     private String hash;
 
-    @NotBlank
+    @ValidEmail
     @Getter
     @Setter
     private String email;
 
-    @NotBlank
-    @Pattern(regexp = User.passwordRegex)
+    @ValidPassword
     @Getter
     @Setter
     private String newPassword;
