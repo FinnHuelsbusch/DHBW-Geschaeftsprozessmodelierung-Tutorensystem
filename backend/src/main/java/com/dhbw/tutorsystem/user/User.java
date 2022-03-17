@@ -26,10 +26,13 @@ import lombok.Setter;
 public class User {
 
     @JsonIgnore
-    private static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
+    public static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
 
     @JsonIgnore
-    private static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+    public static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+
+    @JsonIgnore
+    public static final String validEmailRegex = studentMailRegex + "|" + directorMailRegex;
 
     @JsonIgnore
     public static final String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";

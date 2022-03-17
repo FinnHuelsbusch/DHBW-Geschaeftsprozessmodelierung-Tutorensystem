@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
+
 @AllArgsConstructor
 public class VerifyRequest {
 
@@ -14,7 +16,7 @@ public class VerifyRequest {
     @Setter
     private String hash;
 
-    @NotBlank
+    @ValidEmail
     @Getter
     @Setter
     private String email;
