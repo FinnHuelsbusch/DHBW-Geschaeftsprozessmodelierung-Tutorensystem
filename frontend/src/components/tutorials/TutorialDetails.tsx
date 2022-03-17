@@ -221,8 +221,10 @@ const TutorialDetails: React.FC = () => {
                             {getDetailsRow("Anzahl Teilnehmer",
                                 tutorial.numberOfParticipants)}
                             {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
-                                tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
-                                    .reduce((prev, curr) => `${prev} ${curr}`))}
+                                tutorial.tutors.length > 1
+                                    ? tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
+                                        .reduce((prev, curr) => `${prev} ${curr}`)
+                                    : "Noch kein Tutor eingetragen")}
                         </Paragraph>
 
                         <Title level={4}>Studienrichtungen</Title>
