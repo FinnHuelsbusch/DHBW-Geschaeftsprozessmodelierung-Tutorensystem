@@ -241,6 +241,14 @@ export const putTutorial = (newTutorial: Object): Promise<number> => {
         });
 }
 
+export const updateTutorial = (updatedTutorial: Object): Promise<number> => {
+    return api.post('/tutorials', updatedTutorial)
+        .then(res => {
+            const data = res.data;
+            return data.id;
+        });
+}
+
 export const deleteTutorial = (tutorialId: number, reason?: string): Promise<number> => {
     return api.post(`/tutorials/delete/${tutorialId}`, { reason: reason })
         .then(res => {

@@ -10,14 +10,16 @@ import { TreeNode } from "antd/lib/tree-select";
 import moment from "moment";
 import { isValidEmail } from "../inputs/EmailFormInput";
 import { useNavigate } from "react-router-dom";
+import { Tutorial } from "../../types/Tutorial";
 
 
 interface Props {
     isModalVisible: boolean,
-    setIsTutorialCreateModalVisible: (visible: boolean) => void
+    setIsTutorialCreateModalVisible: (visible: boolean) => void,
+    existingTutorial?: Tutorial
 }
 
-const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCreateModalVisible }) => {
+const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCreateModalVisible, existingTutorial }) => {
 
     const [users, setUsers] = useState<UserWithMailAndNameAndId[]>([]);
     const [form] = useForm();
@@ -53,7 +55,6 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
     }
 
     useEffect(() => {
-        // initial opening of page: get available courses
         if (isModalVisible) {
             getCoursesWithTitleAndSpecialisations().then(courses => {
                 setCourses(courses);
@@ -66,6 +67,19 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             }, err => {
                 message.error(getErrorMessageString(getRequestError(err).errorCode))
             });
+
+            if(existingTutorial){
+                // activate changemode: fill existingTutorial into form
+                form.setFieldsValue({
+                    title: existingTutorial.title,
+                    description: existingTutorial.description,
+                    timerange: [moment(existingTutorial.start, "YYYY-MM-DD"), moment(existingTutorial.end, "YYYY-MM-DD") ],
+                    durationMinutes: existingTutorial.durationMinutes,
+                    tutorEmails: existingTutorial.tutors.map(t => t.email),
+                    specialisationCoursesIds: existingTutorial.specialisationCourses.map(s => s.id),
+                    appointment: existingTutorial.appointment
+                }); 
+            }
         }
     }, [isModalVisible]);
 
@@ -110,14 +124,14 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
         <Modal
             visible={isModalVisible}
             onCancel={onCancel}
-            title={"Tutorium erstellen"}
+            title={existingTutorial? "Tutorium bearbeiten": "Tutorium erstellen"}
             width={900}
             footer={[
                 <Button
                     type="primary"
                     htmlType="submit"
                     onClick={e => form.submit()}>
-                    Erstellen
+                    {existingTutorial? "Bearbeiten": "Erstellen"}
                 </Button>
             ]}
         >

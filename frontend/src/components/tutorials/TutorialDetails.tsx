@@ -1,4 +1,4 @@
-import { Button, Col, message, Modal, PageHeader, Row, Space, Tag, Tooltip, Typography } from 'antd';
+import { Button, Col, message, Modal, PageHeader, Row, Space, Tag, Typography } from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
 import React, { useContext, useEffect, useState } from 'react';
@@ -9,14 +9,16 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { getErrorMessageString } from '../../types/RequestError';
 import { Tutorial } from '../../types/Tutorial';
 import { formatDate } from '../../utils/DateTimeHandling';
-import { StarOutlined, StarFilled, WarningOutlined, DeleteOutlined } from '@ant-design/icons'
+import { StarOutlined, StarFilled, WarningOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import './TutorialDetails.scss';
 import { UserRole } from '../../types/User';
 import TutorialDeleteModal from './TutorialDeleteModal';
+import TutorialCreateModal from '../tutorialCreateModal/TutorialCreateModal';
 
 const TutorialDetails: React.FC = () => {
 
     const [isTutorialDeleteModalVisible, setIsTutorialDeleteModalVisible] = useState(false);
+    const [isTutorialCreateModalVisible, setIsTutorialCreateModalVisible] = useState(false);
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -159,13 +161,22 @@ const TutorialDetails: React.FC = () => {
             } else if (authContext.hasRoles([UserRole.ROLE_DIRECTOR])) {
                 // directors' view: only show delete button
                 return (
+                    <>
                     <Button
                         danger
-                        type='primary'
                         disabled={loading}
                         onClick={e => onDeleteClick()}>
                         <DeleteOutlined /> Tutorium löschen
                     </Button>
+                    <Button
+                        
+                        type='primary'
+                        disabled={loading}
+                        onClick={e => onEditClick()}>
+                        <EditOutlined /> Tutorium bearbeiten
+                    </Button>
+                    
+                    </>
                 );
             } else {
                 // public view: show mark and participate buttons
@@ -198,6 +209,10 @@ const TutorialDetails: React.FC = () => {
 
         const onDeleteClick = () => {
             setIsTutorialDeleteModalVisible(true);
+        };
+
+        const onEditClick = () => {
+            setIsTutorialCreateModalVisible(true);
         };
 
         return (
@@ -238,7 +253,12 @@ const TutorialDetails: React.FC = () => {
                     <TutorialDeleteModal
                         isModalVisible={isTutorialDeleteModalVisible}
                         setIsTutorialDeleteModalVisible={setIsTutorialDeleteModalVisible}
-                        tutorial={tutorial}
+                        tutorial={tutorial}                
+                    />
+                    <TutorialCreateModal 
+                        isModalVisible={isTutorialCreateModalVisible} 
+                        setIsTutorialCreateModalVisible={setIsTutorialCreateModalVisible}
+                        existingTutorial={tutorial}
                     />
                 </PageHeader>
             </>
