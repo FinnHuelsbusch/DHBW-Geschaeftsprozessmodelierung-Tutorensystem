@@ -38,11 +38,11 @@ public class TutorialRequest {
 
     @Getter
     @Setter
-    private String title; 
+    private String title;
 
     @Getter
     @Setter
-    private String description; 
+    private String description;
 
     @Getter
     @Setter
