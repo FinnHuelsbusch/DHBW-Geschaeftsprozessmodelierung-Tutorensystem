@@ -12,7 +12,7 @@ import Unauthorized from './components/routes/Unauthorized';
 import Overview from './components/overview/Overview';
 import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom';
 import { AppRoutes } from './types/AppRoutes';
-import { CopyrightOutlined, LoadingOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { CopyrightOutlined, LoadingOutlined } from '@ant-design/icons';
 import { AuthContext, UserContext } from './context/UserContext';
 import Settings from './components/settings/Settings';
 import Register from './components/register/Register';

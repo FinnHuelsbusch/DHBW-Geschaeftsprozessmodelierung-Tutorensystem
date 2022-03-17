@@ -10,6 +10,7 @@ import { TreeNode } from "antd/lib/tree-select";
 import moment from "moment";
 import { isValidEmail } from "../inputs/EmailFormInput";
 import { useNavigate } from "react-router-dom";
+import FormText from "../inputs/FormText";
 
 
 interface Props {
@@ -87,7 +88,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
     const validateDuration = (rule: any, value: String, callback: any) => {
         const durationPattern = /^\d{1,2}:\d{2}$/g
 
-        if (!value) {
+        if (!value || value.trim() === '') {
             callback("Pflichtfeld");
             return;
         }
@@ -131,13 +132,13 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
                     onFinish={onFinish}
                 >
 
-                    <Form.Item
+                    <FormText
                         rules={[{ required: true }]}
                         label="Titel:"
                         name="title"
                     >
                         <Input />
-                    </Form.Item>
+                    </FormText>
 
                     <Form.Item
                         rules={[{ required: true }]}

@@ -7,6 +7,7 @@ import { AuthContext } from '../../context/UserContext';
 import EmailFormInput from '../inputs/EmailFormInput';
 import ChangePasswordModal from './PasswordChangeModal';
 import { UserRole } from '../../types/User';
+import FormText from '../inputs/FormText';
 
 const Settings: React.FC = () => {
 
@@ -70,18 +71,18 @@ const Settings: React.FC = () => {
                     </Tooltip>
                 </Form.Item>
                 <Divider />
-                <Form.Item
+                <FormText
                     label="Vorname"
                     name="firstname"
                     rules={[{ required: false, message: 'Pflichtfeld' }]}>
                     <Input />
-                </Form.Item>
-                <Form.Item
+                </FormText>
+                <FormText
                     label="Nachname"
                     name="lastname"
                     rules={[{ required: false, message: 'Pflichtfeld' }]}>
                     <Input />
-                </Form.Item>
+                </FormText>
                 <Form.Item
                     label="Kurs"
                     name="course"

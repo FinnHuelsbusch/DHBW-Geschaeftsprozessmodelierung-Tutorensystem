@@ -25,7 +25,6 @@ import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.security.authentication.exception.AccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
-import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidUserTypeException;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
