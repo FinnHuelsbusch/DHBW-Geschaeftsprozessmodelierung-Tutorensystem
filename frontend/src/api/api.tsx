@@ -3,7 +3,7 @@ import moment from 'moment';
 import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse, TutorialRequest } from '../types/Tutorial';
-import { User, UserWithMailAndNameAndId } from '../types/User';
+import { RegisterRequest, User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
