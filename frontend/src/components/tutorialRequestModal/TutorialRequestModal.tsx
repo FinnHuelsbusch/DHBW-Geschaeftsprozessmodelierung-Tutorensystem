@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createTutorialRequest } from "../../api/api";
 import { TutorialRequest } from "../../types/Tutorial";
 import { validateMessages } from "../../utils/Messages";
+import FormText from '../inputs/FormText';
 
 interface Props {
     isModalVisible: boolean,
@@ -20,7 +21,7 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
         setLoading(true);
         createTutorialRequest({
             title: values.title,
-            semester: Number(values.semester),
+            semester: parseInt(values.semester),
             description: values.description
         } as TutorialRequest).then(res => {
             setLoading(false);
@@ -46,7 +47,7 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
             destroyOnClose={true}
             visible={isModalVisible}
             onCancel={onCancel}
-            width={600}
+            width={900}
             footer={[
                 <Button loading={loading} htmlType="submit" type="primary" onClick={e => form.submit()}>
                     Absenden
@@ -56,12 +57,15 @@ export const TutorialRequestModal: React.FC<Props> = ({ isModalVisible, setIsTut
                 onFinish={onFinish}
                 form={form}
                 labelCol={{ span: 5 }}
-                wrapperCol={{ span: 17 }}
+                wrapperCol={{ span: 19 }}
                 validateMessages={validateMessages}
+
             >
-                <Form.Item label="Titel" name="title" rules={[{ required: true }, { whitespace: true }]}>
+
+                <FormText
+                    label="Titel" name="title" rules={[{ required: true }]}>
                     <Input placeholder="Titel der Vorlesung" allowClear disabled={loading} />
-                </Form.Item>
+                </FormText>
                 <Form.Item label="Semester" name="semester" rules={[{ required: true }]}>
                     <Select
                         showSearch

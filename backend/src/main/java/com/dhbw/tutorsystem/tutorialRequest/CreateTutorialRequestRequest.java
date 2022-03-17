@@ -1,6 +1,7 @@
 package com.dhbw.tutorsystem.tutorialRequest;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,6 @@ public class CreateTutorialRequestRequest {
 
     @Getter
     @Setter
-    @NotBlank
+    @NotNull
     private int semester;
 }

@@ -1,5 +1,7 @@
 package com.dhbw.tutorsystem.tutorialRequest;
 
+import javax.validation.Valid;
+
 import com.dhbw.tutorsystem.security.authentication.exception.StudentNotLoggedInException;
 import com.dhbw.tutorsystem.user.student.Student;
 import com.dhbw.tutorsystem.user.student.StudentService;
@@ -14,6 +16,7 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,17 +31,15 @@ public class TutorialRequestController {
     private final TutorialRequestRepository tutorialRequestRepository;
     private final StudentService studentService;
 
-    @Operation(
-            tags={"tutorialRequest"},
-            summary = "Create new TutorialRequest.",
-            description = "Creates a new TutorialRequest for the logged in user as student.",
-            security = @SecurityRequirement(name = "jwt-auth")
-    )
+    @Operation(tags = {
+            "tutorialRequest" }, summary = "Create new TutorialRequest.", description = "Creates a new TutorialRequest for the logged in user as student.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successful creation."),
     })
     @PutMapping
-    public ResponseEntity<Void> createTutorialOffer(@RequestBody CreateTutorialRequestRequest createTutorialRequestRequest) {
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public ResponseEntity<Void> createTutorialOffer(
+            @RequestBody @Valid CreateTutorialRequestRequest createTutorialRequestRequest) {
         // find out which user executes this operation
         Student student = studentService.getLoggedInStudent();
         if (student != null) {
@@ -49,7 +50,7 @@ public class TutorialRequestController {
             tutorialRequest.setCreatedBy(student);
             tutorialRequest.setSpecialisationCourse(student.getSpecialisationCourse());
             tutorialRequestRepository.save(tutorialRequest);
-        return new ResponseEntity<Void>(HttpStatus.CREATED);
+            return new ResponseEntity<Void>(HttpStatus.CREATED);
         } else {
             throw new StudentNotLoggedInException();
         }

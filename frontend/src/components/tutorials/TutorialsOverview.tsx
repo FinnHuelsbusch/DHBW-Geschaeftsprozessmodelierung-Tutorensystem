@@ -15,6 +15,7 @@ import { useNavigate, useNavigationType } from 'react-router-dom';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { TreeNode } from 'antd/lib/tree-select';
 import { CourseWithTitleAndSpecialisations } from '../../types/Course';
+import FormText from '../inputs/FormText';
 
 const TutorialsOverview: React.FC = () => {
 
@@ -178,13 +179,21 @@ const TutorialsOverview: React.FC = () => {
             >
                 <Row gutter={24}>
                     <Col flex="0.5 1 300px">
-                        <Form.Item
+                        {/* <Form.Item
                             name="text"
                             label="Suchen">
                             <Input
                                 allowClear
                                 placeholder="Titel, Beschreibung..." />
-                        </Form.Item>
+                        </Form.Item> */}
+                        <FormText
+                            name="text"
+                            label="Suchen"
+                        >
+                            <Input
+                                allowClear
+                                placeholder="Titel, Beschreibung..." />
+                        </FormText>
                     </Col>
 
                     <Col flex="0.5 1 300px">

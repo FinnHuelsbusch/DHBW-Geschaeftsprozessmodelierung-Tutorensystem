@@ -27,11 +27,6 @@ public class TutorialRequest {
     @Setter
     private Integer id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @Getter
-    @Setter
-    private Set<SpecialisationCourse> specialisationCourses;
-
     @OneToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
@@ -47,7 +42,7 @@ public class TutorialRequest {
 
     @Getter
     @Setter
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Student createdBy;
 
     @Getter
