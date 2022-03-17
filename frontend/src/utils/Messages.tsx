@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 export const validateMessages = {
     default: "Validierungsfehler im Feld '${label}'",
     required: "'${label}' muss ausgefüllt sein",
@@ -28,5 +29,11 @@ export const validateMessages = {
     },
     pattern: {
         mismatch: "'${label}' stimmt nicht mit dem geforderten Format ${pattern} überein",
+        password: {
+            notFulfillingRegex: "Passwort muss min. 8 Zeichen, davon min. eine Ziffer enthalten",
+            notMatching: "Passwörter stimmen nicht überein"
+        },
+        // do not give details about pattern
+        invalid: "Ungültiges Format",
     },
 };
