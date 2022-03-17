@@ -25,7 +25,6 @@ import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.security.authentication.exception.AccountNotEnabledException;
 import com.dhbw.tutorsystem.security.authentication.exception.EmailAlreadyExistsException;
-import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidUserTypeException;
 import com.dhbw.tutorsystem.security.authentication.exception.LastPasswordActionTooRecentException;
 import com.dhbw.tutorsystem.security.authentication.exception.LoginFailedException;
@@ -107,10 +106,6 @@ public class AuthenticationController {
     })
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        if (!User.isValidEmail(loginRequest.getEmail())) {
-            logger.info("User tried to login with invalid email adress: {}", loginRequest.getEmail());
-            throw new LoginFailedException();
-        }
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -145,10 +140,6 @@ public class AuthenticationController {
     })
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        if (!User.isValidEmail(registerRequest.getEmail())) {
-            logger.info("User tried to register with invalid email: {}", registerRequest.getEmail());
-            throw new InvalidEmailException();
-        }
         // get user (either student or director) to check for duplicate registration
         User user = null;
         if (User.isStudentMail(registerRequest.getEmail())) {
