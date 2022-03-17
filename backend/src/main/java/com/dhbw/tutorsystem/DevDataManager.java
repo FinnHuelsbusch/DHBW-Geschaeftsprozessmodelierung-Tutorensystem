@@ -215,6 +215,7 @@ public class DevDataManager {
         specialisationCourse.setCourse(course);
         specialisationCourse.setTitle(title);
         specialisationCourse.setAbbreviation(abbreviation);
+        uStudent1.setSpecialisationCourse(specialisationCourse);
         return specialisationCourseRepository.save(specialisationCourse);
     }
 }
