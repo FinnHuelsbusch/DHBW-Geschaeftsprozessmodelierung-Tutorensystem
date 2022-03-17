@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { TutorialRequest } from '../types/Tutorial';
 import moment from 'moment';
-import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations, SpecialisationCoursesWithoutCourse } from '../types/Course';
+import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
-import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
+import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse, TutorialRequest } from '../types/Tutorial';
 import { User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -139,7 +138,7 @@ export const createTutorialRequest = (tutorialRequest: TutorialRequest): Promise
             title: tutorialRequest.title,
             semester: tutorialRequest.semester,
         });
-};
+}
 
 export const changePassword = (newPassword: string): Promise<User> => {
     if (!newPassword) return Promise.reject();
@@ -156,7 +155,7 @@ export const changePassword = (newPassword: string): Promise<User> => {
         } as User;
         return user;
     });
-};
+}
 
 export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFilterResponse> => {
     const sorting = filter.sorting.attribute !== "none"
@@ -220,11 +219,6 @@ export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeade
 export const getCoursesWithTitleAndSpecialisations = (): Promise<CourseWithTitleAndSpecialisations[]> => {
     return api.get('/courses/withTitleAndSpecialisations')
         .then(res => res.data);
-}
-
-export const getSpecialisationCoursesForUser = (userEmail: string): Promise<SpecialisationCoursesWithoutCourse[]> => {
-    return api.get('courses/specialisationForUser')
-        .then(res => res.data)
 }
 
 export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId[]> => {

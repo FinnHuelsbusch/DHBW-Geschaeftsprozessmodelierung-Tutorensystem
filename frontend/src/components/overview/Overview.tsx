@@ -22,29 +22,23 @@ const Overview: React.FC = () => {
       }}>
         Ping backend
       </Button>
-
       <Button type="link" onClick={() => setIsTutorialOfferModalVisible(true)}>
         OfferModal
       </Button>
-
       <TutorialOfferModal
         isModalVisible={isTutorialOfferModalVisible}
         setIsTutorialOfferModalVisible={setIsTutorialOfferModalVisible}
       />
-
       <Button type="link" disabled={authContext.loggedUser == undefined} onClick={() => { setIsTutorialRequestModalVisible(true) }}>
         RequestModal
       </Button>
-
       <TutorialRequestModal
         isModalVisible={isTutorialRequestModalVisible}
         setIsTutorialRequestModalVisible={setIsTutorialRequestModalVisible}
       />
-
       <Button type="link" onClick={() => { setIsTutorialCreateModalVisible(true) }}>
         CreateModal
       </Button>
-      
       <TutorialCreateModal
         isModalVisible={isTutorialCreateModalVisible}
         setIsTutorialCreateModalVisible={setIsTutorialCreateModalVisible}

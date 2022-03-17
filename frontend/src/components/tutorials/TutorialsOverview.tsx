@@ -179,13 +179,6 @@ const TutorialsOverview: React.FC = () => {
             >
                 <Row gutter={24}>
                     <Col flex="0.5 1 300px">
-                        {/* <Form.Item
-                            name="text"
-                            label="Suchen">
-                            <Input
-                                allowClear
-                                placeholder="Titel, Beschreibung..." />
-                        </Form.Item> */}
                         <FormText
                             name="text"
                             label="Suchen"

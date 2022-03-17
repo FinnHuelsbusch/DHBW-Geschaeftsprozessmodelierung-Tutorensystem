@@ -4,14 +4,11 @@ import java.util.List;
 
 import com.dhbw.tutorsystem.course.dto.CourseWithTitleAndLeaders;
 import com.dhbw.tutorsystem.course.dto.CourseWithTitleAndSpecialisations;
-import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
-import com.dhbw.tutorsystem.specialisationCourse.dto.SpecialisationCourseWithoutCourse;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +25,6 @@ public class CourseController {
 
     private final ModelMapper modelMapper; 
     private final CourseRepository courseRepository; 
-    private final SpecialisationCourseRepository specialisationCourseRepository;
     
 
     @Operation(summary = "Get Courses with Title and Leaders", tags = { "courses" })
@@ -48,14 +44,5 @@ public class CourseController {
     @GetMapping("/withTitleAndSpecialisations")
     public ResponseEntity<List<CourseWithTitleAndSpecialisations>> getCoursesWithTitleAndSpecialisations() {
         return new ResponseEntity<List<CourseWithTitleAndSpecialisations>>(CourseWithTitleAndSpecialisations.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
-    }
-
-    @Operation(summary = "Get Specialisation Courses for logged in user", tags = { "courses" })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Specialisations Courses are returned as list."),
-    })
-    @GetMapping("/specialisationForUser")
-    public ResponseEntity<List<SpecialisationCourseWithoutCourse>> getSpecialisationCourseWithoutCourseForUser() {
-        return new ResponseEntity<List<SpecialisationCourseWithoutCourse>>(SpecialisationCourseWithoutCourse.convertToDto(modelMapper, specialisationCourseRepository.findAll()), HttpStatus.OK);
     }
 }
