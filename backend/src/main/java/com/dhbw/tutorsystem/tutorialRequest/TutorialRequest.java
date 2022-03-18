@@ -7,7 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -26,10 +26,10 @@ public class TutorialRequest {
     @Setter
     private Integer id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @Getter
     @Setter
-    private Set<SpecialisationCourse> specialisationCourses;
+    private SpecialisationCourse specialisationCourse;
 
     @OneToMany(fetch = FetchType.LAZY)
     @Getter
@@ -38,14 +38,18 @@ public class TutorialRequest {
 
     @Getter
     @Setter
-    private String title; 
+    private String title;
 
     @Getter
     @Setter
-    private String description; 
+    private String description;
 
     @Getter
     @Setter
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Student createdBy;
+
+    @Getter
+    @Setter
+    private Integer semester;
 }

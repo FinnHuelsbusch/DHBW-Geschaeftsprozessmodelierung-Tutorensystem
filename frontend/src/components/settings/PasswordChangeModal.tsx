@@ -4,7 +4,7 @@ import React, { useContext, useState } from 'react';
 import { changePassword, getRequestError } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { getErrorMessageString } from '../../types/RequestError';
-import PasswordWithConfirm, { PasswordFieldProps } from '../register/PasswordWithConfirm';
+import PasswordInput from '../inputs/PasswordInput';
 
 type Props = {
     visible: boolean,
@@ -19,42 +19,23 @@ const ChangePasswordModal: React.FC<Props> = ({ visible, onClose }) => {
 
     const onFormSubmit = (values: any) => {
         setLoading(true);
-        if (!PasswordWithConfirm.passwordsMatch(values.password, values.passwordConfirm)) {
-            setPasswordFieldsInfo({
-                validateStatus: 'error',
-                message: 'Passwörter stimmen nicht überein'
+        changePassword(values.password)
+            .then(user => {
+                setLoading(false);
+                authContext.login(user);
+                message.success("Passwort erfolgreich geändert");
+                cleanupAndClose();
+            }).catch(err => {
+                setLoading(false);
+                const reqErr = getRequestError(err);
+                message.error(getErrorMessageString(reqErr.errorCode));
             });
-        } else {
-            setPasswordFieldsInfo({
-                validateStatus: 'success',
-                message: undefined
-            });
-            changePassword(values.password)
-                .then(user => {
-                    setLoading(false);
-                    authContext.login(user);
-                    message.success("Passwort erfolgreich geändert");
-                    cleanupAndClose();
-                }).catch(err => {
-                    setLoading(false);
-                    const reqErr = getRequestError(err);
-                    message.error(getErrorMessageString(reqErr.errorCode));
-                });
-        }
     };
 
     const cleanupAndClose = () => {
         form.resetFields();
         onClose();
     };
-
-    const [passwordFieldsInfo, setPasswordFieldsInfo] = useState<{
-        validateStatus: PasswordFieldProps['validateStatus'],
-        message: PasswordFieldProps['message']
-    }>({
-        validateStatus: undefined,
-        message: undefined
-    });
 
     return (
         <Modal
@@ -76,17 +57,11 @@ const ChangePasswordModal: React.FC<Props> = ({ visible, onClose }) => {
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 14 }}
                 onFinish={onFormSubmit}>
-                <PasswordWithConfirm.Password
+
+                <PasswordInput
                     disabled={loading}
                     customLabel="Neues Passwort"
-                    validateStatus={passwordFieldsInfo.validateStatus}
-                    message={passwordFieldsInfo.message}
-                />
-                <PasswordWithConfirm.PasswordConfirm
-                    disabled={loading}
-                    customLabel="Neues Passwort wiederholen"
-                    validateStatus={passwordFieldsInfo.validateStatus}
-                    message={passwordFieldsInfo.message}
+                    withConfirmForm={form}
                 />
             </Form>
         </Modal>

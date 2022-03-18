@@ -5,8 +5,11 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
+
 public class LoginRequest {
-    @NotBlank
+
+    @ValidEmail
     @Getter
     @Setter
     private String email;
@@ -14,6 +17,7 @@ public class LoginRequest {
     @NotBlank
     @Getter
     @Setter
+    // intentionally do not check password regex here to not expose details
     private String password;
 
 }
