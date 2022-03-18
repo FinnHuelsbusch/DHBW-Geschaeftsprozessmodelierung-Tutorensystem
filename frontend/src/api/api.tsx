@@ -241,8 +241,8 @@ export const putTutorial = (newTutorial: Object): Promise<number> => {
         });
 }
 
-export const updateTutorial = (updatedTutorial: Object): Promise<number> => {
-    return api.post('/tutorials', updatedTutorial)
+export const updateTutorial = (tutorialId: number, updatedTutorial: Object): Promise<number> => {
+    return api.post(`/tutorials/update/${tutorialId}`, updatedTutorial)
         .then(res => {
             const data = res.data;
             return data.id;

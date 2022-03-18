@@ -44,6 +44,8 @@ const TutorialDetails: React.FC = () => {
     }, [tutorialId]);
 
 
+
+
     const TutorialDetailsPage = (tutorial: Tutorial) => {
 
         const getDetailsRow = (label: string, content: any) => {
@@ -252,12 +254,20 @@ const TutorialDetails: React.FC = () => {
                     </Typography>
                     <TutorialDeleteModal
                         isModalVisible={isTutorialDeleteModalVisible}
-                        setIsTutorialDeleteModalVisible={setIsTutorialDeleteModalVisible}
+                        setIsTutorialDeleteModalVisible={(visible: boolean, deleted: boolean) =>{
+                            setIsTutorialDeleteModalVisible(visible);
+                           if(deleted){
+                            navigate(-1);
+                           }}}
                         tutorial={tutorial}                
                     />
                     <TutorialCreateModal 
                         isModalVisible={isTutorialCreateModalVisible} 
-                        setIsTutorialCreateModalVisible={setIsTutorialCreateModalVisible}
+                        setIsTutorialCreateModalVisible={(visible: boolean, isUpdated: boolean) =>{
+                            setIsTutorialCreateModalVisible(visible);
+                           if(isUpdated){
+                            fetchTutorial();
+                           }}}
                         existingTutorial={tutorial}
                     />
                 </PageHeader>

@@ -15,7 +15,7 @@ import { Tutorial } from "../../types/Tutorial";
 
 interface Props {
     isModalVisible: boolean,
-    setIsTutorialCreateModalVisible: (visible: boolean) => void,
+    setIsTutorialCreateModalVisible: (visible: boolean, isUpdated: boolean) => void,
     existingTutorial?: Tutorial
 }
 
@@ -39,8 +39,8 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             appointment: values.appointment
         }
         if (existingTutorial) {
-            updateTutorial(tutorial).then(tutorialId => {
-                setIsTutorialCreateModalVisible(false);
+            updateTutorial(existingTutorial.id, tutorial ).then(tutorialId => {
+                setIsTutorialCreateModalVisible(false, true);
                 form.resetFields();
                 message.success("Tutorium erfolgreich bearbeitet");
                 navigate(`/tutorials/${tutorialId}`);
@@ -49,7 +49,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             });
         } else {
             putTutorial(tutorial).then(tutorialId => {
-                setIsTutorialCreateModalVisible(false);
+                setIsTutorialCreateModalVisible(false, false);
                 form.resetFields();
                 message.success("Tutorium erfolgreich erstellt");
                 navigate(`/tutorials/${tutorialId}`);
@@ -62,7 +62,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
     };
 
     const onCancel = () => {
-        setIsTutorialCreateModalVisible(false);
+        setIsTutorialCreateModalVisible(false,false);
         form.resetFields();
     }
 
@@ -86,7 +86,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
                     title: existingTutorial.title,
                     description: existingTutorial.description,
                     timerange: [moment(existingTutorial.start, "YYYY-MM-DD"), moment(existingTutorial.end, "YYYY-MM-DD")],
-                    durationMinutes: existingTutorial.durationMinutes,
+                    durationMinutes: Math.floor(existingTutorial.durationMinutes/60) + ":" + (existingTutorial.durationMinutes%60 < 10? '0': '') + existingTutorial.durationMinutes%60 ,
                     tutorEmails: existingTutorial.tutors.map(t => t.email),
                     specialisationCoursesIds: existingTutorial.specialisationCourses.map(s => s.id),
                     appointment: existingTutorial.appointment
