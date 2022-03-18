@@ -60,14 +60,19 @@ const Navigation: React.FC = () => {
                     </div>
                 </Link>
             </Menu.Item>
+            <Menu.Item key="2">
+                <Link to={AppRoutes.Main.Subroutes.Tutorials}>
+                    Tutorien
+                </Link>
+            </Menu.Item>
             {authContext.hasRoles([UserRole.ROLE_ADMIN])
-                && <Menu.Item key="2">
+                && <Menu.Item key="11">
                     <Link to={AppRoutes.Main.Subroutes.AdminOverview}>
                         Übersicht Administrator
                     </Link>
                 </Menu.Item>}
             {authContext.hasRoles([UserRole.ROLE_DIRECTOR])
-                && <Menu.Item key="3">
+                && <Menu.Item key="12">
                     Übersicht Studiengangsleiter
                 </Menu.Item>}
             <li className='navbar-profile'>

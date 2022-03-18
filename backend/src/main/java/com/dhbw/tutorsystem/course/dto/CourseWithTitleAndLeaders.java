@@ -11,7 +11,6 @@ import org.modelmapper.ModelMapper;
 
 import lombok.Data;
 
-
 @Data
 public class CourseWithTitleAndLeaders {
 
@@ -19,17 +18,19 @@ public class CourseWithTitleAndLeaders {
 
     private String title;
 
+    private String abbreviation;
+
     private Set<UserWithEmailAndName> leadBy;
 
-    public static CourseWithTitleAndLeaders convertToDto(ModelMapper modelMapper, Course course){
-        CourseWithTitleAndLeaders courseWithTitleAndLeaders = modelMapper.map(course, CourseWithTitleAndLeaders.class); 
+    public static CourseWithTitleAndLeaders convertToDto(ModelMapper modelMapper, Course course) {
+        CourseWithTitleAndLeaders courseWithTitleAndLeaders = modelMapper.map(course, CourseWithTitleAndLeaders.class);
         return courseWithTitleAndLeaders;
     }
 
-    public static List<CourseWithTitleAndLeaders> convertToDto(ModelMapper modelMapper, Iterable<Course> courses){
-        ArrayList<CourseWithTitleAndLeaders> coursesList = new ArrayList<>(); 
+    public static List<CourseWithTitleAndLeaders> convertToDto(ModelMapper modelMapper, Iterable<Course> courses) {
+        ArrayList<CourseWithTitleAndLeaders> coursesList = new ArrayList<>();
         for (Course course : courses) {
-            coursesList.add(convertToDto(modelMapper, course)); 
+            coursesList.add(convertToDto(modelMapper, course));
         }
         return coursesList;
     }

@@ -2,7 +2,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
-import { Tutorial } from '../types/Tutorial';
+import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse } from '../types/Tutorial';
 import { User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -149,6 +149,67 @@ export const changePassword = (newPassword: string): Promise<User> => {
     });
 }
 
+export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFilterResponse> => {
+    const sorting = filter.sorting.attribute !== "none"
+        ? `&sort=${filter.sorting.attribute},${filter.sorting.order}`
+        : "";
+    const attributesFilter = {
+        text: filter.text,
+        startDateFrom: filter.startDateFrom,
+        startDateTo: filter.startDateTo,
+        specialisationCourseIds: filter.specialisationCourseIds,
+        selectMarked: filter.selectMarked,
+        selectParticipates: filter.selectParticipates,
+        selectHolds: filter.selectHolds
+    } as TutorialFilter;
+    return api.post(`/tutorials/findWithFilter?page=${filter.page}&size=${filter.elementsPerPage}${sorting}`, attributesFilter)
+        .then(res => {
+            const data = res.data;
+            return {
+                tutorials: data.tutorials.map((t: any) => mapTutorialFromResponse(t)) as Array<Tutorial>,
+                currentPage: data.currentPage,
+                totalPages: data.totalPages,
+                totalElements: data.totalElements
+            } as TutorialFilterResponse;
+        });
+}
+
+export const getTutorial = (tutorialId: number): Promise<Tutorial> => {
+    return api.get(`/tutorials/${tutorialId}`)
+        .then(res => {
+            const data = res.data;
+            return mapTutorialFromResponse(data);
+        });
+}
+
+export const participateInTutorial = (tutorialId: number): Promise<any> => {
+    return api.put(`/tutorials/participate/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
+export const removeParticipationInTutorial = (tutorialId: number): Promise<any> => {
+    return api.delete(`/tutorials/participate/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
+export const markTutorial = (tutorialId: number): Promise<any> => {
+    return api.put(`/tutorials/mark/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
+export const unmarkTutorial = (tutorialId: number): Promise<any> => {
+    return api.delete(`/tutorials/mark/${tutorialId}`)
+        .then(res => {
+            return res.data;
+        });
+}
+
 export const getCoursesWithTitleAndLeaders = (): Promise<CourseWithTitleAndLeaders[]> => {
     return api.get('/courses/withTitleAndLeaders')
         .then(res => res.data);
@@ -164,7 +225,18 @@ export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId
         .then(res => res.data);
 }
 
-export const putTutorial = (newTutorial: Object): Promise<Tutorial> => {
-    return api.put('/tutorial', newTutorial)
-        .then(res => res.data);
+export const putTutorial = (newTutorial: Object): Promise<number> => {
+    return api.put('/tutorials', newTutorial)
+        .then(res => {
+            const data = res.data;
+            return data.id;
+        });
+}
+
+export const deleteTutorial = (tutorialId: number, reason?: string): Promise<number> => {
+    return api.post(`/tutorials/delete/${tutorialId}`, { reason: reason })
+        .then(res => {
+            const data = res.data;
+            return data.id;
+        });
 }

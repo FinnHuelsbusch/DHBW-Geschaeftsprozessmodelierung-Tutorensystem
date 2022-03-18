@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 
 @AllArgsConstructor
 public class VerifyRequest {
-    
+
     @NotBlank
     @Getter
     @Setter

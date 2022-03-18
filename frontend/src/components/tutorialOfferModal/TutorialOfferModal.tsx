@@ -56,7 +56,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
             visible={isModalVisible}
             onCancel={onCancel}
             title={"Tutoriumsangebot erstellen"}
-            width={600}
+            width={900}
             footer={[
                 <Button
                     type="primary"
@@ -70,6 +70,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
             <div>
                 <Form
                     form={form}
+                    labelWrap
                     labelCol={{ span: 9 }}
                     wrapperCol={{ span: 15 }}
                     onFinish={onFinish}
@@ -93,7 +94,7 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
 
                     <Form.Item
                         rules={[{ required: true }]}
-                        label="Hochschule/Universität:"
+                        label="Hochschule / Universität:"
                         name="university"
                     >
                         <Input />
