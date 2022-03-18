@@ -134,6 +134,10 @@ public class TutorialController {
 
         List<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(), mailArguments);
 
+        if(tutors.size() > 0){
+            
+        }
+
         tutorial.setTutors(Set.copyOf(tutors));
         tutorial.setDescription(createTutorialRequest.getDescription());
         tutorial.setTitle(createTutorialRequest.getTitle());

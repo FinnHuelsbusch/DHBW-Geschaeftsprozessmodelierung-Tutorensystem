@@ -51,6 +51,8 @@ public class EmailSenderService {
             sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
         } else if(mailType == MailType.USER_ADDED_TO_TUTORIAL){
             sendUserAddedToTutorialAsTutorMail(mailTo, arguments); 
+        } else if(mailType == MailType.TUTOR_SELECTED){
+            sendTutorSelectedMail(mailTo, arguments);
         }    else {
             throw new IllegalArgumentException("MailType is not known.");
         }
@@ -86,6 +88,10 @@ public class EmailSenderService {
         helper.setSubject("Tutorensystem Passwort vergessen");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
+    }
+
+    private void sendTutorSelectedMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        
     }
 
     private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
