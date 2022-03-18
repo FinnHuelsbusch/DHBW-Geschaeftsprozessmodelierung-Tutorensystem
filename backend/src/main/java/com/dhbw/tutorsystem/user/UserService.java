@@ -10,14 +10,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository; 
+    private final UserRepository userRepository;
 
-    public User getLoggedInUser(){
+    public User getLoggedInUser() {
         Object objectPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(objectPrincipal instanceof UserDetails){
+        if (objectPrincipal instanceof UserDetails) {
             return userRepository.findByEmail(((UserDetails) objectPrincipal).getUsername()).orElse(null);
         } else {
-          return null; 
+            return null;
         }
     }
 }

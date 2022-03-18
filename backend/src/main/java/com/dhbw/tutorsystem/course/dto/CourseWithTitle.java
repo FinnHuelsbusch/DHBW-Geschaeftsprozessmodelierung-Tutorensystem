@@ -9,7 +9,6 @@ import org.modelmapper.ModelMapper;
 
 import lombok.Data;
 
-
 @Data
 public class CourseWithTitle {
 
@@ -19,15 +18,15 @@ public class CourseWithTitle {
 
     private String abbreviation;
 
-    public static CourseWithTitle convertToDto(ModelMapper modelMapper, Course course){
-        CourseWithTitle courseWithTitleAndLeaders = modelMapper.map(course, CourseWithTitle.class); 
+    public static CourseWithTitle convertToDto(ModelMapper modelMapper, Course course) {
+        CourseWithTitle courseWithTitleAndLeaders = modelMapper.map(course, CourseWithTitle.class);
         return courseWithTitleAndLeaders;
     }
 
-    public static List<CourseWithTitle> convertToDto(ModelMapper modelMapper, Iterable<Course> courses){
-        ArrayList<CourseWithTitle> coursesList = new ArrayList<>(); 
+    public static List<CourseWithTitle> convertToDto(ModelMapper modelMapper, Iterable<Course> courses) {
+        ArrayList<CourseWithTitle> coursesList = new ArrayList<>();
         for (Course course : courses) {
-            coursesList.add(convertToDto(modelMapper, course)); 
+            coursesList.add(convertToDto(modelMapper, course));
         }
         return coursesList;
     }

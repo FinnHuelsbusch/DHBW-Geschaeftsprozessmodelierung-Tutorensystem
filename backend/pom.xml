@@ -9,9 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.dhbw</groupId>
-	<artifactId>tutorsystem</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>tutorsystem</name>
+	<artifactId>tutorensystem</artifactId>
+	<version>1.0</version>
+	<name>tutorensystem</name>
+	<packaging>war</packaging>
 	<description>Backend of the tutorsystem</description>
 	<properties>
 		<java.version>11</java.version>
@@ -68,7 +69,7 @@
 			<artifactId>querydsl-jpa</artifactId>
 			<version>5.0.0</version>
 		</dependency>
-
+		
 		<dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
@@ -142,6 +143,22 @@
 			 <artifactId>modelmapper</artifactId>
 			 <version>3.0.0</version>
 		 </dependency>
+		<dependency>
+			<groupId>com.icegreen</groupId>
+			<artifactId>greenmail</artifactId>
+			<version>1.6.7</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-email</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

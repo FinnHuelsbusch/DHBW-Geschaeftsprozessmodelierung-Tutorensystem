@@ -24,10 +24,18 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 public class User {
+
     @JsonIgnore
-    private static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
+    public static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
+
     @JsonIgnore
-    private static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+    public static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+
+    @JsonIgnore
+    public static final String validEmailRegex = studentMailRegex + "|" + directorMailRegex;
+
+    @JsonIgnore
+    public static final String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,10 +77,6 @@ public class User {
     @Setter
     private Set<Role> roles = new HashSet<>();
 
-
-
-
-
     public User() {
 
     }
@@ -89,12 +93,12 @@ public class User {
         this.password = password;
     }
 
-    public boolean isStudentMail() {
-        return StringUtils.isNotBlank(this.email) && Pattern.matches(studentMailRegex, this.email);
+    public static boolean isStudentMail(String email) {
+        return StringUtils.isNotBlank(email) && Pattern.matches(studentMailRegex, email);
     }
 
-    public boolean isDirectorMail() {
-        return StringUtils.isNotBlank(this.email) && Pattern.matches(directorMailRegex, this.email);
+    public static boolean isDirectorMail(String email) {
+        return StringUtils.isNotBlank(email) && Pattern.matches(directorMailRegex, email);
     }
 
     public static boolean isValidEmail(String email) {

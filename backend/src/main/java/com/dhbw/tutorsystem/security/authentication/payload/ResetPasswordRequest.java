@@ -2,6 +2,9 @@ package com.dhbw.tutorsystem.security.authentication.payload;
 
 import javax.validation.constraints.NotBlank;
 
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidPassword;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,12 +15,12 @@ public class ResetPasswordRequest {
     @Setter
     private String hash;
 
-    @NotBlank
+    @ValidEmail
     @Getter
     @Setter
     private String email;
 
-    @NotBlank
+    @ValidPassword
     @Getter
     @Setter
     private String newPassword;

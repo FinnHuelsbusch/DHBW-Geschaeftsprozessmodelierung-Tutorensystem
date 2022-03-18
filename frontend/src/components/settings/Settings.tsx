@@ -5,7 +5,6 @@ import { LockOutlined } from '@ant-design/icons';
 import { CourseWithTitleAndLeaders, SpecialisationCourse } from '../../types/Course';
 import { AuthContext } from '../../context/UserContext';
 import EmailFormInput from '../inputs/EmailFormInput';
-import PasswordWithConfirm from '../register/PasswordWithConfirm';
 import ChangePasswordModal from './PasswordChangeModal';
 import { UserRole } from '../../types/User';
 

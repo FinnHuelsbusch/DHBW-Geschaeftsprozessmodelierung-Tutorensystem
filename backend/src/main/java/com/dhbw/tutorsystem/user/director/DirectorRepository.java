@@ -1,4 +1,4 @@
-package com.dhbw.tutorsystem.user.director; 
+package com.dhbw.tutorsystem.user.director;
 
 import java.util.Optional;
 

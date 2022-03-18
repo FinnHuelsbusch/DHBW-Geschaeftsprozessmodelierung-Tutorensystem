@@ -1,8 +1,7 @@
 package com.dhbw.tutorsystem.tutorialRequest;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface TutorialRequestRepository extends JpaRepository<TutorialRequest,Integer>{
-    
+public interface TutorialRequestRepository extends CrudRepository<TutorialRequest, Integer> {
+
 }
-
