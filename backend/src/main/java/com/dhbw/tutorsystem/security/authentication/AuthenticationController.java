@@ -353,7 +353,7 @@ public class AuthenticationController {
         // find user and change the password, then directly log in
         User loggedUser = userService.getLoggedInUser();
         if (loggedUser == null) {
-            logger.info("Logged in user with email {} was not found", loggedUser.getEmail());
+            logger.info("Logged in user was not found");
             throw new UserNotFoundException();
         }
         Optional<User> optionalUser = userRepository.findByEmail(loggedUser.getEmail());
