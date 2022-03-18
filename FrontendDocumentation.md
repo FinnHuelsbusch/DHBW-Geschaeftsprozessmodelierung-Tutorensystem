@@ -46,9 +46,9 @@ Enthält Elemente, die bei der Erstellung der Grundstruktur mit `create-react-ap
 
 Enthält `api.tsx`, in der die gesamte Kommunikation zum Backend geregelt wird. Als HTTP-Client wird [Axios](https://axios-http.com/) verwendet. Die URL des Backend wird über eine `.env` Datei ausgelesen (siehe [Setup](#development-setup) und [env variables](https://create-react-app.dev/docs/adding-custom-environment-variables/)).
 
-Die Realisierung der Authentifizierung und Autorisierung über [JsonWebTokens (JWT)](https://jwt.io/) erfolgt zentralisert in dieser Datei. Dabei wird bei `login` und `logout` entsprechend das Token als `Authorization` Header bei jedem nachfolgenden Backend-Aufruf mitgesendet, wodurch gegenüber dem Backend der Nutzer als solcher identifiziert werden kann und entsprechende Rechte gewährt werden. Siehe dazu auch das [UserContext Objekt](# `src/context`) und die Implementierung innerhalb der `App.tsx`.
+Die Realisierung der Authentifizierung und Autorisierung über [JsonWebTokens (JWT)](https://jwt.io/) erfolgt zentralisert in dieser Datei. Dabei wird bei `login` und `logout` entsprechend das Token als `Authorization` Header bei jedem nachfolgenden Backend-Aufruf mitgesendet, wodurch gegenüber dem Backend der Nutzer als solcher identifiziert werden kann und entsprechende Rechte gewährt werden. Siehe dazu auch das [UserContext Objekt](#src/context) und die Implementierung innerhalb der `App.tsx`.
 
-Die Fehlerbehandlung wird mithilfe des `RequestError.tsx` in [`src/types`](# `src/types') zentral gesteuert. Dort werden Error-Codes zusammen mit einer Textrepräsentation gepflegt.
+Die Fehlerbehandlung wird mithilfe des `RequestError.tsx` in [`src/types`](#src/types) zentral gesteuert. Dort werden Error-Codes zusammen mit einer Textrepräsentation gepflegt.
 
 ### `src/components`
 
