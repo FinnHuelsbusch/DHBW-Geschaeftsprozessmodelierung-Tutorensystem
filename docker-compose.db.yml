@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  db:
+    image: 'postgres:latest'
+    restart: unless-stopped
+    volumes:
+      - /var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: tutorensystem-dhbw
+    ports:
+      - "5432:5432"   
+    networks:
+      - default
+networks:
+  default:
