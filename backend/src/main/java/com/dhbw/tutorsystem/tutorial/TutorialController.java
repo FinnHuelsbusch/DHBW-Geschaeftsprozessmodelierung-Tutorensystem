@@ -538,8 +538,7 @@ public class TutorialController {
             throw new TSInternalServerException();
         }
 
-        mapCreateTutorialRequestToTutorial(createTutorialRequest,
-                Stream.concat(tutors.stream(), tutorial.getTutors().stream()).collect(Collectors.toSet()), tutorial);
+        mapCreateTutorialRequestToTutorial(createTutorialRequest,userRepository.findAllByEmailIn(createTutorialRequest.getTutorEmails()), tutorial);
 
         tutorialRepository.save(tutorial);
         return new ResponseEntity<>(
