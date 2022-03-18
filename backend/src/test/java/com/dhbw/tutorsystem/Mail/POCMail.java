@@ -1,6 +1,5 @@
-package com.dhbw.tutorsystem;
+package com.dhbw.tutorsystem.Mail;
 
-import com.dhbw.tutorsystem.Mail.SMTPServerRule;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
@@ -12,14 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class TutorsystemApplicationTests {
+public class POCMail {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
@@ -48,6 +47,7 @@ class TutorsystemApplicationTests {
 		javaMailSender.send(helper.getMimeMessage());
 
 		MimeMessage[] receivedMessages = smtpServerRule.getMessages();
+        Object a = receivedMessages[0].getContent();
 		assertEquals(1, receivedMessages.length);
 
 		MimeMessage current = receivedMessages[0];
