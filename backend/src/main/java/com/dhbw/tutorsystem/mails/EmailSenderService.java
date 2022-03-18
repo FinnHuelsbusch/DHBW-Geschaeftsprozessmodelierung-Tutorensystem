@@ -62,14 +62,20 @@ public class EmailSenderService {
             case TUTORIAL_PARTICIPATION_REMOVAL_STUDENT:
                 sendTutorialParticipationStudentRemovalMail(mailTo, arguments);
                 break;
-            case UNREGISTERD_USER_ADDED_TO_TUTORIAL:
+            case UNREGISTERD_TUTORIAL_TUTOR_ADDED:
                 sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
                 break;
             case TUTORIAL_DELETION:
                 sendUTutorialDelete(mailTo, arguments);
                 break;
-            case USER_ADDED_TO_TUTORIAL:
+            case TUTORIAL_TUTOR_ADDED:
                 sendUserAddedToTutorialAsTutorMail(mailTo, arguments);
+                break;
+            case TUTORIAL_TUTOR_REMOVED:
+                sendUserRemovedAsTutor(mailTo, arguments);
+                break;
+            case TUTORIAL_CHANGED:
+                sendTutorialChanged(mailTo, arguments);
                 break;
             default:
                 throw new IllegalArgumentException("MailType is not known.");
@@ -159,6 +165,14 @@ public class EmailSenderService {
     }
 
     private void sendUTutorialDelete(String mailTo, Map<String, Object> arguments) throws MessagingException {
+
+    }
+
+    private void sendUserRemovedAsTutor(String mailTo, Map<String, Object> arguments) throws MessagingException {
+
+    }
+
+    private void sendTutorialChanged(String mailTo, Map<String, Object> arguments) throws MessagingException {
 
     }
 

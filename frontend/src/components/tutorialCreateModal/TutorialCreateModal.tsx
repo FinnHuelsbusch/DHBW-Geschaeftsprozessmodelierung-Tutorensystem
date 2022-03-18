@@ -1,7 +1,7 @@
 import { Button, DatePicker, Form, Input, message, Modal, Select, TreeSelect } from "antd"
 import { useForm } from "antd/lib/form/Form";
 import { useEffect, useState } from "react";
-import { getCoursesWithTitleAndSpecialisations, getRequestError, getUsersWithNameAndMailAndId, putTutorial } from "../../api/api";
+import { getCoursesWithTitleAndSpecialisations, getRequestError, getUsersWithNameAndMailAndId, putTutorial, updateTutorial } from "../../api/api";
 import { CourseWithTitleAndSpecialisations } from "../../types/Course";
 import TextArea from "antd/lib/input/TextArea";
 import { UserWithMailAndNameAndId } from "../../types/User";
@@ -38,14 +38,26 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             specialisationCoursesIds: values.specialisationCoursesIds,
             appointment: values.appointment
         }
-        putTutorial(tutorial).then(tutorialId => {
-            setIsTutorialCreateModalVisible(false);
-            form.resetFields();
-            message.success("Tutorium erfolgreich erstellt");
-            navigate(`/tutorials/${tutorialId}`);
-        }, err => {
-            message.error(getErrorMessageString(getRequestError(err).errorCode))
-        });
+        if (existingTutorial) {
+            updateTutorial(tutorial).then(tutorialId => {
+                setIsTutorialCreateModalVisible(false);
+                form.resetFields();
+                message.success("Tutorium erfolgreich bearbeitet");
+                navigate(`/tutorials/${tutorialId}`);
+            }, err => {
+                message.error(getErrorMessageString(getRequestError(err).errorCode))
+            });
+        } else {
+            putTutorial(tutorial).then(tutorialId => {
+                setIsTutorialCreateModalVisible(false);
+                form.resetFields();
+                message.success("Tutorium erfolgreich erstellt");
+                navigate(`/tutorials/${tutorialId}`);
+            }, err => {
+                message.error(getErrorMessageString(getRequestError(err).errorCode))
+            });
+        }
+
 
     };
 
@@ -68,17 +80,17 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
                 message.error(getErrorMessageString(getRequestError(err).errorCode))
             });
 
-            if(existingTutorial){
+            if (existingTutorial) {
                 // activate changemode: fill existingTutorial into form
                 form.setFieldsValue({
                     title: existingTutorial.title,
                     description: existingTutorial.description,
-                    timerange: [moment(existingTutorial.start, "YYYY-MM-DD"), moment(existingTutorial.end, "YYYY-MM-DD") ],
+                    timerange: [moment(existingTutorial.start, "YYYY-MM-DD"), moment(existingTutorial.end, "YYYY-MM-DD")],
                     durationMinutes: existingTutorial.durationMinutes,
                     tutorEmails: existingTutorial.tutors.map(t => t.email),
                     specialisationCoursesIds: existingTutorial.specialisationCourses.map(s => s.id),
                     appointment: existingTutorial.appointment
-                }); 
+                });
             }
         }
     }, [isModalVisible]);
@@ -124,14 +136,14 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
         <Modal
             visible={isModalVisible}
             onCancel={onCancel}
-            title={existingTutorial? "Tutorium bearbeiten": "Tutorium erstellen"}
+            title={existingTutorial ? "Tutorium bearbeiten" : "Tutorium erstellen"}
             width={900}
             footer={[
                 <Button
                     type="primary"
                     htmlType="submit"
                     onClick={e => form.submit()}>
-                    {existingTutorial? "Bearbeiten": "Erstellen"}
+                    {existingTutorial ? "Bearbeiten" : "Erstellen"}
                 </Button>
             ]}
         >

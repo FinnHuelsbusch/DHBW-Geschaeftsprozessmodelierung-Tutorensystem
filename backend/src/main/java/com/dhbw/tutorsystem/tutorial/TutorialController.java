@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
@@ -22,6 +23,7 @@ import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.dto.CreateTutorialRequest;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationCoursesWithoutCourses;
 import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
@@ -57,6 +59,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -409,7 +412,7 @@ public class TutorialController {
             @ApiResponse(responseCode = "201", description = "Returns the created tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
-    @PutMapping()
+    @PutMapping
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> createTutorial(
             @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest) {
@@ -462,7 +465,7 @@ public class TutorialController {
             if (optionalUser.isPresent()) {
                 user = optionalUser.get();
                 try {
-                    emailSenderService.sendMail(user.getEmail(), MailType.USER_ADDED_TO_TUTORIAL,
+                    emailSenderService.sendMail(user.getEmail(), MailType.TUTORIAL_TUTOR_ADDED,
                             mailArguments);
                 } catch (MessagingException e) {
                     throw new TSInternalServerException();
@@ -472,7 +475,7 @@ public class TutorialController {
                 user.setEmail(tutorEmail);
                 try {
                     emailSenderService.sendMail(user.getEmail(),
-                            MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL,
+                            MailType.UNREGISTERD_TUTORIAL_TUTOR_ADDED,
                             mailArguments);
                 } catch (MessagingException e) {
                     throw new TSInternalServerException();
@@ -481,6 +484,66 @@ public class TutorialController {
             usersToReturn.add(user);
         }
         return userRepository.saveAll(usersToReturn);
+    }
+
+    @Operation(tags = {
+            "tutorial" }, summary = "Update an tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "20o", description = "Returns the updated tutorial."),
+            @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+    })
+    @PostMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> updateTutorial(
+            @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest, @RequestParam int id) {
+
+        if (createTutorialRequest.getStart().isBefore(LocalDate.now()) ||
+                createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())) {
+            throw new TutorialInvalidTimerangeException();
+        }
+        if (!specialisationCourseRepository.existsByIdIn(createTutorialRequest.getSpecialisationCoursesIds())) {
+            throw new SpecialisationCourseNotFoundException();
+        }
+        if (!createTutorialRequest.getTutorEmails().stream().allMatch(email -> User.isValidEmail(email))) {
+            throw new InvalidEmailException();
+        }
+
+        Map<String, Object> emailAttributes = Map.of(
+                "tutorialTitle", createTutorialRequest.getTitle(),
+                "tutorialDescription", createTutorialRequest.getDescription(),
+                "tutorialStart", createTutorialRequest.getStart(),
+                "tutorialEnd", createTutorialRequest.getEnd(),
+                "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes());
+
+        Tutorial tutorial = tutorialRepository.findById(id).orElseThrow(TutorialNotFoundException::new);
+
+        Set<String> newTutorEmails = tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                .collect(Collectors.toSet());
+
+        // Mail to all new tutors
+        Set<String> addedTutorsMails = Set.copyOf(newTutorEmails);
+        if (addedTutorsMails.removeAll(createTutorialRequest.getTutorEmails())) {
+            handleAddedTutors(addedTutorsMails, emailAttributes);
+        }
+        try {
+            // Mail to all removed Tutors
+            Set<String> removedTutorsMails = Set.copyOf(createTutorialRequest.getTutorEmails());
+            if (removedTutorsMails.removeAll(newTutorEmails)) {
+                emailSenderService.sendMails(removedTutorsMails, MailType.TUTORIAL_TUTOR_REMOVED, emailAttributes);
+            }
+
+            // Notify users over changed Tutorial
+            Set<String> remainingTutorsMails = Set.copyOf(createTutorialRequest.getTutorEmails());
+            if (addedTutorsMails.retainAll(newTutorEmails)) {
+                emailSenderService.sendMails(remainingTutorsMails, MailType.TUTORIAL_CHANGED, emailAttributes);
+            }
+        } catch (MessagingException e) {
+            throw new TSInternalServerException();
+        }
+
+        return new ResponseEntity<>(
+                TutorialWithSpecialisationCoursesWithoutCourses.convertToDto(modelMapper, tutorial),
+                HttpStatus.OK);
     }
 
     @Operation(tags = {
