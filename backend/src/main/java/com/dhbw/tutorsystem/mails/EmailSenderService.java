@@ -91,6 +91,8 @@ public class EmailSenderService {
         String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
+        thymeleafContext.setVariable("firstname", arguments.get("firstname"));
+        thymeleafContext.setVariable("lastname", arguments.get("lastname"));
         String htmlBody = thymeTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
 
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
