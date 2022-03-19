@@ -1,14 +1,13 @@
-import { Button, Divider, Form, Input, Layout, message, Result } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { enableAccount, getRequestError, performPasswordReset } from '../../api/api';
+import { Button, Divider, Form, Layout, message } from 'antd';
+import React, { useContext, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { performPasswordReset } from '../../api/api';
 import { AppRoutes } from '../../types/AppRoutes';
-import { LoadingOutlined } from '@ant-design/icons';
 import { AuthContext } from '../../context/UserContext';
-import { ErrorCode, getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import { Content } from 'antd/lib/layout/layout';
+import PasswordInput from '../inputs/PasswordInput';
 
 const VerifyResetPassword: React.FC = () => {
 
@@ -29,7 +28,7 @@ const VerifyResetPassword: React.FC = () => {
             handleVerifyError("Ein Fehler ist aufgetreten.");
         }
         setLoading(true);
-        performPasswordReset(hash, email, values.newPassword)
+        performPasswordReset(hash, email, values.password)
             .then(user => {
                 navigate(AppRoutes.Main.Path);
                 setLoading(false);
@@ -56,22 +55,25 @@ const VerifyResetPassword: React.FC = () => {
                         wrapperCol={{ span: 14 }}
                         initialValues={{ email: searchParams.get("e") }}
                         onFinish={onSubmit}>
+
                         <Paragraph>
                             Geben Sie bitte das Passwort ein, das Sie zuvor neu gesetzt haben.
                         </Paragraph>
+
                         <Divider />
+
                         <EmailFormInput disabled />
-                        <Form.Item
-                            label="Passwort"
-                            name="newPassword"
-                            rules={[{ required: true }]}>
-                            <Input.Password disabled={loading} />
-                        </Form.Item>
+
+                        <PasswordInput
+                            noRegexValidation
+                            disabled={loading} />
+
                         <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                             <Button htmlType='submit' type='primary' loading={loading}>
                                 Absenden
                             </Button>
                         </Form.Item>
+
                     </Form>
                 </Content>
             </Layout>
