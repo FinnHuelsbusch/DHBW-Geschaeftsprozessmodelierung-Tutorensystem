@@ -171,7 +171,7 @@ public class AuthenticationController {
                 user.setFirstName(registerRequest.getFirstName());
                 user.setLastName(registerRequest.getLastName());
                 try {
-                    sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
+                    sendRegisterMail(user.getFirstName(), user.getLastName(),  user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
                     logger.error("Unauthorized error: {}", e.getMessage());
                     throw new TSInternalServerException();
@@ -209,7 +209,7 @@ public class AuthenticationController {
             user.setEnabled(false);
             user.setLastPasswordAction(LocalDateTime.now());
             try {
-                sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), true);
+                sendRegisterMail(registerRequest.getFirstName(), registerRequest.getLastName(), user.getEmail(), user.getLastPasswordAction(), true);
             } catch (NoSuchAlgorithmException | MessagingException e) {
                 logger.error("Unauthorized error: {}", e.getMessage());
                 throw new TSInternalServerException();
@@ -381,13 +381,15 @@ public class AuthenticationController {
                 user.getEmail()));
     }
 
-    private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
+    private void sendRegisterMail(String firstname, String lastname, String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
             throws NoSuchAlgorithmException, MessagingException {
         try {
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString());
             emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of(
                     "hashBase64", hashBase64,
-                    "isFirstRegisterMail", isFirstRegisterMail));
+                    "isFirstRegisterMail", isFirstRegisterMail, 
+                    "firstname", firstname, 
+                    "lastname", lastname));
         } catch (NoSuchAlgorithmException | MessagingException e) {
             logger.error("Unauthorized error: {}", e.getMessage());
             e.printStackTrace();
