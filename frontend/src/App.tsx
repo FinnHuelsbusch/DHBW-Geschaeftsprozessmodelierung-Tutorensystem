@@ -25,7 +25,6 @@ import 'moment/locale/de'
 import TutorialsOverview from './components/tutorials/TutorialsOverview';
 import TutorialDetails from './components/tutorials/TutorialDetails';
 
-
 const App: React.FC = () => {
 
     const [initialPageLoadComplete, setInitialPageLoadComplete] = useState(false);
@@ -71,7 +70,8 @@ const App: React.FC = () => {
     const MainLayout = () => {
         return (
             <Layout style={{ minHeight: '100vh' }}>
-                <Header>
+
+                <Header style={{ color: 'black', paddingRight: 0 }}>
                     <Navigation />
                 </Header>
 
@@ -81,17 +81,15 @@ const App: React.FC = () => {
                             description="Keine Daten verfügbar">
                         </Empty>
                     }>
-                        <div className="site-layout-content">
-                            <Outlet />
-                        </div>
+                        <Outlet />
                     </ConfigProvider>
                 </Content>
 
                 <Footer>
-                    <CopyrightOutlined /> 2021
+                    <CopyrightOutlined /> 2022
                 </Footer>
 
-            </Layout>
+            </Layout >
         );
     }
 
@@ -138,15 +136,13 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="App">
-            <AuthContext.Provider value={{ ...UserContext }}>
-                {initialPageLoadComplete ? <MainContent />
-                    : <Result
-                        icon={<LoadingOutlined />}>
-                    </Result>
-                }
-            </AuthContext.Provider>
-        </div>
+        <AuthContext.Provider value={{ ...UserContext }}>
+            {initialPageLoadComplete ? <MainContent />
+                : <Result
+                    icon={<LoadingOutlined />}>
+                </Result>
+            }
+        </AuthContext.Provider>
     );
 }
 

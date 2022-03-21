@@ -1,4 +1,4 @@
-import { Form, Input } from 'antd';
+import { Form } from 'antd';
 import React from 'react';
 
 type Props = {

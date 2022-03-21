@@ -2,6 +2,8 @@ package com.dhbw.tutorsystem.exception;
 
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 // In this class all the exception Handling is defined. If an Exception is thrown, it is handled here to return a proper error to the user. 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(RestResponseEntityExceptionHandler.class);
 
     // catch all exceptions and put them into defined error object as JSON response
     @ExceptionHandler(value = { Exception.class })
@@ -28,6 +32,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         } else {
             // unknown exception, do not give too many details
             // All unknown errors are returned as internal server error
+            logger.error("Unknown exception", exception);
             response = new TSExceptionResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     TSErrorCode.INTERNAL_SERVER_ERROR, exception.getMessage());
         }

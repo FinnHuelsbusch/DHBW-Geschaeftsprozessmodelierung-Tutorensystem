@@ -7,6 +7,7 @@ import TextArea from "antd/lib/input/TextArea";
 import moment from "moment";
 import { User } from "../../types/User";
 import { getErrorMessageString } from "../../types/RequestError";
+import FormText from "../inputs/FormText";
 
 interface Props {
     isModalVisible: boolean,
@@ -76,37 +77,37 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
                     onFinish={onFinish}
                 >
                     <Divider>Persönliche Daten</Divider>
-                    <Form.Item
+                    <FormText
                         rules={[{ required: true }]}
                         label="Vorname:"
                         name="firstname"
                     >
                         <Input />
-                    </Form.Item>
+                    </FormText>
 
-                    <Form.Item
+                    <FormText
                         rules={[{ required: true }]}
                         label="Nachname:"
                         name="lastname"
                     >
                         <Input />
-                    </Form.Item>
+                    </FormText>
 
-                    <Form.Item
+                    <FormText
                         rules={[{ required: true }]}
                         label="Hochschule / Universität:"
                         name="university"
                     >
                         <Input />
-                    </Form.Item>
+                    </FormText>
 
-                    <Form.Item
+                    <FormText
                         rules={[{ required: true }]}
                         label="Studiengang:"
                         name="ownCourse"
                     >
                         <Input />
-                    </Form.Item>
+                    </FormText>
 
                     <Form.Item
                         rules={[{ required: true }]}
