@@ -9,7 +9,7 @@ import { Tutorial } from "../../types/Tutorial";
 
 interface Props {
     isModalVisible: boolean,
-    setIsTutorialDeleteModalVisible: (visible: boolean, delted: boolean) => void,
+    setIsTutorialDeleteModalVisible: (visible: boolean, deleted: boolean) => void,
     tutorial: Tutorial
 }
 

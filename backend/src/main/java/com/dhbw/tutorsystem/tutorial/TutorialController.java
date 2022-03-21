@@ -468,7 +468,7 @@ public class TutorialController {
                 user.setEmail(tutorEmail);
                 try {
                     emailSenderService.sendMail(user.getEmail(),
-                            MailType.UNREGISTERD_TUTORIAL_TUTOR_ADDED,
+                            MailType.UNREGISTERED_TUTORIAL_TUTOR_ADDED,
                             mailArguments);
                 } catch (MessagingException e) {
                     throw new TSInternalServerException();
@@ -480,9 +480,9 @@ public class TutorialController {
     }
 
     @Operation(tags = {
-            "tutorial" }, summary = "Update an tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorial" }, summary = "Update a tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "20o", description = "Returns the updated tutorial."),
+            @ApiResponse(responseCode = "200", description = "Returns the updated tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/update/{id}")
@@ -557,7 +557,6 @@ public class TutorialController {
         tutorial.setSpecialisationCourses(specialisationCourseRepository
                 .findAllById(createTutorialRequest.getSpecialisationCoursesIds()));
         tutorial.setAppointment(createTutorialRequest.getAppointment());
-        return;
     }
 
     @Operation(tags = {
@@ -582,6 +581,7 @@ public class TutorialController {
                     "tutorialStart", tutorial.getStart(),
                     "tutorialEnd", tutorial.getEnd(),
                     "tutorialDurationMinutes", tutorial.getDurationMinutes(),
+                    // Map.of does not allow null values
                     "reason", reason != null? reason : "");
             try {
                 emailSenderService.sendMails(

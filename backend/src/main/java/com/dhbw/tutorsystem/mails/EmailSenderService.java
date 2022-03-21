@@ -62,7 +62,7 @@ public class EmailSenderService {
             case TUTORIAL_PARTICIPATION_REMOVAL_STUDENT:
                 sendTutorialParticipationStudentRemovalMail(mailTo, arguments);
                 break;
-            case UNREGISTERD_TUTORIAL_TUTOR_ADDED:
+            case UNREGISTERED_TUTORIAL_TUTOR_ADDED:
                 sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
                 break;
             case TUTORIAL_DELETION:

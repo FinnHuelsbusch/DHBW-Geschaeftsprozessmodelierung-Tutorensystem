@@ -67,3 +67,16 @@ export interface TutorialFilterResponse {
     totalPages: number,
     totalElements: number
 }
+
+
+export interface TutorialData {
+    title: string,
+    description: string,
+    start: string,
+    end: string,
+    durationMinutes: number,
+    tutorEmails: string[],
+    specialisationCoursesIds: number[],
+    appointment: string, 
+    reason?: string
+}

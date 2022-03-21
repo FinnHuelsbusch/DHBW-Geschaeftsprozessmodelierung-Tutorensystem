@@ -171,7 +171,6 @@ const TutorialDetails: React.FC = () => {
                         <DeleteOutlined /> Tutorium löschen
                     </Button>
                     <Button
-                        
                         type='primary'
                         disabled={loading}
                         onClick={e => onEditClick()}>

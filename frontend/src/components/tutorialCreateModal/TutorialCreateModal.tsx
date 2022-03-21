@@ -10,7 +10,7 @@ import { TreeNode } from "antd/lib/tree-select";
 import moment from "moment";
 import { isValidEmail } from "../inputs/EmailFormInput";
 import { useNavigate } from "react-router-dom";
-import { Tutorial } from "../../types/Tutorial";
+import { Tutorial, TutorialData } from "../../types/Tutorial";
 
 
 interface Props {
@@ -37,9 +37,9 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
             tutorEmails: values.tutorEmails,
             specialisationCoursesIds: values.specialisationCoursesIds,
             appointment: values.appointment
-        }
+        } as TutorialData;
         if (existingTutorial) {
-            updateTutorial(existingTutorial.id, tutorial ).then(tutorialId => {
+            updateTutorial(existingTutorial.id, tutorial).then(tutorialId => {
                 setIsTutorialCreateModalVisible(false, true);
                 form.resetFields();
                 message.success("Tutorium erfolgreich bearbeitet");
@@ -62,7 +62,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
     };
 
     const onCancel = () => {
-        setIsTutorialCreateModalVisible(false,false);
+        setIsTutorialCreateModalVisible(false, false);
         form.resetFields();
     }
 
@@ -86,7 +86,7 @@ const TutorialCreateModal: React.FC<Props> = ({ isModalVisible, setIsTutorialCre
                     title: existingTutorial.title,
                     description: existingTutorial.description,
                     timerange: [moment(existingTutorial.start, "YYYY-MM-DD"), moment(existingTutorial.end, "YYYY-MM-DD")],
-                    durationMinutes: Math.floor(existingTutorial.durationMinutes/60) + ":" + (existingTutorial.durationMinutes%60 < 10? '0': '') + existingTutorial.durationMinutes%60 ,
+                    durationMinutes: `${Math.floor(existingTutorial.durationMinutes / 60)}`.padStart(2,"0") + ":" + `${existingTutorial.durationMinutes%60}`.padStart(2,"0"),
                     tutorEmails: existingTutorial.tutors.map(t => t.email),
                     specialisationCoursesIds: existingTutorial.specialisationCourses.map(s => s.id),
                     appointment: existingTutorial.appointment
