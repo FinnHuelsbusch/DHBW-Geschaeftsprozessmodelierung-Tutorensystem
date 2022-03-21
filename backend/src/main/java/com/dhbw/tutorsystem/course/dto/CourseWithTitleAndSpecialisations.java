@@ -22,12 +22,14 @@ public class CourseWithTitleAndSpecialisations {
 
     private Set<SpecialisationCourseWithoutCourse> specialisationCourses;
 
+        // maps a given course to a course with title, abbreviation and specialisationCourses as set
     public static CourseWithTitleAndSpecialisations convertToDto(ModelMapper modelMapper, Course course) {
         CourseWithTitleAndSpecialisations courseWithTitleAndSpecialisations = modelMapper.map(course,
                 CourseWithTitleAndSpecialisations.class);
         return courseWithTitleAndSpecialisations;
     }
 
+    // maps multiple given courses to courses with title, abbreviation and specialisationCourses as set
     public static List<CourseWithTitleAndSpecialisations> convertToDto(ModelMapper modelMapper,
             Iterable<Course> courses) {
         ArrayList<CourseWithTitleAndSpecialisations> coursesList = new ArrayList<>();

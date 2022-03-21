@@ -36,6 +36,7 @@ public class UserController {
     })
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
+    // get all users excluding admins
     public ResponseEntity<List<UserWithEmailAndNameAndId>> getAllUsers() {
         List<User> users = userRepository.findAllUsersThatAreNotAdmin();
         return new ResponseEntity<List<UserWithEmailAndNameAndId>>(

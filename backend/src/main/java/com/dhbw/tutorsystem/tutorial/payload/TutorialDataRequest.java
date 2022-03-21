@@ -1,4 +1,5 @@
-package com.dhbw.tutorsystem.tutorial.dto;
+
+package com.dhbw.tutorsystem.tutorial.payload;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-public class CreateTutorialRequest {
+public class TutorialDataRequest {
 
     @Getter
     @Setter
