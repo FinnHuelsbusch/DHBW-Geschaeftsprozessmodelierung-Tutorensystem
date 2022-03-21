@@ -27,7 +27,7 @@ class TutorialRequestControllerTest {
     private MockMvc mvc;
 
     @Autowired
-    private TutorialRequestRepository repository;
+    private TutorialRequestRepository tutorialRequestRepository;
     
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -56,12 +56,12 @@ class TutorialRequestControllerTest {
         String putValue = objectMapper.writeValueAsString(createTutorialRequest());
         mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue)).andExpect(status().isCreated());
         //no API route, get requests via repository
-        TutorialRequest tutorialRequest = repository.findAll().iterator().next();
+        TutorialRequest tutorialRequest = tutorialRequestRepository.findAll().iterator().next();
         assertEquals("Programmieren I",tutorialRequest.getTitle());
         assertEquals("Ich brauche Hilfe bei Datenstrukturen", tutorialRequest.getDescription());
         assertEquals("s111111@student.dhbw-mannheim.de",tutorialRequest.getCreatedBy().getEmail());
         assertEquals(3, tutorialRequest.getSemester());
-        assertEquals(1, repository.count());
+        assertEquals(1, tutorialRequestRepository.count());
     }
 
     @Test
