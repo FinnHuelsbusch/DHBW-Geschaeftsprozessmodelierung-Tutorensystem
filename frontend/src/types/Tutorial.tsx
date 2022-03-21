@@ -5,6 +5,7 @@ export interface Tutorial {
     id: number,
     title: string,
     description: string,
+    appointment: string, 
     start: Date,
     end: Date,
     durationMinutes: number,
@@ -27,6 +28,7 @@ export const mapTutorialFromResponse = (data: any): Tutorial => {
         id: data.id,
         title: data.title,
         description: data.description,
+        appointment: data.appointment, 
         start: data.start,
         end: data.end,
         durationMinutes: data.durationMinutes,
@@ -64,4 +66,17 @@ export interface TutorialFilterResponse {
     currentPage: number,
     totalPages: number,
     totalElements: number
+}
+
+
+export interface TutorialData {
+    title: string,
+    description: string,
+    start: string,
+    end: string,
+    durationMinutes: number,
+    tutorEmails: string[],
+    specialisationCoursesIds: number[],
+    appointment: string, 
+    reason?: string
 }

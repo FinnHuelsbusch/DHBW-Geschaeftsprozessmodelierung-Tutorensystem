@@ -1,4 +1,4 @@
-package com.dhbw.tutorsystem.tutorial;
+package com.dhbw.tutorsystem.tutorial.dto;
 
 import java.time.LocalDate;
 import java.util.Set;

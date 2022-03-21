@@ -3,11 +3,14 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityManagerFactory;
@@ -22,6 +25,7 @@ import com.dhbw.tutorsystem.mails.MailType;
 import com.dhbw.tutorsystem.security.authentication.exception.InvalidEmailException;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
+import com.dhbw.tutorsystem.tutorial.dto.CreateTutorialRequest;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialWithSpecialisationCoursesWithoutCourses;
 import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialMarkException;
@@ -57,6 +61,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -409,7 +414,7 @@ public class TutorialController {
             @ApiResponse(responseCode = "201", description = "Returns the created tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
-    @PutMapping()
+    @PutMapping
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> createTutorial(
             @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest) {
@@ -425,9 +430,7 @@ public class TutorialController {
             throw new InvalidEmailException();
         }
 
-        Tutorial tutorial = new Tutorial();
-
-        List<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(),
+        Set<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(),
                 Map.of(
                         "tutorialTitle", createTutorialRequest.getTitle(),
                         "tutorialDescription", createTutorialRequest.getDescription(),
@@ -436,15 +439,8 @@ public class TutorialController {
                         "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes(),
                         "tutorialTutorEmails", createTutorialRequest.getTutorEmails()));
 
-        tutorial.setTutors(Set.copyOf(tutors));
-        tutorial.setDescription(createTutorialRequest.getDescription());
-        tutorial.setTitle(createTutorialRequest.getTitle());
-        tutorial.setStart(createTutorialRequest.getStart());
-        tutorial.setEnd(createTutorialRequest.getEnd());
-        tutorial.setDurationMinutes(createTutorialRequest.getDurationMinutes());
-        tutorial.setSpecialisationCourses(specialisationCourseRepository
-                .findAllById(createTutorialRequest.getSpecialisationCoursesIds()));
-        tutorial.setAppointment(createTutorialRequest.getAppointment());
+        Tutorial tutorial = new Tutorial();
+        mapCreateTutorialRequestToTutorial(createTutorialRequest, tutors, tutorial);
 
         tutorial = tutorialRepository.save(tutorial);
 
@@ -453,7 +449,7 @@ public class TutorialController {
                 HttpStatus.CREATED);
     }
 
-    private List<User> handleAddedTutors(Set<String> tutorMails, Map<String, Object> mailArguments) {
+    private Set<User> handleAddedTutors(Set<String> tutorMails, Map<String, Object> mailArguments) {
         List<User> usersToReturn = new ArrayList<>();
         for (String tutorEmail : tutorMails) {
             Optional<User> optionalUser = userRepository.findByEmail(tutorEmail);
@@ -462,7 +458,7 @@ public class TutorialController {
             if (optionalUser.isPresent()) {
                 user = optionalUser.get();
                 try {
-                    emailSenderService.sendMail(user.getEmail(), MailType.USER_ADDED_TO_TUTORIAL,
+                    emailSenderService.sendMail(user.getEmail(), MailType.TUTORIAL_TUTOR_ADDED,
                             mailArguments);
                 } catch (MessagingException e) {
                     throw new TSInternalServerException();
@@ -472,7 +468,7 @@ public class TutorialController {
                 user.setEmail(tutorEmail);
                 try {
                     emailSenderService.sendMail(user.getEmail(),
-                            MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL,
+                            MailType.UNREGISTERED_TUTORIAL_TUTOR_ADDED,
                             mailArguments);
                 } catch (MessagingException e) {
                     throw new TSInternalServerException();
@@ -480,7 +476,87 @@ public class TutorialController {
             }
             usersToReturn.add(user);
         }
-        return userRepository.saveAll(usersToReturn);
+        return new HashSet<>(userRepository.saveAll(usersToReturn));
+    }
+
+    @Operation(tags = {
+            "tutorial" }, summary = "Update a tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the updated tutorial."),
+            @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+    })
+    @PostMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> updateTutorial(
+            @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest, @PathVariable int id) {
+
+        if (createTutorialRequest.getStart().isBefore(LocalDate.now()) ||
+                createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())) {
+            throw new TutorialInvalidTimerangeException();
+        }
+        if (!specialisationCourseRepository.existsByIdIn(createTutorialRequest.getSpecialisationCoursesIds())) {
+            throw new SpecialisationCourseNotFoundException();
+        }
+        if (!createTutorialRequest.getTutorEmails().stream().allMatch(email -> User.isValidEmail(email))) {
+            throw new InvalidEmailException();
+        }
+
+        Map<String, Object> emailAttributes = Map.of(
+                "tutorialTitle", createTutorialRequest.getTitle(),
+                "tutorialDescription", createTutorialRequest.getDescription(),
+                "tutorialStart", createTutorialRequest.getStart(),
+                "tutorialEnd", createTutorialRequest.getEnd(),
+                "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes());
+
+        Tutorial tutorial = tutorialRepository.findById(id).orElseThrow(TutorialNotFoundException::new);
+
+        Set<String> oldTutorEmails = tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                .collect(Collectors.toSet());
+
+        Set<User> tutors = Set.of();
+        // Mail to all new tutors
+        Set<String> addedTutorsMails = new HashSet<>(createTutorialRequest.getTutorEmails());
+        addedTutorsMails.removeAll(oldTutorEmails);
+        if (!addedTutorsMails.isEmpty()) {
+            tutors = handleAddedTutors(addedTutorsMails, emailAttributes);
+        }
+        try {
+            // Mail to all removed Tutors
+            Set<String> removedTutorsMails = new HashSet<>(oldTutorEmails);
+            removedTutorsMails.removeAll(createTutorialRequest.getTutorEmails()); 
+            if (!removedTutorsMails.isEmpty()) {
+                emailSenderService.sendMails(removedTutorsMails, MailType.TUTORIAL_TUTOR_REMOVED, emailAttributes);
+            }
+
+            // Notify users over changed Tutorial
+            Set<String> remainingTutorsMails = new HashSet<>(createTutorialRequest.getTutorEmails());
+            remainingTutorsMails.retainAll(oldTutorEmails);
+            if (!remainingTutorsMails.isEmpty()) {
+                emailSenderService.sendMails(remainingTutorsMails, MailType.TUTORIAL_CHANGED, emailAttributes);
+            }
+        } catch (MessagingException e) {
+            throw new TSInternalServerException();
+        }
+
+        mapCreateTutorialRequestToTutorial(createTutorialRequest,userRepository.findAllByEmailIn(createTutorialRequest.getTutorEmails()), tutorial);
+
+        tutorialRepository.save(tutorial);
+        return new ResponseEntity<>(
+                TutorialWithSpecialisationCoursesWithoutCourses.convertToDto(modelMapper, tutorial),
+                HttpStatus.OK);
+    }
+
+    private void mapCreateTutorialRequestToTutorial(CreateTutorialRequest createTutorialRequest, Set<User> tutors,
+            Tutorial tutorial) {
+        tutorial.setTutors(new HashSet<>(tutors));
+        tutorial.setDescription(createTutorialRequest.getDescription());
+        tutorial.setTitle(createTutorialRequest.getTitle());
+        tutorial.setStart(createTutorialRequest.getStart());
+        tutorial.setEnd(createTutorialRequest.getEnd());
+        tutorial.setDurationMinutes(createTutorialRequest.getDurationMinutes());
+        tutorial.setSpecialisationCourses(specialisationCourseRepository
+                .findAllById(createTutorialRequest.getSpecialisationCoursesIds()));
+        tutorial.setAppointment(createTutorialRequest.getAppointment());
     }
 
     @Operation(tags = {
@@ -505,7 +581,8 @@ public class TutorialController {
                     "tutorialStart", tutorial.getStart(),
                     "tutorialEnd", tutorial.getEnd(),
                     "tutorialDurationMinutes", tutorial.getDurationMinutes(),
-                    "reason", reason);
+                    // Map.of does not allow null values
+                    "reason", reason != null? reason : "");
             try {
                 emailSenderService.sendMails(
                         tutorial.getTutors().stream().map(tutor -> tutor.getEmail())

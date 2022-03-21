@@ -9,7 +9,7 @@ import { Tutorial } from "../../types/Tutorial";
 
 interface Props {
     isModalVisible: boolean,
-    setIsTutorialDeleteModalVisible: (visible: boolean) => void,
+    setIsTutorialDeleteModalVisible: (visible: boolean, deleted: boolean) => void,
     tutorial: Tutorial
 }
 
@@ -21,8 +21,7 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
     const onFinish = (values: any) => {
         deleteTutorial(tutorial.id, values.reason).then(res => {
             message.success("Löschen erfolgreich");
-            navigate(-1);
-            setIsTutorialDeleteModalVisible(false);
+            setIsTutorialDeleteModalVisible(false, true);
             form.resetFields();
         }).catch(err => {
             const reqErr = getRequestError(err);
@@ -32,7 +31,7 @@ const TutorialDeleteModal: React.FC<Props> = ({ isModalVisible, setIsTutorialDel
     };
 
     const onCancel = () => {
-        setIsTutorialDeleteModalVisible(false)
+        setIsTutorialDeleteModalVisible(false, false)
     }
 
 
