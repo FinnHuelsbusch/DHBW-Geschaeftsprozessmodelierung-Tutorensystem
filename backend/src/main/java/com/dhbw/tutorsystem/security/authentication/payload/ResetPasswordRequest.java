@@ -1,6 +1,9 @@
 package com.dhbw.tutorsystem.security.authentication.payload;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+import com.dhbw.tutorsystem.user.User;
 
 import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
 import com.dhbw.tutorsystem.security.authentication.annotation.ValidPassword;

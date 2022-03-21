@@ -2,7 +2,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
-import { mapTutorialFromResponse, Tutorial, TutorialFilter, TutorialFilterResponse, TutorialRequest } from '../types/Tutorial';
+import { mapTutorialFromResponse, Tutorial, TutorialData, TutorialFilter, TutorialFilterResponse, TutorialRequest } from '../types/Tutorial';
 import { RegisterRequest, User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -162,7 +162,7 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
         ? `&sort=${filter.sorting.attribute},${filter.sorting.order}`
         : "";
     const attributesFilter = {
-        text: filter.text,
+        text: filter.text?.trim(),
         startDateFrom: filter.startDateFrom,
         startDateTo: filter.startDateTo,
         specialisationCourseIds: filter.specialisationCourseIds,
@@ -233,8 +233,16 @@ export const getUsersWithNameAndMailAndId = (): Promise<UserWithMailAndNameAndId
         .then(res => res.data);
 }
 
-export const putTutorial = (newTutorial: Object): Promise<number> => {
+export const putTutorial = (newTutorial: TutorialData): Promise<number> => {
     return api.put('/tutorials', newTutorial)
+        .then(res => {
+            const data = res.data;
+            return data.id;
+        });
+}
+
+export const updateTutorial = (tutorialId: number, updatedTutorial: TutorialData): Promise<number> => {
+    return api.post(`/tutorials/update/${tutorialId}`, updatedTutorial)
         .then(res => {
             const data = res.data;
             return data.id;

@@ -11,6 +11,7 @@ import { AppRoutes } from '../../types/AppRoutes';
 import { CourseWithTitleAndSpecialisations } from '../../types/Course';
 import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput, { isDirectorEmail } from '../inputs/EmailFormInput';
+import FormText from '../inputs/FormText';
 import PasswordInput from '../inputs/PasswordInput';
 
 const Register: React.FC = () => {
@@ -90,19 +91,19 @@ const Register: React.FC = () => {
 
             <Divider />
 
-            <Form.Item
+            <FormText
                 label="Vorname"
                 name="firstname"
                 rules={[{ required: true }]}>
                 <Input disabled={loading} />
-            </Form.Item>
+            </FormText>
 
-            <Form.Item
+            <FormText
                 label="Nachname"
                 name="lastname"
                 rules={[{ required: true }]}>
                 <Input disabled={loading} />
-            </Form.Item>
+            </FormText>
 
             <Form.Item
                 label="Studienrichtung"
