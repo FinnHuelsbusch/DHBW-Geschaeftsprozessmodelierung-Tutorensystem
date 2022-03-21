@@ -162,7 +162,7 @@ export const getFilteredTutorials = (filter: TutorialFilter): Promise<TutorialFi
         ? `&sort=${filter.sorting.attribute},${filter.sorting.order}`
         : "";
     const attributesFilter = {
-        text: filter.text,
+        text: filter.text?.trim(),
         startDateFrom: filter.startDateFrom,
         startDateTo: filter.startDateTo,
         specialisationCourseIds: filter.specialisationCourseIds,
