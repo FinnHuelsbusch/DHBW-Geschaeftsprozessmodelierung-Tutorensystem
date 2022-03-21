@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
+// this error is thrown when a route is accessed with insufficient rights or no jwt token 
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
