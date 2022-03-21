@@ -12,6 +12,8 @@ import javax.validation.constraints.Pattern;
 
 import com.dhbw.tutorsystem.user.User;
 
+// Custom annotation for validating an given String as password 
+
 // must give custom message to prevent regex being exposed!
 @Pattern(regexp = User.passwordRegex, message = "Invalid password format")
 @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
