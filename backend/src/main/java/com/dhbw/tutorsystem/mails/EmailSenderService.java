@@ -49,7 +49,7 @@ public class EmailSenderService {
         sendMails(mailsTo, mailType, null);
     }
 
-    // decide which type of mail needs to be send 
+    // decide which type of mail needs to be sent
     public void sendMail(String mailTo, MailType mailType, Map<String, Object> arguments) throws MessagingException {
 
         switch (mailType) {
@@ -80,7 +80,7 @@ public class EmailSenderService {
         }
     }
 
-    // send mail for to all mailadresses in the set 
+    // send mail for all mailadresses in the set 
     public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments)
             throws MessagingException {
         for (String mailTo : mailsTo) {
@@ -88,14 +88,13 @@ public class EmailSenderService {
         }
     }
 
-
     private void sendRegistrationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
         // get variables from the arguments set 
         String hashBase64 = (String) arguments.get("hashBase64");
         boolean isFirstRegisterMail = (boolean) arguments.get("isFirstRegisterMail");
         String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
 
-        // fillup thymeleaf 
+        // initialize thymeleaf 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
@@ -116,7 +115,7 @@ public class EmailSenderService {
         String hashBase64 = (String) arguments.get("hashBase64");
         String linkUrl = frontendUrl + "/verifyResetPassword?h=" + hashBase64 + "&e=" + mailTo;
 
-        // fillup thymeleaf 
+        // initialize thymeleaf 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
 
@@ -139,7 +138,7 @@ public class EmailSenderService {
         Integer tutorialId = (Integer) arguments.get("tutorialId");
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
 
-        // fillup thymeleaf 
+        // initialize thymeleaf 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("tutorialLinkUrl", tutorialLinkUrl);
@@ -161,7 +160,7 @@ public class EmailSenderService {
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
 
-        // fillup thymeleaf 
+        // initialize thymeleaf 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
 

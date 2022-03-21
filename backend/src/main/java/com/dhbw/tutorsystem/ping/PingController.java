@@ -21,7 +21,7 @@ public class PingController {
             @ApiResponse(responseCode = "200", description = "The backend is reachable"),
     })
     @GetMapping("/ping")
-    // just a ping to test if backend is alive
+    // a ping to test if backend is alive
     public ResponseEntity<String> ping() {
         return ResponseEntity.ok("Pong");
     }
@@ -33,7 +33,7 @@ public class PingController {
     })
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @GetMapping("/ping/auth-student")
-    // just a ping to test if backend is alive only available for students
+    // a ping to test if backend is alive (only available for students)
     public ResponseEntity<String> pingAuthStudent() {
         return ResponseEntity.ok("Pong Student");
     }
@@ -46,7 +46,7 @@ public class PingController {
     })
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/ping/auth-admin")
-    // just a ping to test if backend is alive only available for admins
+    // a ping to test if backend is alive (only available for admins)
     public ResponseEntity<String> pingAuthAdmin() {
         return ResponseEntity.ok("Pong Admin");
     }
@@ -59,7 +59,7 @@ public class PingController {
     })
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     @GetMapping("/ping/auth-director")
-    // just a ping to test if backend is alive only available for directors
+    // a ping to test if backend is alive (only available for directors)
     public ResponseEntity<String> pingAuthDirector() {
         return ResponseEntity.ok("Pong Director");
     }

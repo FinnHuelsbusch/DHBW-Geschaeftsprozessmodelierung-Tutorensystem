@@ -87,7 +87,7 @@ public class TutorialController {
     private final UserRepository userRepository;
 
 
-    // get tutorial by ID as pathVar
+    // get tutorial by ID as path Variable
     @Operation(summary = "Find tutorial by id.", description = "Find a tutorial by its id.", tags = {
             "tutorials" })
     @ApiResponses(value = {
@@ -108,7 +108,7 @@ public class TutorialController {
         TutorialForDisplay tutorialDto = TutorialForDisplay.convertToDto(modelMapper, tutorial);
         // get student if he is logged in 
         Student student = studentService.getLoggedInStudent();
-        // optionally add the student perspective attributes this can not be disabled 
+
         if (student != null) {
             tutorialDto = tutorialDto.addPerspective(
                     tutorial.isMarkedByStudent(student),
@@ -119,7 +119,7 @@ public class TutorialController {
     }
 
 
-    // add a student as participant to a tutorial (tutorial is specified by pathVar)
+    // add a student as participant to a tutorial (tutorial is specified by path variable)
     @Operation(summary = "Participate in tutorial.", description = "Participate in a tutorial by id.", tags = {
             "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
@@ -156,7 +156,7 @@ public class TutorialController {
     }
 
 
-    // remove a student as participant to a tutorial (tutorial is specified by pathVar)
+    // remove a student as participant from a tutorial (tutorial is specified by path variable)
     @Operation(summary = "Remove participation in tutorial.", description = "Remove participation in a tutorial by id.", tags = {
             "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
@@ -191,7 +191,7 @@ public class TutorialController {
         return ResponseEntity.ok(null);
     }
 
-    // user marks tutorial to say that he is interested
+    // user marks tutorial 
     @Operation(summary = "Mark a tutorial.", description = "Mark a tutorial that you are interested in using the id.", tags = {
             "tutorials" })
     @ApiResponses(value = {
@@ -269,7 +269,7 @@ public class TutorialController {
     }
 
 
-    // get all tutorials but filterd and ordered
+    // get all tutorials filtered and ordered
     @Operation(summary = "Query tutorials with filter", description = "Query tutorials by supplying a specified paging configuration and a filter, that contains text, specialisation courses and a time range for the start date.", tags = {
             "tutorials" })
     @ApiResponses(value = {
@@ -455,7 +455,7 @@ public class TutorialController {
 
         Tutorial tutorial = new Tutorial();
 
-        // invite Tutors and create Users for emails that are not registerd in the course 
+        // invite Tutors and create Users for emails that are not registered
         List<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(),
                 Map.of(
                         "tutorialTitle", createTutorialRequest.getTitle(),
@@ -503,7 +503,7 @@ public class TutorialController {
                     throw new TSInternalServerException();
                 }
             } else {
-                // create a user only with email and notfiy him that he was added as tutor although he was not registerd. 
+                // create a user only with email and notfiy him that he was added as tutor although he was not registered
                 user = new User();
                 user.setEmail(tutorEmail);
                 try {
@@ -560,7 +560,7 @@ public class TutorialController {
             } catch (MessagingException e) {
                 throw new TSInternalServerException();
             }
-            // delete tutorial, all bidirectional relations are resolved
+            // delete tutorial, all bidirectional relations are resolved and deleted
             tutorialRepository.deleteById(id);
 
             return new ResponseEntity<>(HttpStatus.OK);

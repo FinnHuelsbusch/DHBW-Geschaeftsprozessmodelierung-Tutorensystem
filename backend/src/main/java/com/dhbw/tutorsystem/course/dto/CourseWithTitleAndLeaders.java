@@ -28,7 +28,7 @@ public class CourseWithTitleAndLeaders {
         return courseWithTitleAndLeaders;
     }
 
-    // maps multiple given courses to  courses with title, abbreviation and leaders (user with email and name)
+    // maps multiple given courses to courses with title, abbreviation and leaders (user with email and name)
     public static List<CourseWithTitleAndLeaders> convertToDto(ModelMapper modelMapper, Iterable<Course> courses) {
         ArrayList<CourseWithTitleAndLeaders> coursesList = new ArrayList<>();
         for (Course course : courses) {
