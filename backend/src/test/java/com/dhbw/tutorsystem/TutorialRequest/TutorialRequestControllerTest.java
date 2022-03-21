@@ -1,25 +1,23 @@
 package com.dhbw.tutorsystem.TutorialRequest;
 
-import com.dhbw.tutorsystem.security.authentication.exception.StudentNotLoggedInException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.dhbw.tutorsystem.tutorialRequest.CreateTutorialRequestRequest;
+import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
+import com.dhbw.tutorsystem.tutorialRequest.TutorialRequestRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import com.dhbw.tutorsystem.tutorialRequest.CreateTutorialRequestRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -27,6 +25,9 @@ class TutorialRequestControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private TutorialRequestRepository repository;
     
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,6 +47,21 @@ class TutorialRequestControllerTest {
             .andExpect(status().isCreated())
             .andDo(print())
             .andReturn();
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
+    void checkIfRequestIsInDatabase() throws Exception {
+        String putValue = objectMapper.writeValueAsString(createTutorialRequest());
+        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue)).andExpect(status().isCreated());
+        //no API route, get requests via repository
+        TutorialRequest tutorialRequest = repository.findAll().iterator().next();
+        assertEquals("Programmieren I",tutorialRequest.getTitle());
+        assertEquals("Ich brauche Hilfe bei Datenstrukturen", tutorialRequest.getDescription());
+        assertEquals("s111111@student.dhbw-mannheim.de",tutorialRequest.getCreatedBy().getEmail());
+        assertEquals(3, tutorialRequest.getSemester());
+        assertEquals(1, repository.count());
     }
 
     @Test
@@ -150,14 +166,9 @@ class TutorialRequestControllerTest {
     @Test
     void notLoggedIn() throws Exception{
         String putValue = objectMapper.writeValueAsString(createTutorialRequest());
-        MvcResult a = mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
+        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
             .andExpect(status().isUnauthorized())
-            //.andExpect(result -> {assertTrue(result.getResolvedException() instanceof StudentNotLoggedInException);})
-            //.andExpect(jsonPath("errorCode").value("STUDENT_NOT_LOGGED_IN"))
-            //.andDo(print())
            .andReturn();
-        Throwable b = a.getResolvedException();
-        System.out.println(a.getResolvedException());
     }
 
     @Test
