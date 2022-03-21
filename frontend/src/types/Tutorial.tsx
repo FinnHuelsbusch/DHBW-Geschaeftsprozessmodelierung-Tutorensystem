@@ -30,7 +30,7 @@ export const mapTutorialFromResponse = (data: any): Tutorial => {
         start: data.start,
         end: data.end,
         durationMinutes: data.durationMinutes,
-        tutors: data.tutors,
+        tutors: data.tutors ?? [],
         specialisationCourses: data.specialisationCourses,
         numberOfParticipants: data.numberOfParticipants,
         isMarked: data.marked,
