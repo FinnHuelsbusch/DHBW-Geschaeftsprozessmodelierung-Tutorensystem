@@ -10,6 +10,7 @@ import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
 import com.dhbw.tutorsystem.tutorialRequest.TutorialRequestRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -30,31 +32,40 @@ class TutorialRequestControllerTest {
     private TutorialRequestRepository tutorialRequestRepository;
     
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ResultMatcher BAD_REQUEST = status().isBadRequest();
+    private static final ResultMatcher UNAUTHORIZED = status().isUnauthorized();
+    private static final ResultMatcher CREATED = status().isCreated();
+    private static final ResultMatcher INTERNAL_SERVER_ERROR = status().isInternalServerError();
+    private CreateTutorialRequestRequest tutorialRequest;
 
-    private CreateTutorialRequestRequest createTutorialRequest(){
+    @BeforeEach
+    private void  createTutorialRequest(){
+        tutorialRequestRepository.deleteAll();
         CreateTutorialRequestRequest tutorialRequest = new CreateTutorialRequestRequest();
         tutorialRequest.setTitle("Programmieren I");
         tutorialRequest.setDescription("Ich brauche Hilfe bei Datenstrukturen");
         tutorialRequest.setSemester(3);
-        return tutorialRequest;
+        this.tutorialRequest = tutorialRequest;
+    }
+
+    private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedValue) throws Exception{
+        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+                .andExpect(expectedValue)
+                .andDo(print())
+                .andReturn();
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void createValidTutorialRequest() throws Exception {
-        String putValue = objectMapper.writeValueAsString(createTutorialRequest());
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-            .andExpect(status().isCreated())
-            .andDo(print())
-            .andReturn();
+        performMVC(tutorialRequest, CREATED);
     }
 
     @Test
     @Transactional
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void checkIfRequestIsInDatabase() throws Exception {
-        String putValue = objectMapper.writeValueAsString(createTutorialRequest());
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue)).andExpect(status().isCreated());
+        performMVC(tutorialRequest, CREATED);
         //no API route, get requests via repository
         TutorialRequest tutorialRequest = tutorialRequestRepository.findAll().iterator().next();
         assertEquals("Programmieren I",tutorialRequest.getTitle());
@@ -67,37 +78,22 @@ class TutorialRequestControllerTest {
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void semesterOutOfLowerBound() throws Exception {
-        CreateTutorialRequestRequest request = createTutorialRequest();
-        request.setSemester(0);
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        tutorialRequest.setSemester(0);
+        performMVC(tutorialRequest, BAD_REQUEST);
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void semesterOutOfUpperBound() throws Exception {
-        CreateTutorialRequestRequest request = createTutorialRequest();
-        request.setSemester(7);
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        tutorialRequest.setSemester(7);
+        performMVC(tutorialRequest, BAD_REQUEST);
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void semesterNegativeNumber() throws Exception {
-        CreateTutorialRequestRequest request = createTutorialRequest();
-        request.setSemester(-1);
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        tutorialRequest.setSemester(-1);
+        performMVC(tutorialRequest, BAD_REQUEST);
     }
 
     @Test
@@ -106,23 +102,14 @@ class TutorialRequestControllerTest {
         CreateTutorialRequestRequest request = new CreateTutorialRequestRequest();
         request.setTitle("Programmieren I");
         request.setDescription("Ich brauche Hilfe bei Datenstrukturen.");
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        performMVC(request, BAD_REQUEST);
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void descriptionEmpty() throws Exception {
-        CreateTutorialRequestRequest request = createTutorialRequest();
-        request.setDescription("");
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        tutorialRequest.setDescription("");
+        performMVC(tutorialRequest, BAD_REQUEST);
     }
 
     @Test
@@ -131,23 +118,14 @@ class TutorialRequestControllerTest {
         CreateTutorialRequestRequest request = new CreateTutorialRequestRequest();
         request.setTitle("Programmieren I");
         request.setSemester(4);
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        performMVC(request, BAD_REQUEST);
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void titleEmpty() throws Exception {
-        CreateTutorialRequestRequest request = createTutorialRequest();
-        request.setTitle("");
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        tutorialRequest.setTitle("");
+        performMVC(tutorialRequest, BAD_REQUEST);
     }
 
     @Test
@@ -156,38 +134,23 @@ class TutorialRequestControllerTest {
         CreateTutorialRequestRequest request = new CreateTutorialRequestRequest();
         request.setDescription("Ich brauche Hilfe bei Datenstrukturen.");
         request.setSemester(4);
-        String putValue = objectMapper.writeValueAsString(request);
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
+        performMVC(request, BAD_REQUEST);
     }
 
     @Test
     void notLoggedIn() throws Exception{
-        String putValue = objectMapper.writeValueAsString(createTutorialRequest());
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-            .andExpect(status().isUnauthorized())
-           .andReturn();
+        performMVC(tutorialRequest, UNAUTHORIZED);
     }
 
     @Test
     @WithMockUser(username="adam.admin@dhbw-mannheim.de",password = "1234",roles="ADMIN") 
     void loggedInAsAdmin() throws Exception{
-        String putValue = objectMapper.writeValueAsString(createTutorialRequest());
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-             .andExpect(status().isInternalServerError())
-             .andDo(print())
-             .andReturn();
+        performMVC(tutorialRequest, INTERNAL_SERVER_ERROR);
     }
 
     @Test
     @WithMockUser(username="dirk.director@dhbw-mannheim.de",password = "1234",roles="DIRECTOR") 
     void loggedInAsDirector() throws Exception{
-        String putValue = objectMapper.writeValueAsString(createTutorialRequest());
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(putValue))
-            .andExpect(status().isInternalServerError())
-            .andDo(print())
-            .andReturn();
+        performMVC(tutorialRequest, INTERNAL_SERVER_ERROR);
     }
 }
