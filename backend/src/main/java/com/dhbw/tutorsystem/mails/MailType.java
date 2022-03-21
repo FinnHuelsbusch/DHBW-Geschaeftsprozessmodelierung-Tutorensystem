@@ -1,5 +1,6 @@
 package com.dhbw.tutorsystem.mails;
 
+// list of all mailtypes
 public enum MailType {
     REGISTRATION,
     RESET_PASSWORD,

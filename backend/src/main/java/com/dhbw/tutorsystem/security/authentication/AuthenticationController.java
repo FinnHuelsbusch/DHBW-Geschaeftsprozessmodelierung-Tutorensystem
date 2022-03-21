@@ -99,6 +99,10 @@ public class AuthenticationController {
     private final SpecialisationCourseRepository specialisationCourseRepository;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
+
+
+    // request of a user to login (by email and password) 
+    // if loged in successful jwt token with seperate roles and expirationDate and email is returned 
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
@@ -107,12 +111,14 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
+            // try to authenticate a user by email and password
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-            UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-            String jwt = jwtUtils.generateJwtTokenFromUsername(userPrincipal.getEmailAddress());
-
+            // if succesful get the detailsImpl of the user for better handling 
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            // generate the jwt Token 
+            String jwt = jwtUtils.generateJwtTokenFromUsername(userDetails.getEmailAddress());
+            // get the roles of the user
             List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
@@ -124,6 +130,7 @@ public class AuthenticationController {
                 userRepository.save(user);
             }
 
+            // return the created jwt etc. 
             return ResponseEntity.ok(new JwtResponse(roles, jwt, jwtUtils.getExpirationDateFromJwtToken(jwt),
                     userDetails.getEmailAddress()));
         } catch (AuthenticationException e) {
@@ -142,6 +149,9 @@ public class AuthenticationController {
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
         // get user (either student or director) to check for duplicate registration
         User user = null;
+
+        // check type of Mail and get user if it exists from db 
+        // a user can exist, if he registerd earlier but did not manage to accept the invitation in time
         if (User.isStudentMail(registerRequest.getEmail())) {
             Optional<Student> optionalStudent = studentRepository.findByEmail(registerRequest.getEmail());
             if (optionalStudent.isPresent())
@@ -151,12 +161,18 @@ public class AuthenticationController {
             if (optionalDirector.isPresent())
                 user = (User) optionalDirector.get();
         }
+
+        // check if a user was registerd earlier or nut by checking the user variable 
         if (user != null) {
             // existing user is registering again
+
+            // a enabled user could try to be registerd again with the same email -> throw  EmailAlreadyExistsException
             if (user.isEnabled()) {
                 logger.info("User with email {} already exists", user.getEmail());
                 throw new EmailAlreadyExistsException();
             }
+
+            // check if enough time is between the last and the current registration. If the time between the last two registrations is smaller than minimumMinutesBetweenPasswordActions throw exception 
             if (user.getLastPasswordAction() != null
                     && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
                             .toMinutes() < minimumMinutesBetweenPasswordActions) {
@@ -170,20 +186,30 @@ public class AuthenticationController {
                 user.setPassword(encoder.encode(registerRequest.getPassword()));
                 user.setFirstName(registerRequest.getFirstName());
                 user.setLastName(registerRequest.getLastName());
+
+                // resend mail after update 
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
                     logger.error("Unauthorized error: {}", e.getMessage());
                     throw new TSInternalServerException();
                 }
+
+                // save user to db
                 saveUserSubtype(user);
             }
         } else {
             // new user registration: encode password and save new user
             String encodedPassword = encoder.encode(registerRequest.getPassword());
+
+            // create new user 
             user = new User(
                     registerRequest.getFirstName(), registerRequest.getLastName(),
                     registerRequest.getEmail(), encodedPassword);
+            user.setEnabled(false);
+            user.setLastPasswordAction(LocalDateTime.now());
+
+            // get roles by email 
             Optional<Role> role = Optional.empty();
             if (User.isStudentMail(user.getEmail())) {
                 Student student = new Student(user.getEmail(), user.getPassword());
@@ -199,27 +225,33 @@ public class AuthenticationController {
                 user = new Director(user.getEmail(), user.getPassword());
                 role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
             }
+
             // role might not be available in DB
             if (role.isEmpty()) {
                 logger.error("User ({}) found with no valid role", user.getEmail());
                 throw new RoleNotFoundException();
             } else {
+                // set roles for the created user
                 user.setRoles(Set.of(role.get()));
             }
-            user.setEnabled(false);
-            user.setLastPasswordAction(LocalDateTime.now());
+
+            // send registration mail 
             try {
                 sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), true);
             } catch (NoSuchAlgorithmException | MessagingException e) {
                 logger.error("Unauthorized error: {}", e.getMessage());
                 throw new TSInternalServerException();
             }
+
+            // save user based on Subtype for choosing the correct repo
             saveUserSubtype(user);
         }
         return ResponseEntity.ok(null);
     }
 
+    // saves a user in the correct 
     private User saveUserSubtype(User user) throws InvalidUserTypeException {
+        // check the type of the provided user
         if (user instanceof Student) {
             return studentRepository.save((Student) user);
         } else if (user instanceof Director) {

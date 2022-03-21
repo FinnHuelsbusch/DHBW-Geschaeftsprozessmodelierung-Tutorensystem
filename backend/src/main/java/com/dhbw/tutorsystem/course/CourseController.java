@@ -30,6 +30,7 @@ public class CourseController {
             @ApiResponse(responseCode = "200", description = " Courses with Title and Leaders are returned as list."),
     })
     @GetMapping("/withTitleAndLeaders")
+    // get all Courses with title and leaders by getting all Courses from the DB and converting them before returning 
     public ResponseEntity<List<CourseWithTitleAndLeaders>> getCoursesWithTitleAndLeaders() {
         return new ResponseEntity<List<CourseWithTitleAndLeaders>>(
                 CourseWithTitleAndLeaders.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
@@ -40,6 +41,7 @@ public class CourseController {
             @ApiResponse(responseCode = "200", description = "Courses with Title and Specialisations are returned as list."),
     })
     @GetMapping("/withTitleAndSpecialisations")
+    // get all Courses with title and specialistationcourse by getting all Courses from the DB and converting before returning 
     public ResponseEntity<List<CourseWithTitleAndSpecialisations>> getCoursesWithTitleAndSpecialisations() {
         return new ResponseEntity<List<CourseWithTitleAndSpecialisations>>(
                 CourseWithTitleAndSpecialisations.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);

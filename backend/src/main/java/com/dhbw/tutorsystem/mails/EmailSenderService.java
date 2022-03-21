@@ -39,14 +39,17 @@ public class EmailSenderService {
         return javaMailSender.createMimeMessage();
     }
 
+    // Method for mail without arguments
     public void sendMail(String mailTo, MailType mailType) throws MessagingException {
         sendMail(mailTo, mailType, null);
     }
 
+    // Method for mails without arguments
     public void sendMails(Set<String> mailsTo, MailType mailType) throws MessagingException {
         sendMails(mailsTo, mailType, null);
     }
 
+    // decide which type of mail needs to be send 
     public void sendMail(String mailTo, MailType mailType, Map<String, Object> arguments) throws MessagingException {
 
         switch (mailType) {
@@ -72,10 +75,12 @@ public class EmailSenderService {
                 sendUserAddedToTutorialAsTutorMail(mailTo, arguments);
                 break;
             default:
+                // throw exception when an illegal argument is given   
                 throw new IllegalArgumentException("MailType is not known.");
         }
     }
 
+    // send mail for to all mailadresses in the set 
     public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments)
             throws MessagingException {
         for (String mailTo : mailsTo) {
@@ -83,16 +88,22 @@ public class EmailSenderService {
         }
     }
 
+
     private void sendRegistrationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        // get variables from the arguments set 
         String hashBase64 = (String) arguments.get("hashBase64");
         boolean isFirstRegisterMail = (boolean) arguments.get("isFirstRegisterMail");
-
-        Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
+
+        // fillup thymeleaf 
+        Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
+
+        // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("registrationActivationMail.html", thymeleafContext);
 
+        // send mail by creating mime message
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
         helper.setSubject("Tutorensystem Registrierung");
@@ -101,13 +112,18 @@ public class EmailSenderService {
     }
 
     private void sendResetPasswordMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+        // get variables from the arguments set and create new ones
         String hashBase64 = (String) arguments.get("hashBase64");
-
-        Context thymeleafContext = new Context();
         String linkUrl = frontendUrl + "/verifyResetPassword?h=" + hashBase64 + "&e=" + mailTo;
+
+        // fillup thymeleaf 
+        Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
+
+        // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("resetPasswordMail.html", thymeleafContext);
 
+        // send mail by creating mime message
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
         helper.setSubject("Tutorensystem Passwort vergessen");
@@ -117,15 +133,21 @@ public class EmailSenderService {
 
     private void sendTutorialParticipationStudentMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
+
+        // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
-
-        Context thymeleafContext = new Context();
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
+
+        // fillup thymeleaf 
+        Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("tutorialLinkUrl", tutorialLinkUrl);
+
+        // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("tutorialParticipationMail.html", thymeleafContext);
 
+        // send mail by creating mime message
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
         helper.setSubject("Tutorensystem Teilnahme am Tutorium");
@@ -135,12 +157,18 @@ public class EmailSenderService {
 
     private void sendTutorialParticipationStudentRemovalMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
+                
+        // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
 
+        // fillup thymeleaf 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
+
+        // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("tutorialParticipationRemovalMail.html", thymeleafContext);
 
+        // send mail by creating mime message
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
         helper.setSubject("Tutorensystem Teilnahme am Tutorium");

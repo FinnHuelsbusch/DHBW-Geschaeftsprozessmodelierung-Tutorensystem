@@ -18,11 +18,13 @@ public class CourseWithTitle {
 
     private String abbreviation;
 
+    // maps a given course to a course with title  and abbreviation
     public static CourseWithTitle convertToDto(ModelMapper modelMapper, Course course) {
         CourseWithTitle courseWithTitleAndLeaders = modelMapper.map(course, CourseWithTitle.class);
         return courseWithTitleAndLeaders;
     }
 
+    // maps multiple given courses to  courses with title  and abbreviation
     public static List<CourseWithTitle> convertToDto(ModelMapper modelMapper, Iterable<Course> courses) {
         ArrayList<CourseWithTitle> coursesList = new ArrayList<>();
         for (Course course : courses) {
