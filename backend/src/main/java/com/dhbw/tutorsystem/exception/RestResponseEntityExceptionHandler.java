@@ -47,7 +47,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         StringBuilder sb = new StringBuilder();
         // for all exceptions write the field name and the error and append it to the string builder 
         ex.getBindingResult().getFieldErrors().stream().forEach(fieldError -> {
-            sb.append(String.format("Field '%s' has error: %s. ", fieldError.getField(),
+            sb.append(String.format("Field '%s' has error: %s.", fieldError.getField(),
                     fieldError.getDefaultMessage()));
         });
         TSExceptionResponse response = new TSExceptionResponse(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
