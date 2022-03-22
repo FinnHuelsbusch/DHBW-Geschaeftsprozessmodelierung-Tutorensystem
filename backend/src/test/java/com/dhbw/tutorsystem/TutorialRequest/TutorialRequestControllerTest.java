@@ -10,6 +10,7 @@ import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
 import com.dhbw.tutorsystem.tutorialRequest.TutorialRequestRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,10 +51,22 @@ class TutorialRequestControllerTest {
     }
 
     private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedValue) throws Exception{
-        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+        MvcResult result =  mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
                 .andExpect(expectedValue)
                 .andDo(print())
                 .andReturn();
+        System.out.println("TEST: " + result.getResponse().getContentAsString());
+    }
+
+    private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedValue, String expectedMessage) throws Exception{
+        MvcResult result =  mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+                .andExpect(expectedValue)
+                .andDo(print())
+                .andReturn();
+        String responseContent = result.getResponse().getContentAsString();
+        JSONObject response = new JSONObject(responseContent);
+        assertEquals(expectedMessage, response.getString("message"));
+        //System.out.println("Message: " + response.getString("message"));
     }
 
     @Test
@@ -65,6 +79,7 @@ class TutorialRequestControllerTest {
     @Transactional
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void checkIfRequestIsInDatabase() throws Exception {
+        long beforeAddingRequest = tutorialRequestRepository.count();
         performMVC(tutorialRequest, CREATED);
         //no API route, get requests via repository
         TutorialRequest tutorialRequest = tutorialRequestRepository.findAll().iterator().next();
@@ -72,28 +87,28 @@ class TutorialRequestControllerTest {
         assertEquals("Ich brauche Hilfe bei Datenstrukturen", tutorialRequest.getDescription());
         assertEquals("s111111@student.dhbw-mannheim.de",tutorialRequest.getCreatedBy().getEmail());
         assertEquals(3, tutorialRequest.getSemester());
-        assertEquals(1, tutorialRequestRepository.count());
+        assertEquals(1, (tutorialRequestRepository.count()-beforeAddingRequest));
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void semesterOutOfLowerBound() throws Exception {
         tutorialRequest.setSemester(0);
-        performMVC(tutorialRequest, BAD_REQUEST);
+        performMVC(tutorialRequest, BAD_REQUEST, "Field 'semester' has error: must be greater than or equal to 1.");
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void semesterOutOfUpperBound() throws Exception {
         tutorialRequest.setSemester(7);
-        performMVC(tutorialRequest, BAD_REQUEST);
+        performMVC(tutorialRequest, BAD_REQUEST, "Field 'semester' has error: must be less than or equal to 6.");
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void semesterNegativeNumber() throws Exception {
         tutorialRequest.setSemester(-1);
-        performMVC(tutorialRequest, BAD_REQUEST);
+        performMVC(tutorialRequest, BAD_REQUEST, "Field 'semester' has error: must be greater than or equal to 1.");
     }
 
     @Test
@@ -102,14 +117,14 @@ class TutorialRequestControllerTest {
         CreateTutorialRequestRequest request = new CreateTutorialRequestRequest();
         request.setTitle("Programmieren I");
         request.setDescription("Ich brauche Hilfe bei Datenstrukturen.");
-        performMVC(request, BAD_REQUEST);
+        performMVC(request, BAD_REQUEST, "Field 'semester' has error: must be greater than or equal to 1.");
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void descriptionEmpty() throws Exception {
         tutorialRequest.setDescription("");
-        performMVC(tutorialRequest, BAD_REQUEST);
+        performMVC(tutorialRequest, BAD_REQUEST, "Field 'description' has error: must not be blank.");
     }
 
     @Test
@@ -118,14 +133,14 @@ class TutorialRequestControllerTest {
         CreateTutorialRequestRequest request = new CreateTutorialRequestRequest();
         request.setTitle("Programmieren I");
         request.setSemester(4);
-        performMVC(request, BAD_REQUEST);
+        performMVC(request, BAD_REQUEST, "Field 'description' has error: must not be blank.");
     }
 
     @Test
     @WithMockUser(username="s111111@student.dhbw-mannheim.de",password = "1234",roles="STUDENT")
     void titleEmpty() throws Exception {
         tutorialRequest.setTitle("");
-        performMVC(tutorialRequest, BAD_REQUEST);
+        performMVC(tutorialRequest, BAD_REQUEST, "Field 'title' has error: must not be blank.");
     }
 
     @Test
@@ -134,7 +149,7 @@ class TutorialRequestControllerTest {
         CreateTutorialRequestRequest request = new CreateTutorialRequestRequest();
         request.setDescription("Ich brauche Hilfe bei Datenstrukturen.");
         request.setSemester(4);
-        performMVC(request, BAD_REQUEST);
+        performMVC(request, BAD_REQUEST, "Field 'title' has error: must not be blank.");
     }
 
     @Test
@@ -145,12 +160,12 @@ class TutorialRequestControllerTest {
     @Test
     @WithMockUser(username="adam.admin@dhbw-mannheim.de",password = "1234",roles="ADMIN") 
     void loggedInAsAdmin() throws Exception{
-        performMVC(tutorialRequest, INTERNAL_SERVER_ERROR);
+        performMVC(tutorialRequest, INTERNAL_SERVER_ERROR, "Access is denied");
     }
 
     @Test
     @WithMockUser(username="dirk.director@dhbw-mannheim.de",password = "1234",roles="DIRECTOR") 
     void loggedInAsDirector() throws Exception{
-        performMVC(tutorialRequest, INTERNAL_SERVER_ERROR);
+        performMVC(tutorialRequest, INTERNAL_SERVER_ERROR, "Access is denied");
     }
 }
