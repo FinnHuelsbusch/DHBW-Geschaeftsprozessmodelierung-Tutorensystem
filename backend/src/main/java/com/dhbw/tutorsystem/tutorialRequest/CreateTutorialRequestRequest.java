@@ -24,5 +24,5 @@ public class CreateTutorialRequestRequest {
     @Setter
     @Min(1)
     @Max(6)
-    private int semester;
+    private Integer semester;
 }
