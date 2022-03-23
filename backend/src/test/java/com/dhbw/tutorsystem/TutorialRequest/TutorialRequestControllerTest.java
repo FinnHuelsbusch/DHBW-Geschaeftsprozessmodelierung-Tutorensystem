@@ -53,24 +53,17 @@ class TutorialRequestControllerTest {
         this.tutorialRequest = tutorialRequest;
     }
 
-    private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedValue) throws Exception{
-        performMVC(request, expectedValue, null, null);
-        // MvcResult result =  mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
-        //         .andExpect(expectedValue)
-        //         .andDo(print())
-        //         .andReturn();
-        // System.out.println("TEST: " + result.getResponse().getContentAsString());
+    private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedHttpResponseValue) throws Exception{
+        performMVC(request, expectedHttpResponseValue, null, null);
     }
 
-    private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedValue, String expectedMessage, Class<?> expectedErrorClass) throws Exception{
-        MvcResult result =  mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
-                .andExpect(expectedValue)
+    private void performMVC (CreateTutorialRequestRequest request, ResultMatcher expectedHttpResponseValue, String expectedMessage, Class<?> expectedErrorClass) throws Exception{
+        mvc.perform(put("/tutorialrequest").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+                .andExpect(expectedHttpResponseValue)
                 .andExpect(tempResult -> {if(expectedErrorClass != null){ assertTrue( expectedErrorClass.isInstance(tempResult.getResolvedException()));}})
                 .andExpect(tempResult -> {if(expectedMessage != null){ assertEquals(expectedMessage, new JSONObject(tempResult.getResponse().getContentAsString()).getString("message"));}})
                 .andDo(print())
                 .andReturn();
-
-        System.out.println("Hallo");
     }
 
     @Test
