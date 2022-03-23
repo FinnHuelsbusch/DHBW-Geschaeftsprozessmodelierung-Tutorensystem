@@ -1,41 +1,34 @@
 package com.dhbw.tutorsystem.TutorialRequest;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.dhbw.tutorsystem.utils.RequestType.PUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import static com.dhbw.tutorsystem.utils.RequestType.*;
-import static org.springframework.http.HttpStatus.*;
-
-import com.dhbw.tutorsystem.exception.TSBadRequestException;
 import com.dhbw.tutorsystem.tutorialRequest.CreateTutorialRequestRequest;
 import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
 import com.dhbw.tutorsystem.tutorialRequest.TutorialRequestRepository;
 import com.dhbw.tutorsystem.utils.MvcTestUtils;
-import com.dhbw.tutorsystem.utils.RequestType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TutorialRequestControllerTest {
 
     @Autowired
@@ -50,15 +43,15 @@ class TutorialRequestControllerTest {
 
     private MvcTestUtils mvcUtils;
 
-    // @BeforeAll
-    // private static void init() {
-    //     mvcUtils = new MvcTestUtils("/tutorialrequest", mvc, objectMapper);
-    // }
+    @BeforeAll
+    private void init() {
+        mvcUtils = new MvcTestUtils("/tutorialrequest", mvc, objectMapper);
+    }
 
     @BeforeEach
     private void createTutorialRequest() {
         tutorialRequestRepository.deleteAll();
-        mvcUtils = new MvcTestUtils("/tutorialrequest", mvc, objectMapper);
+        //mvcUtils = new MvcTestUtils("/tutorialrequest", mvc, objectMapper);
         CreateTutorialRequestRequest tutorialRequest = new CreateTutorialRequestRequest();
         tutorialRequest.setTitle("Programmieren I");
         tutorialRequest.setDescription("Ich brauche Hilfe bei Datenstrukturen");
@@ -120,7 +113,7 @@ class TutorialRequestControllerTest {
     void semesterNotPresent() throws Exception {
         tutorialRequest.setSemester(null);
         mvcUtils.performExpectException(PUT, "/", tutorialRequest, BAD_REQUEST,
-                "Field 'semester' has error: must be greater than or equal to 1.",
+                "Field 'semester' has error: must not be null.",
                 MethodArgumentNotValidException.class);
     }
 

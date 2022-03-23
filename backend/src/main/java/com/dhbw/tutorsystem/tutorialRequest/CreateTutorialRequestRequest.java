@@ -3,6 +3,7 @@ package com.dhbw.tutorsystem.tutorialRequest;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,5 +25,6 @@ public class CreateTutorialRequestRequest {
     @Setter
     @Min(1)
     @Max(6)
+    @NotNull
     private Integer semester;
 }
