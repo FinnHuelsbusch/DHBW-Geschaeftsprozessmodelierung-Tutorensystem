@@ -10,6 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.user.student.Student;
@@ -51,5 +54,8 @@ public class TutorialRequest {
 
     @Getter
     @Setter
+    @Min(1)
+    @Max(6)
+    @NotNull
     private Integer semester;
 }
