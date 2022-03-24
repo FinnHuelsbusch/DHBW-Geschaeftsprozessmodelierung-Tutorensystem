@@ -433,11 +433,13 @@ public class TutorialController {
 
     // create a new Tutorial
     @Operation(tags = {
-            "tutorial" }, summary = "Create new tutorial.", description = "Create a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorials" }, summary = "Create new tutorial.", description = "Create a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Returns the created tutorial."),
-            @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
-    })
+            @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "404", description = "One of the specialisation courses does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Tried to create a Tutorial without needed roles.", content =  @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+        })
     @PutMapping
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> createTutorial(
@@ -513,7 +515,7 @@ public class TutorialController {
     }
 
     @Operation(tags = {
-            "tutorial" }, summary = "Update a tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorials" }, summary = "Update a tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Returns the updated tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
@@ -595,7 +597,7 @@ public class TutorialController {
 
     // Delete a tutorial 
     @Operation(tags = {
-            "tutorial" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorials" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tutorial was deleted"),
             @ApiResponse(responseCode = "400", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
