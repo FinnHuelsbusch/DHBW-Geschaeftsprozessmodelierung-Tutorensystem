@@ -62,7 +62,7 @@ public class EmailSenderService {
             case TUTORIAL_PARTICIPATION_REMOVAL_STUDENT:
                 sendTutorialParticipationStudentRemovalMail(mailTo, arguments);
                 break;
-            case UNREGISTERD_USER_ADDED_TO_TUTORIAL:
+            /*case UNREGISTERD_USER_ADDED_TO_TUTORIAL:
                 sendUnregisterdUserAddedToTutorialAsTutorMail(mailTo, arguments);
                 break;
             case TUTORIAL_DELETION:
@@ -70,6 +70,15 @@ public class EmailSenderService {
                 break;
             case USER_ADDED_TO_TUTORIAL:
                 sendUserAddedToTutorialAsTutorMail(mailTo, arguments);
+                break;*/
+            case TUTOR_ADDED_ANNOUNCEMENT_MAIL:
+                sendAnnouncementMail(mailTo, arguments);
+                break;
+            case TUTOR_ADDED_ANNOUNCEMENT_MAIL_TO_TUTOR:
+                sendAsTutorAddedMail(mailTo, arguments);
+                break;
+            case TUTORIAL_REMOVED_MAIL_TO_STUDENT:
+                sendTutorialRemovedMailToStudent(mailTo, arguments);
                 break;
             default:
                 throw new IllegalArgumentException("MailType is not known.");
@@ -150,7 +159,7 @@ public class EmailSenderService {
         sendMimeMessage(helper.getMimeMessage());
     }
 
-    private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
+   /* private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
 
     }
@@ -162,6 +171,55 @@ public class EmailSenderService {
 
     private void sendUTutorialDelete(String mailTo, Map<String, Object> arguments) throws MessagingException {
 
+    }*/
+
+    private void sendAnnouncementMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+
+        Context thymeleafContext = new Context();
+        String linkUrl = "http://localhost:3000/login";
+        thymeleafContext.setVariable("link", linkUrl);
+        thymeleafContext.setVariable("firstname", arguments.get("firstname"));
+        thymeleafContext.setVariable("lastname", arguments.get("lastname"));
+        thymeleafContext.setVariable("tutorialtitle", arguments.get("tutorialtitle"));
+        String htmlBody = thymeTemplateEngine.process("/Email-Template/Email-Announcement/Email-Template_Announcement.html", thymeleafContext);
+
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("Tutorensystem TutorIn hinzugefügt Email");
+        helper.setText(htmlBody, true);
+        sendMimeMessage(helper.getMimeMessage());
+    }
+
+    private void sendAsTutorAddedMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
+
+        Context thymeleafContext = new Context();
+        String linkUrl = "http://localhost:3000/register";
+        thymeleafContext.setVariable("link", linkUrl);
+        thymeleafContext.setVariable("firstname", arguments.get("firstname"));
+        thymeleafContext.setVariable("lastname", arguments.get("lastname"));
+        thymeleafContext.setVariable("tutorialtitle", arguments.get("tutorialtitle"));
+        String htmlBody = thymeTemplateEngine.process("/Email-Template/TutorAusgewählt/Tutor_ausgewählt.html", thymeleafContext);
+
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("Tutorensystem TutorIn hinzugefügt Mail an Tutor");
+        helper.setText(htmlBody, true);
+        sendMimeMessage(helper.getMimeMessage());
+    }
+
+    private void sendTutorialRemovedMailToStudent(String mailTo, Map<String, Object> arguments) throws MessagingException {
+
+        Context thymeleafContext = new Context();
+        thymeleafContext.setVariable("firstname", arguments.get("firstname"));
+        thymeleafContext.setVariable("lastname", arguments.get("lastname"));
+        thymeleafContext.setVariable("tutorialtitle", arguments.get("tutorialtitle"));
+        String htmlBody = thymeTemplateEngine.process("/Email-Template/TutoriumEntfernt/Tutorium_entfernt_Student.html", thymeleafContext);
+
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("Tutorensystem Tutorium entfernt");
+        helper.setText(htmlBody, true);
+        sendMimeMessage(helper.getMimeMessage());
     }
 
 }

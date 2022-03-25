@@ -412,7 +412,7 @@ public class TutorialController {
     @PutMapping()
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> createTutorial(
-            @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest) {
+            @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest) throws MessagingException {
 
         if (createTutorialRequest.getStart().isBefore(LocalDate.now()) ||
                 createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())) {
@@ -436,11 +436,14 @@ public class TutorialController {
                         "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes(),
                         "tutorialTutorEmails", createTutorialRequest.getTutorEmails()));
 
-        if(tutors.size() > 0){
-            
-        }
-
         tutorial.setTutors(Set.copyOf(tutors));
+        for(int i=0; i<tutors.size();i++){
+            emailSenderService.sendMail(tutors.get(i).getEmail(), MailType.TUTOR_ADDED_ANNOUNCEMENT_MAIL,
+                    Map.of(
+                        "firstname",tutors.get(i).getFirstName(),
+                        "lastname",tutors.get(i).getLastName(),
+                        "tutorialtitle",createTutorialRequest.getTitle()));
+        }
         tutorial.setDescription(createTutorialRequest.getDescription());
         tutorial.setTitle(createTutorialRequest.getTitle());
         tutorial.setStart(createTutorialRequest.getStart());
@@ -496,33 +499,42 @@ public class TutorialController {
     @PostMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
-            @RequestBody @Valid DeleteTutorialRequest deleteTutorialRequest) {
+            @RequestBody @Valid DeleteTutorialRequest deleteTutorialRequest) throws MessagingException {
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
         String reason = deleteTutorialRequest.getReason();
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
         } else {
             Tutorial tutorial = optionalTutorial.get();
-            Map<String, Object> mailArguments = Map.of(
-                    "tutorialTitle", tutorial.getTitle(),
-                    "tutorialDescription", tutorial.getDescription(),
-                    "tutorialStart", tutorial.getStart(),
-                    "tutorialEnd", tutorial.getEnd(),
-                    "tutorialDurationMinutes", tutorial.getDurationMinutes(),
-                    "reason", reason);
-            try {
-                emailSenderService.sendMails(
-                        tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
-                                .collect(Collectors.toSet()),
-                        MailType.TUTORIAL_DELETION, mailArguments);
+            Set<Student> studentList = tutorial.getParticipants();
+            if (studentList.size()>0){
+                for(Student student: studentList) {
+                Map<String, Object> mailArguments = Map.of(
+                        "tutorialTitle", tutorial.getTitle(),
+                        "firstname", student.getFirstName(),
+                        "lastname", student.getLastName());
+                    emailSenderService.sendMails(
+                            tutorial.getParticipants().stream().map(tutor -> tutor.getEmail())
+                                    .collect(Collectors.toSet()),
+                            MailType.TUTORIAL_REMOVED_MAIL_TO_STUDENT, mailArguments);}
+                }
 
-                emailSenderService.sendMails(
-                        tutorial.getParticipants().stream().map(tutor -> tutor.getEmail())
-                                .collect(Collectors.toSet()),
-                        MailType.TUTORIAL_DELETION, mailArguments);
-            } catch (MessagingException e) {
-                throw new TSInternalServerException();
+            Set<User> tutorList = tutorial.getTutors();
+            if (tutorList.size()>0){
+                for(User tutors: tutorList) {
+                    Map<String, Object> mailArguments = Map.of(
+                            "tutorialTitle", tutorial.getTitle(),
+                            "firstname", tutors.getFirstName(),
+                            "lastname", tutors.getLastName());
+                    emailSenderService.sendMails(
+                            tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                                    .collect(Collectors.toSet()),
+                            MailType.TUTORIAL_REMOVED_MAIL_TO_STUDENT, mailArguments);
+                }
             }
+
+
+
             tutorialRepository.deleteById(id);
 
             return new ResponseEntity<>(HttpStatus.OK);

@@ -194,10 +194,10 @@
 <td style="padding-bottom:15px;padding-left:40px;padding-right:40px;padding-top:13px;">
 <div style="font-family: sans-serif">
 <div style="font-size: 14px; mso-line-height-alt: 25.2px; color: #555555; line-height: 1.8; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
-<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi XYZ, </span></p>
+<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi <span th:utext=${firstname}>Vorname</span> <span th:utext=${lastname}>Nachname</span>,</span></p>
 <p style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style=""> für dein vorgemerktes Tutorium xyz, wurde ein(e) TutorIn gefunden.</span></p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style=""> Logge dich bitte ein, falls du dich verbindlich für das Tutorium anmelden möchtest.</span></p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style=""> für dein vorgemerktes Tutorium <span th:utext=${tutorialtitle}>Tutorialtitle</span>, wurde ein(e) TutorIn gefunden.</span></p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style=""> Logge dich bitte ein, falls du dich für das Tutorium anmelden möchtest.</span></p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style=""> Viel Spaß beim Lernen!</span></p>
 </div>
 </div>
@@ -209,7 +209,8 @@
 <td style="padding-bottom:50px;padding-left:40px;padding-right:40px;padding-top:10px;text-align:center;">
 <div align="center">
 <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:52px;width:248px;v-text-anchor:middle;" arcsize="6%" stroke="false" fillcolor="#f75c03"><w:anchorlock/><v:textbox inset="0px,0px,0px,0px"><center style="color:#ffffff; font-family:Tahoma, sans-serif; font-size:16px"><![endif]-->
-<div style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#f75c03;border-radius:3px;width:auto;border-top:1px solid #f75c03;border-right:1px solid #f75c03;border-bottom:1px solid #f75c03;border-left:1px solid #f75c03;padding-top:10px;padding-bottom:10px;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:28px;padding-right:28px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="font-size: 16px; margin: 0; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;"><strong>Zum Login</strong></span></span></div>
+	<a th:href="${link}">
+		<div style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#f75c03;border-radius:3px;width:auto;border-top:1px solid #f75c03;border-right:1px solid #f75c03;border-bottom:1px solid #f75c03;border-left:1px solid #f75c03;padding-top:10px;padding-bottom:10px;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:28px;padding-right:28px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="font-size: 16px; margin: 0; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;"><strong>Zum Login</strong></span></span></div></a>
 <!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
 </div>
 </td>
@@ -266,7 +267,7 @@
 <td style="padding-bottom:30px;padding-left:20px;padding-right:20px;padding-top:15px;">
 <div style="font-family: sans-serif">
 <div style="font-size: 12px; mso-line-height-alt: 18px; color: #555555; line-height: 1.5; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
-<p style="margin: 0; font-size: 12px;">Alle Rechtlichen Schritte sind den geilen schlauen Studenten vorbehalten</p>
+<p style="margin: 0; font-size: 12px;">© 2022 </p>
 </div>
 </div>
 </td>

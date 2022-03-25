@@ -171,12 +171,12 @@
 <td style="padding-bottom:15px;padding-left:40px;padding-right:40px;padding-top:13px;">
 <div style="font-family: sans-serif">
 <div style="font-size: 14px; mso-line-height-alt: 25.2px; color: #555555; line-height: 1.8; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
-<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi XYZ, </span></p>
+<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi <span th:utext=${firstname}>Vorname</span> <span th:utext=${lastname}>Nachname</span>,</span></p>
 <p style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">Du wurdest für das Tutorium *Name des Tutoriums* als TutorIn ausgewählt und im Portal hinzugefügt.</p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">Du wurdest für das Tutorium <span th:utext=${tutorialtitle}>Tutorialtitle</span> als TutorIn ausgewählt und im Portal hinzugefügt.</p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"> Solltest Du diesbezüglich Fragen haben,</p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">wenden Dich bitte an den/die verantwortliche(n) StudiengangsleiterIn.</p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">wende Dich bitte an den/die verantwortliche(n) StudiengangsleiterIn.</p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style="">Du bist noch nicht im System registriert, dann registriere dich jetzt.</span></p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
@@ -189,7 +189,8 @@
 <tr>
 <td>
 <div align="center">
-<a href="Hier kommt unsere URL rein" style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#f75c03;border-radius:4px;width:auto;border-top:1px solid #f75c03;border-right:1px solid #f75c03;border-bottom:1px solid #f75c03;border-left:1px solid #f75c03;padding-top:5px;padding-bottom:5px;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;" target="_blank"><span style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="font-size: 16px; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;">Jetzt registrieren</span></span></a>
+	<a th:href="${link}">
+		<div style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#f75c03;border-radius:3px;width:auto;border-top:1px solid #f75c03;border-right:1px solid #f75c03;border-bottom:1px solid #f75c03;border-left:1px solid #f75c03;padding-top:10px;padding-bottom:10px;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:28px;padding-right:28px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="font-size: 16px; margin: 0; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;"><strong>Jetzt registrieren</strong></span></span></div></a>
 <!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
 </div>
 </td>
