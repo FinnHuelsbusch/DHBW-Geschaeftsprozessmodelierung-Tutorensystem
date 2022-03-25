@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import lombok.Data;
 
+
+// basic exception class to be extended by all other exceptions
 @Data
 public class TSExceptionResponse {
 

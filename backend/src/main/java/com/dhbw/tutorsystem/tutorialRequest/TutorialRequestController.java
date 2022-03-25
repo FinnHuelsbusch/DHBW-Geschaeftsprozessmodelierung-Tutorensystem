@@ -34,6 +34,7 @@ public class TutorialRequestController {
     private final TutorialRequestRepository tutorialRequestRepository;
     private final StudentService studentService;
 
+    // create a Tutorial Offer by a student 
     @Operation(tags = {
             "tutorialRequest" }, summary = "Create new TutorialRequest.", description = "Creates a new TutorialRequest for the logged that must be a student.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
