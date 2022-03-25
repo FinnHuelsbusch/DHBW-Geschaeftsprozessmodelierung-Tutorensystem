@@ -3,11 +3,14 @@ package com.dhbw.tutorsystem.tutorial;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityManagerFactory;
@@ -29,6 +32,7 @@ import com.dhbw.tutorsystem.tutorial.exception.SpecialisationCourseNotFoundExcep
 import com.dhbw.tutorsystem.tutorial.exception.InvalidTutorialParticipationStatusException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialInvalidTimerangeException;
 import com.dhbw.tutorsystem.tutorial.exception.TutorialNotFoundException;
+import com.dhbw.tutorsystem.tutorial.payload.TutorialDataRequest;
 import com.dhbw.tutorsystem.tutorial.payload.DeleteTutorialRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
@@ -57,6 +61,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,6 +90,8 @@ public class TutorialController {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
+
+    // get tutorial by ID as path Variable
     @Operation(summary = "Find tutorial by id.", description = "Find a tutorial by its id.", tags = {
             "tutorials" })
     @ApiResponses(value = {
@@ -94,14 +101,18 @@ public class TutorialController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<TutorialForDisplay> getTutorial(@PathVariable Integer id) {
+        // get from DB 
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
+        // check if present 
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
         }
         Tutorial tutorial = optionalTutorial.get();
+        // convert to DTO to overcome recursive attributes
         TutorialForDisplay tutorialDto = TutorialForDisplay.convertToDto(modelMapper, tutorial);
+        // get student if he is logged in 
         Student student = studentService.getLoggedInStudent();
-        // optionally add the student perspective attributes
+
         if (student != null) {
             tutorialDto = tutorialDto.addPerspective(
                     tutorial.isMarkedByStudent(student),
@@ -111,6 +122,8 @@ public class TutorialController {
         return ResponseEntity.ok(tutorialDto);
     }
 
+
+    // add a student as participant to a tutorial (tutorial is specified by path variable)
     @Operation(summary = "Participate in tutorial.", description = "Participate in a tutorial by id.", tags = {
             "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
@@ -121,6 +134,7 @@ public class TutorialController {
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @PutMapping("/participate/{id}")
     public ResponseEntity<Void> participateInTutorial(@PathVariable Integer id) {
+        // get tutorial and check if present 
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
@@ -145,6 +159,8 @@ public class TutorialController {
         return ResponseEntity.ok(null);
     }
 
+
+    // remove a student as participant from a tutorial (tutorial is specified by path variable)
     @Operation(summary = "Remove participation in tutorial.", description = "Remove participation in a tutorial by id.", tags = {
             "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
@@ -155,6 +171,7 @@ public class TutorialController {
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @DeleteMapping("/participate/{id}")
     public ResponseEntity<Void> removeParticipationInTutorial(@PathVariable Integer id) {
+        // get tutorial and check if present 
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
@@ -178,6 +195,7 @@ public class TutorialController {
         return ResponseEntity.ok(null);
     }
 
+    // user marks tutorial 
     @Operation(summary = "Mark a tutorial.", description = "Mark a tutorial that you are interested in using the id.", tags = {
             "tutorials" })
     @ApiResponses(value = {
@@ -188,6 +206,7 @@ public class TutorialController {
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @PutMapping("/mark/{id}")
     public ResponseEntity<Void> markTutorial(@PathVariable Integer id) {
+        // get tutorial and check if present 
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
@@ -199,15 +218,19 @@ public class TutorialController {
         }
         // associate student with tutorial, then tutorial with student
         if (tutorial.getMarkedBy() == null) {
+            // create new Set if null
             tutorial.setMarkedBy(Set.of(student));
         } else {
+            // add to Set if present 
             tutorial.getMarkedBy().add(student);
         }
         tutorial = tutorialRepository.save(tutorial);
 
         if (student.getMarkedTutorials() == null) {
+            // create new Set if null
             student.setMarkedTutorials(Set.of(tutorial));
         } else {
+            // add to Set if present 
             student.getMarkedTutorials().add(tutorial);
         }
         studentRepository.save(student);
@@ -225,6 +248,7 @@ public class TutorialController {
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @DeleteMapping("/mark/{id}")
     public ResponseEntity<Void> unmarkTutorial(@PathVariable Integer id) {
+        // get tutorial and check if present 
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
@@ -248,6 +272,8 @@ public class TutorialController {
         return ResponseEntity.ok(null);
     }
 
+
+    // get all tutorials filtered and ordered
     @Operation(summary = "Query tutorials with filter", description = "Query tutorials by supplying a specified paging configuration and a filter, that contains text, specialisation courses and a time range for the start date.", tags = {
             "tutorials" })
     @ApiResponses(value = {
@@ -363,6 +389,7 @@ public class TutorialController {
                         .and(isParticipating)
                         .and(isHolds));
 
+        // loop over sorting parameters, multiple can be specified
         for (Sort.Order order : pageable.getSort()) {
             com.querydsl.core.types.Order querydslOrder = order.isAscending()
                     ? com.querydsl.core.types.Order.ASC
@@ -403,16 +430,98 @@ public class TutorialController {
                 totalResultCount));
     }
 
+
+    // create a new Tutorial
     @Operation(tags = {
             "tutorial" }, summary = "Create new tutorial.", description = "Create a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Returns the created tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
-    @PutMapping()
+    @PutMapping
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> createTutorial(
-            @RequestBody @NotNull @Valid CreateTutorialRequest createTutorialRequest) {
+            @RequestBody @NotNull @Valid TutorialDataRequest createTutorialRequest) {
+
+        // check if start and end date are valid as combination
+        if (createTutorialRequest.getStart().isBefore(LocalDate.now()) ||
+                createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())) {
+            throw new TutorialInvalidTimerangeException();
+        }
+        // check if all specialisationCourses exist 
+        if (!specialisationCourseRepository.existsByIdIn(createTutorialRequest.getSpecialisationCoursesIds())) {
+            throw new SpecialisationCourseNotFoundException();
+        }
+        // check if all emails are valid 
+        if (!createTutorialRequest.getTutorEmails().stream().allMatch(email -> User.isValidEmail(email))) {
+            throw new InvalidEmailException();
+        }
+
+        Tutorial tutorial = new Tutorial();
+
+        // invite Tutors and create Users for emails that are not registered
+        Set<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(),
+                Map.of(
+                        "tutorialTitle", createTutorialRequest.getTitle(),
+                        "tutorialDescription", createTutorialRequest.getDescription(),
+                        "tutorialStart", createTutorialRequest.getStart(),
+                        "tutorialEnd", createTutorialRequest.getEnd(),
+                        "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes(),
+                        "tutorialTutorEmails", createTutorialRequest.getTutorEmails()));
+        mapCreateTutorialRequestToTutorial(createTutorialRequest, tutors, tutorial);
+
+        // save tutorial to DB 
+        tutorial = tutorialRepository.save(tutorial);
+
+        // Return Tutorial as body 
+        return new ResponseEntity<>(
+                TutorialWithSpecialisationCoursesWithoutCourses.convertToDto(modelMapper, tutorial),
+                HttpStatus.CREATED);
+    }
+
+    private Set<User> handleAddedTutors(Set<String> tutorMails, Map<String, Object> mailArguments) {
+        List<User> usersToReturn = new ArrayList<>();
+        for (String tutorEmail : tutorMails) {
+            // check if user is present in DB 
+            Optional<User> optionalUser = userRepository.findByEmail(tutorEmail);
+            User user;
+            // if user is not registered yet create a new user and send a notification
+            if (optionalUser.isPresent()) {
+                // notify user, that he was added as tutor
+                user = optionalUser.get();
+                try {
+                    emailSenderService.sendMail(user.getEmail(), MailType.TUTORIAL_TUTOR_ADDED,
+                            mailArguments);
+                } catch (MessagingException e) {
+                    throw new TSInternalServerException();
+                }
+            } else {
+                // create a user only with email and notfiy him that he was added as tutor although he was not registered
+                user = new User();
+                user.setEmail(tutorEmail);
+                try {
+                    emailSenderService.sendMail(user.getEmail(),
+                            MailType.UNREGISTERED_TUTORIAL_TUTOR_ADDED,
+                            mailArguments);
+                } catch (MessagingException e) {
+                    throw new TSInternalServerException();
+                }
+            }
+            usersToReturn.add(user);
+        }
+        return new HashSet<>(userRepository.saveAll(usersToReturn));
+    }
+
+    @Operation(tags = {
+            "tutorial" }, summary = "Update a tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the updated tutorial."),
+            @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+    })
+    @PostMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public ResponseEntity<TutorialWithSpecialisationCoursesWithoutCourses> updateTutorial(
+            @RequestBody @NotNull @Valid TutorialDataRequest createTutorialRequest, @PathVariable int id) {
 
         if (createTutorialRequest.getStart().isBefore(LocalDate.now()) ||
                 createTutorialRequest.getStart().isAfter(createTutorialRequest.getEnd())) {
@@ -425,18 +534,54 @@ public class TutorialController {
             throw new InvalidEmailException();
         }
 
-        Tutorial tutorial = new Tutorial();
+        Map<String, Object> emailAttributes = Map.of(
+                "tutorialTitle", createTutorialRequest.getTitle(),
+                "tutorialDescription", createTutorialRequest.getDescription(),
+                "tutorialStart", createTutorialRequest.getStart(),
+                "tutorialEnd", createTutorialRequest.getEnd(),
+                "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes());
 
-        List<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(),
-                Map.of(
-                        "tutorialTitle", createTutorialRequest.getTitle(),
-                        "tutorialDescription", createTutorialRequest.getDescription(),
-                        "tutorialStart", createTutorialRequest.getStart(),
-                        "tutorialEnd", createTutorialRequest.getEnd(),
-                        "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes(),
-                        "tutorialTutorEmails", createTutorialRequest.getTutorEmails()));
+        Tutorial tutorial = tutorialRepository.findById(id).orElseThrow(TutorialNotFoundException::new);
 
-        tutorial.setTutors(Set.copyOf(tutors));
+        Set<String> oldTutorEmails = tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
+                .collect(Collectors.toSet());
+
+        Set<User> tutors = Set.of();
+        // Mail to all new tutors
+        Set<String> addedTutorsMails = new HashSet<>(createTutorialRequest.getTutorEmails());
+        addedTutorsMails.removeAll(oldTutorEmails);
+        if (!addedTutorsMails.isEmpty()) {
+            tutors = handleAddedTutors(addedTutorsMails, emailAttributes);
+        }
+        try {
+            // Mail to all removed Tutors
+            Set<String> removedTutorsMails = new HashSet<>(oldTutorEmails);
+            removedTutorsMails.removeAll(createTutorialRequest.getTutorEmails()); 
+            if (!removedTutorsMails.isEmpty()) {
+                emailSenderService.sendMails(removedTutorsMails, MailType.TUTORIAL_TUTOR_REMOVED, emailAttributes);
+            }
+
+            // Notify users over changed Tutorial
+            Set<String> remainingTutorsMails = new HashSet<>(createTutorialRequest.getTutorEmails());
+            remainingTutorsMails.retainAll(oldTutorEmails);
+            if (!remainingTutorsMails.isEmpty()) {
+                emailSenderService.sendMails(remainingTutorsMails, MailType.TUTORIAL_CHANGED, emailAttributes);
+            }
+        } catch (MessagingException e) {
+            throw new TSInternalServerException();
+        }
+
+        mapCreateTutorialRequestToTutorial(createTutorialRequest,userRepository.findAllByEmailIn(createTutorialRequest.getTutorEmails()), tutorial);
+
+        tutorialRepository.save(tutorial);
+        return new ResponseEntity<>(
+                TutorialWithSpecialisationCoursesWithoutCourses.convertToDto(modelMapper, tutorial),
+                HttpStatus.OK);
+    }
+
+    private void mapCreateTutorialRequestToTutorial(TutorialDataRequest createTutorialRequest, Set<User> tutors,
+            Tutorial tutorial) {
+        tutorial.setTutors(new HashSet<>(tutors));
         tutorial.setDescription(createTutorialRequest.getDescription());
         tutorial.setTitle(createTutorialRequest.getTitle());
         tutorial.setStart(createTutorialRequest.getStart());
@@ -445,44 +590,10 @@ public class TutorialController {
         tutorial.setSpecialisationCourses(specialisationCourseRepository
                 .findAllById(createTutorialRequest.getSpecialisationCoursesIds()));
         tutorial.setAppointment(createTutorialRequest.getAppointment());
-
-        tutorial = tutorialRepository.save(tutorial);
-
-        return new ResponseEntity<>(
-                TutorialWithSpecialisationCoursesWithoutCourses.convertToDto(modelMapper, tutorial),
-                HttpStatus.CREATED);
     }
 
-    private List<User> handleAddedTutors(Set<String> tutorMails, Map<String, Object> mailArguments) {
-        List<User> usersToReturn = new ArrayList<>();
-        for (String tutorEmail : tutorMails) {
-            Optional<User> optionalUser = userRepository.findByEmail(tutorEmail);
-            User user;
-            // if user is not registered yet create a new user and send a notification
-            if (optionalUser.isPresent()) {
-                user = optionalUser.get();
-                try {
-                    emailSenderService.sendMail(user.getEmail(), MailType.USER_ADDED_TO_TUTORIAL,
-                            mailArguments);
-                } catch (MessagingException e) {
-                    throw new TSInternalServerException();
-                }
-            } else {
-                user = new User();
-                user.setEmail(tutorEmail);
-                try {
-                    emailSenderService.sendMail(user.getEmail(),
-                            MailType.UNREGISTERD_USER_ADDED_TO_TUTORIAL,
-                            mailArguments);
-                } catch (MessagingException e) {
-                    throw new TSInternalServerException();
-                }
-            }
-            usersToReturn.add(user);
-        }
-        return userRepository.saveAll(usersToReturn);
-    }
 
+    // Delete a tutorial 
     @Operation(tags = {
             "tutorial" }, summary = "Delete one specific tutorial.", description = "Delete one specific tutorial by a tutorial ID. ", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
@@ -493,19 +604,22 @@ public class TutorialController {
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public ResponseEntity<Void> deleteTutorial(@PathVariable Integer id,
             @RequestBody @Valid DeleteTutorialRequest deleteTutorialRequest) {
+        // get by ID and check if present
         Optional<Tutorial> optionalTutorial = tutorialRepository.findById(id);
         String reason = deleteTutorialRequest.getReason();
         if (optionalTutorial.isEmpty()) {
             throw new TutorialNotFoundException();
         } else {
             Tutorial tutorial = optionalTutorial.get();
+            //generate MailArgs
             Map<String, Object> mailArguments = Map.of(
                     "tutorialTitle", tutorial.getTitle(),
                     "tutorialDescription", tutorial.getDescription(),
                     "tutorialStart", tutorial.getStart(),
                     "tutorialEnd", tutorial.getEnd(),
                     "tutorialDurationMinutes", tutorial.getDurationMinutes(),
-                    "reason", reason);
+                    // Map.of does not allow null values
+                    "reason", reason != null? reason : "");
             try {
                 emailSenderService.sendMails(
                         tutorial.getTutors().stream().map(tutor -> tutor.getEmail())
@@ -519,6 +633,7 @@ public class TutorialController {
             } catch (MessagingException e) {
                 throw new TSInternalServerException();
             }
+            // delete tutorial, all bidirectional relations are resolved and deleted
             tutorialRepository.deleteById(id);
 
             return new ResponseEntity<>(HttpStatus.OK);

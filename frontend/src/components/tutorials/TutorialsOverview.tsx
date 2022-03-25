@@ -16,6 +16,7 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { TreeNode } from 'antd/lib/tree-select';
 import { CourseWithTitleAndSpecialisations } from '../../types/Course';
 import FormText from '../inputs/FormText';
+import { UserRole } from '../../types/User';
 
 const TutorialsOverview: React.FC = () => {
 
@@ -172,6 +173,38 @@ const TutorialsOverview: React.FC = () => {
             });
         };
 
+        const StudentSelectOptions = () => (<>
+            <Col flex="1 1 100px">
+                <Form.Item
+                    name="selectMarked"
+                    valuePropName="checked">
+                    <Checkbox onChange={onSelectMarkedChange}>
+                        <StarFilled style={{ color: '#ffd805' }} /> Markiert
+                    </Checkbox>
+                </Form.Item>
+            </Col>
+
+            <Col flex="1 1 100px">
+                <Form.Item
+                    name="selectParticipates"
+                    valuePropName="checked">
+                    <Checkbox onChange={onSelectParticipatesChange}>
+                        <UserOutlined /> Teilgenommen
+                    </Checkbox>
+                </Form.Item>
+            </Col>
+
+            <Col flex="1 1 100px">
+                <Form.Item
+                    name="selectHolds"
+                    valuePropName="checked">
+                    <Checkbox onChange={onSelectHoldsChange}>
+                        <SoundOutlined /> Halten
+                    </Checkbox>
+                </Form.Item>
+            </Col>
+        </>);
+
         return (
             <Form
                 form={form}
@@ -179,14 +212,14 @@ const TutorialsOverview: React.FC = () => {
             >
                 <Row gutter={24}>
                     <Col flex="0.5 1 300px">
-                        <FormText
+                        <Form.Item
                             name="text"
                             label="Suchen"
                         >
                             <Input
                                 allowClear
                                 placeholder="Titel, Beschreibung..." />
-                        </FormText>
+                        </Form.Item>
                     </Col>
 
                     <Col flex="0.5 1 300px">
@@ -260,38 +293,7 @@ const TutorialsOverview: React.FC = () => {
                         </Form.Item>
                     </Col>
 
-
-                    {authContext.loggedUser && <>
-                        <Col flex="1 1 100px">
-                            <Form.Item
-                                name="selectMarked"
-                                valuePropName="checked">
-                                <Checkbox onChange={onSelectMarkedChange}>
-                                    <StarFilled style={{ color: '#ffd805' }} /> Markiert
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-
-                        <Col flex="1 1 100px">
-                            <Form.Item
-                                name="selectParticipates"
-                                valuePropName="checked">
-                                <Checkbox onChange={onSelectParticipatesChange}>
-                                    <UserOutlined /> Teilgenommen
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-
-                        <Col flex="1 1 100px">
-                            <Form.Item
-                                name="selectHolds"
-                                valuePropName="checked">
-                                <Checkbox onChange={onSelectHoldsChange}>
-                                    <SoundOutlined /> Halten
-                                </Checkbox>
-                            </Form.Item>
-                        </Col>
-                    </>}
+                    {authContext.hasRoles([UserRole.ROLE_STUDENT]) && <StudentSelectOptions />}
                 </Row>
 
                 <Row>

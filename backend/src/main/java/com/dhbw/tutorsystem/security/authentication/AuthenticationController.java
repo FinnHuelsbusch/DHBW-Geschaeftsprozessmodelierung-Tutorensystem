@@ -99,20 +99,25 @@ public class AuthenticationController {
     private final SpecialisationCourseRepository specialisationCourseRepository;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
+    // request of a user to login (by email and password)
+    // if logged in successfully, a jwt token with separate roles, expirationDate
+    // and email is returned
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response."),
+            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response.", content = @Content(schema = @Schema(implementation = JwtResponse.class))),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
+            // try to authenticate a user by email and password
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-            UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-            String jwt = jwtUtils.generateJwtTokenFromUsername(userPrincipal.getEmailAddress());
-
+            // if succesful, get the detailsImpl of the user for better handling
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            // generate the jwt Token
+            String jwt = jwtUtils.generateJwtTokenFromUsername(userDetails.getEmailAddress());
+            // get the roles of the user
             List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
@@ -142,6 +147,10 @@ public class AuthenticationController {
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
         // get user (either student or director) to check for duplicate registration
         User user = null;
+
+        // check type of email and get user if it exists from db
+        // a user can exist, if he registerd earlier but did not manage to accept the
+        // invitation in time
         if (User.isStudentMail(registerRequest.getEmail())) {
             Optional<Student> optionalStudent = studentRepository.findByEmail(registerRequest.getEmail());
             if (optionalStudent.isPresent())
@@ -151,12 +160,21 @@ public class AuthenticationController {
             if (optionalDirector.isPresent())
                 user = (User) optionalDirector.get();
         }
+
+        // check if a user was registered earlier or not by checking the user variable
         if (user != null) {
             // existing user is registering again
+
+            // an enabled user could try to be registered again with the same email -> throw
+            // EmailAlreadyExistsException
             if (user.isEnabled()) {
                 logger.info("User with email {} already exists", user.getEmail());
                 throw new EmailAlreadyExistsException();
             }
+
+            // check if enough time is between the last and the current registration. If the
+            // time between the last two registrations is smaller than
+            // minimumMinutesBetweenPasswordActions throw exception
             if (user.getLastPasswordAction() != null
                     && Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
                             .toMinutes() < minimumMinutesBetweenPasswordActions) {
@@ -170,20 +188,30 @@ public class AuthenticationController {
                 user.setPassword(encoder.encode(registerRequest.getPassword()));
                 user.setFirstName(registerRequest.getFirstName());
                 user.setLastName(registerRequest.getLastName());
+
+                // resend mail after update
                 try {
                     sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
                     logger.error("Unauthorized error: {}", e.getMessage());
                     throw new TSInternalServerException();
                 }
+
+                // save user to db
                 saveUserSubtype(user);
             }
         } else {
             // new user registration: encode password and save new user
             String encodedPassword = encoder.encode(registerRequest.getPassword());
+
+            // create new user
             user = new User(
                     registerRequest.getFirstName(), registerRequest.getLastName(),
                     registerRequest.getEmail(), encodedPassword);
+            user.setEnabled(false);
+            user.setLastPasswordAction(LocalDateTime.now());
+
+            // get roles by email
             Optional<Role> role = Optional.empty();
             if (User.isStudentMail(user.getEmail())) {
                 Student student = new Student(user.getEmail(), user.getPassword());
@@ -199,27 +227,33 @@ public class AuthenticationController {
                 user = new Director(user.getEmail(), user.getPassword());
                 role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
             }
+
             // role might not be available in DB
             if (role.isEmpty()) {
                 logger.error("User ({}) found with no valid role", user.getEmail());
                 throw new RoleNotFoundException();
             } else {
+                // set roles for the created user
                 user.setRoles(Set.of(role.get()));
             }
-            user.setEnabled(false);
-            user.setLastPasswordAction(LocalDateTime.now());
+
+            // send registration mail
             try {
                 sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), true);
             } catch (NoSuchAlgorithmException | MessagingException e) {
                 logger.error("Unauthorized error: {}", e.getMessage());
                 throw new TSInternalServerException();
             }
+
+            // save user based on Subtype for choosing the correct repo
             saveUserSubtype(user);
         }
         return ResponseEntity.ok(null);
     }
 
+    // saves a user in the correct repo
     private User saveUserSubtype(User user) throws InvalidUserTypeException {
+        // check the type of the provided user
         if (user instanceof Student) {
             return studentRepository.save((Student) user);
         } else if (user instanceof Director) {
@@ -229,6 +263,7 @@ public class AuthenticationController {
         }
     }
 
+    // enable an account by clicking on the link in the email
     @Operation(summary = "Enable user.", description = "Enable an account using a hash value from an activation link after registration.", tags = {
             "authentication" })
     @ApiResponses(value = {
@@ -243,12 +278,16 @@ public class AuthenticationController {
             logger.error("Email {} from verifying account was not found", verifyRequest.getEmail());
             throw new UserNotFoundException();
         }
+        // check if user is enabled and throw exception
         if (optionalUser.get().isEnabled()) {
             logger.info("Verifying link for {} was already used", verifyRequest.getEmail());
             throw new UserAlreadyEnabledException();
         }
+        // get user for better interaction
         User user = optionalUser.get();
+        // recreate hash and check if it is vaild
         if (isHashClaimValid(verifyRequest.getHash(), user.getEmail(), user.getLastPasswordAction().toString())) {
+            // hash is valid: activate user and return jwt
             user.setEnabled(true);
             user.setLastPasswordAction(LocalDateTime.now());
             user = userRepository.save(user);
@@ -257,11 +296,14 @@ public class AuthenticationController {
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
         } else {
+            // hash is not valid: return exception
             logger.error("Internal Server Exception: {}", TSInternalServerException.class.getSimpleName());
             throw new TSInternalServerException();
         }
     }
 
+    // Route for requesting a reset of the password. As a result, an email with a
+    // reset link is sent.
     @Operation(summary = "Request a password reset for forgotten password.", description = "Request to reset the password corresponding to a user account by email. Sends an email containing a link to reset the password.", tags = {
             "authentication" })
     @ApiResponses(value = {
@@ -271,28 +313,35 @@ public class AuthenticationController {
     @PostMapping("/requestPasswordReset")
     public ResponseEntity<?> resetPasswordRequest(
             @Valid @RequestBody RequestPasswordResetRequest requestPasswordResetRequest) {
-        // find user, create hash of email/timestamp/newPassword and send it to the
-        // email address
+        // find user by email
         Optional<User> optionalUser = userRepository.findByEmail(requestPasswordResetRequest.getEmail());
         if (optionalUser.isEmpty()) {
             logger.info("User with email {} was not found", requestPasswordResetRequest.getEmail());
             throw new UserNotFoundException();
         }
         User user = optionalUser.get();
+        // if the user isn't enabled he can not reset the password because he must
+        // re-register then.
         if (!user.isEnabled()) {
             logger.info("User with email {} has not been enabled yet", requestPasswordResetRequest.getEmail());
             throw new AccountNotEnabledException();
         }
+
+        // check if time between last password reset and now is to small
         if (Duration.between(user.getLastPasswordAction(), LocalDateTime.now())
                 .toMinutes() < minimumMinutesBetweenPasswordActions) {
             logger.info("User with email {} took too long to reset password", requestPasswordResetRequest.getEmail());
             throw new LastPasswordActionTooRecentException();
         }
         try {
+            // refresh last password action for user and send mail
             LocalDateTime newLastPasswordAction = LocalDateTime.now();
             sendResetPasswordMail(user.getEmail(), newLastPasswordAction,
                     requestPasswordResetRequest.getNewPassword());
             user.setLastPasswordAction(newLastPasswordAction);
+
+            // just set the temp password in case person b resets the password for person a,
+            // person a can still login with the original password
             user.setTempPassword(encoder.encode(requestPasswordResetRequest.getNewPassword()));
             userRepository.save(user);
             return ResponseEntity.ok(null);
@@ -302,6 +351,8 @@ public class AuthenticationController {
         }
     }
 
+    // perform password reset by clicking the link in the mail sent by request
+    // password reset
     @Operation(summary = "Reset a password that was forgotten.", description = "Reset the password using a hash value and the new password from a link received after a password reset request.", tags = {
             "authentication" })
     @ApiResponses(value = {
@@ -319,10 +370,16 @@ public class AuthenticationController {
             throw new TSInternalServerException();
         }
         User user = optionalUser.get();
+        // Check if user was enabled and a temp password was set. Both should be the
+        // case because it is already checked in resetPasswordRequest, so this is a
+        // fallback
         if (!user.isEnabled() || user.getTempPassword() == null) {
             logger.error("Internal Server Exception: {}", TSInternalServerException.class.getSimpleName());
             throw new TSInternalServerException();
         }
+
+        // check hash of the email and the provided data: if they are the same, reset
+        // password, else throw exception
         if (isHashClaimValid(resetPasswordRequest.getHash(), user.getEmail(),
                 user.getLastPasswordAction().toString(), resetPasswordRequest.getNewPassword())) {
             // set new encoded password, update last action, delete temp password and
@@ -332,6 +389,8 @@ public class AuthenticationController {
             user.setTempPassword(null);
             user = userRepository.save(user);
             String jwt = jwtUtils.generateJwtTokenFromUsername(user.getEmail());
+
+            // jwt token is sent to frontend to login user
             return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
                     jwtUtils.getExpirationDateFromJwtToken(jwt),
                     user.getEmail()));
@@ -341,6 +400,7 @@ public class AuthenticationController {
         }
     }
 
+    // logged-in user wants to change his password
     @Operation(summary = "Change a password while being logged in.", description = "Change the password into a new password when being logged in. Only Students and Directors can reset their passwords.", tags = {
             "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
@@ -350,22 +410,26 @@ public class AuthenticationController {
     @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
     @PostMapping("/changePassword")
     public ResponseEntity<JwtResponse> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
-        // find user and change the password, then directly log in
+        // find user and change the password, then directly log in with new token
         User loggedUser = userService.getLoggedInUser();
         if (loggedUser == null) {
             logger.info("Logged in user was not found");
             throw new UserNotFoundException();
         }
         Optional<User> optionalUser = userRepository.findByEmail(loggedUser.getEmail());
+        // this should not occur, because user is logged in so this serves as a fallback
         if (optionalUser.isEmpty()) {
             logger.info("User with email {} was not found", loggedUser.getEmail());
             throw new UserNotFoundException();
         }
         User user = optionalUser.get();
+        // this should not occur, because user is logged in so this serves as a fallback
         if (!user.isEnabled()) {
             logger.info("User with email {} has not been enabled yet", user.getEmail());
             throw new AccountNotEnabledException();
         }
+        // user can only reset the password every minimumMinutesBetweenPasswordActions
+        // minutes
         if (Duration.between(user.getLastPasswordAction(),
                 LocalDateTime.now()).toMinutes() < minimumMinutesBetweenPasswordActions) {
             logger.info("User with email {} took too long to reset password", user.getEmail());
@@ -375,6 +439,8 @@ public class AuthenticationController {
         user.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
         user.setLastPasswordAction(LocalDateTime.now());
         user = userRepository.save(user);
+
+        // return jwt to login user
         String jwt = jwtUtils.generateJwtTokenFromUsername(user.getEmail());
         return ResponseEntity.ok(new JwtResponse(Role.getRolesString(user.getRoles()), jwt,
                 jwtUtils.getExpirationDateFromJwtToken(jwt),
@@ -384,7 +450,9 @@ public class AuthenticationController {
     private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
             throws NoSuchAlgorithmException, MessagingException {
         try {
+            // create hash of mail and lastpasswordAction
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString());
+            // send mail
             emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of(
                     "hashBase64", hashBase64,
                     "isFirstRegisterMail", isFirstRegisterMail));
@@ -398,7 +466,9 @@ public class AuthenticationController {
     private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword)
             throws NoSuchAlgorithmException, MessagingException {
         try {
+            // create hash of mail and lastpasswordAction and password
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString(), newPassword);
+            // send mail
             emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of(
                     "hashBase64", hashBase64));
         } catch (NoSuchAlgorithmException | MessagingException e) {
@@ -410,7 +480,9 @@ public class AuthenticationController {
 
     public boolean isHashClaimValid(String hashClaim, String... rawComponents) {
         try {
+            // create a hash of all provided string components
             String hashBase64Expected = createBase64VerificationHash(rawComponents);
+            // check if hashes are equal
             return StringUtils.equals(hashBase64Expected, hashClaim);
         } catch (NoSuchAlgorithmException e) {
             logger.error("Unauthorized error: {}", e.getMessage());
@@ -419,6 +491,7 @@ public class AuthenticationController {
         }
     }
 
+    // create a hash of all provided string components
     private String createBase64VerificationHash(String... rawComponents) throws NoSuchAlgorithmException {
         String rawText = Stream.of(rawComponents).reduce("", (s1, s2) -> s1 + s2);
         byte[] hash = MessageDigest.getInstance("SHA-256").digest(

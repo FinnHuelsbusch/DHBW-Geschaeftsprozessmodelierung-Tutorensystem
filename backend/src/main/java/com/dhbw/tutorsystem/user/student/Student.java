@@ -30,7 +30,7 @@ public class Student extends User {
     @Setter
     private Set<Tutorial> markedTutorials;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tutors")
     @Getter
     @Setter
     private Set<Tutorial> holds;
