@@ -60,7 +60,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: tutorensystem-dhbw-test
     ports:
-      - "54321:5432"   
+      - "8081:5432"   
     networks:
       - default
 networks:
