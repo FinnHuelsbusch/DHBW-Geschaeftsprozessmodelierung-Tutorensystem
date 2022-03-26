@@ -214,7 +214,7 @@ public class EmailSenderService {
         // send mail by creating mime message
         MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
         helper.setTo(mailTo);
-        helper.setSubject("Tutorensystem Teilnahme am Tutorium");
+        helper.setSubject("Tutorensystem Student hat sich aus Tutorium entfernt");
         helper.setText(htmlBody, true);
         sendMimeMessage(helper.getMimeMessage());
     }
@@ -343,7 +343,7 @@ public class EmailSenderService {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("link", tutorialLinkUrl);
-        thymeleafContext.setVariable("registerLink", tutorialLinkUrl);
+        thymeleafContext.setVariable("registerLink", registerLinkUrl);
 
         // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("tutorial/tutorialUnregisterdTutorAddedMail.html", thymeleafContext);
