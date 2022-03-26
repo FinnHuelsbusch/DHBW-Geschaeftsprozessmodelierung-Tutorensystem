@@ -121,14 +121,14 @@ public class EmailSenderService {
         boolean isFirstRegisterMail = (boolean) arguments.get("isFirstRegisterMail");
         String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
 
         // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastname", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
 
         // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("user/registrationActivationMail.html", thymeleafContext);
@@ -146,13 +146,13 @@ public class EmailSenderService {
         String hashBase64 = (String) arguments.get("hashBase64");
         String linkUrl = frontendUrl + "/verifyResetPassword?h=" + hashBase64 + "&e=" + mailTo;
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
 
         // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastname", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
 
         // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("user/resetPasswordMail.html", thymeleafContext);
@@ -173,14 +173,14 @@ public class EmailSenderService {
         Integer tutorialId = (Integer) arguments.get("tutorialId");
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
 
         // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("tutorialLinkUrl", tutorialLinkUrl);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastname", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
 
         // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("tutorial/tutorialParticipationMail.html", thymeleafContext);
@@ -199,13 +199,13 @@ public class EmailSenderService {
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
 
         // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastname", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
 
         // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("tutorial/tutorialParticipationRemovalMail.html",
@@ -223,13 +223,13 @@ public class EmailSenderService {
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
 
         // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastame", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
 
         // create html body by replacing all thymeleaf vars
         String htmlBody = thymeTemplateEngine.process("tutorial/tutorialDeletedMail.html", thymeleafContext);
@@ -246,7 +246,7 @@ public class EmailSenderService {
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
 
@@ -254,7 +254,7 @@ public class EmailSenderService {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastame", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
         thymeleafContext.setVariable("link", tutorialLinkUrl);
 
         // create html body by replacing all thymeleaf vars
@@ -275,7 +275,7 @@ public class EmailSenderService {
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
 
@@ -283,7 +283,7 @@ public class EmailSenderService {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastame", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
         thymeleafContext.setVariable("link", tutorialLinkUrl);
 
         // create html body by replacing all thymeleaf vars
@@ -305,7 +305,7 @@ public class EmailSenderService {
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
         String firstname = (String) arguments.get("firstname");
-        String lastame = (String) arguments.get("lastame");
+        String lastname = (String) arguments.get("lastname");
         Integer tutorialId = (Integer) arguments.get("tutorialId");
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
 
@@ -313,7 +313,7 @@ public class EmailSenderService {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("firstname", firstname);
-        thymeleafContext.setVariable("lastame", lastame);
+        thymeleafContext.setVariable("lastname", lastname);
         thymeleafContext.setVariable("link", tutorialLinkUrl);
 
         // create html body by replacing all thymeleaf vars
