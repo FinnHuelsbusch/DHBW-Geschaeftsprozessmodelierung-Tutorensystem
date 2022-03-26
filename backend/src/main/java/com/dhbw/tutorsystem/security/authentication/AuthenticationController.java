@@ -285,7 +285,8 @@ public class AuthenticationController {
         }
         // get user for better interaction
         User user = optionalUser.get();
-        // recreate hash and check if it is vaild
+        // recreate hash an
+       d check if it is vaild
         if (isHashClaimValid(verifyRequest.getHash(), user.getEmail(), user.getLastPasswordAction().toString())) {
             // hash is valid: activate user and return jwt
             user.setEnabled(true);
@@ -337,7 +338,7 @@ public class AuthenticationController {
             // refresh last password action for user and send mail
             LocalDateTime newLastPasswordAction = LocalDateTime.now();
             sendResetPasswordMail(user.getEmail(), newLastPasswordAction,
-                    requestPasswordResetRequest.getNewPassword());
+                    requestPasswordResetRequest.getNewPassword(), user);
             user.setLastPasswordAction(newLastPasswordAction);
 
             // just set the temp password in case person b resets the password for person a,
@@ -465,14 +466,18 @@ public class AuthenticationController {
         }
     }
 
-    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword)
+    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword, User user)
             throws NoSuchAlgorithmException, MessagingException {
         try {
             // create hash of mail and lastpasswordAction and password
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString(), newPassword);
+            // Mail args
+            Map<String, Object> arguments = Map.of(
+                    "hashBase64", hashBase64, 
+                    "firstname", user.getFirstName(), 
+                    "lastname", user.getLastName()); 
             // send mail
-            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of(
-                    "hashBase64", hashBase64));
+            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, arguments);
         } catch (NoSuchAlgorithmException | MessagingException e) {
             logger.error("Unauthorized error: {}", e.getMessage());
             e.printStackTrace();

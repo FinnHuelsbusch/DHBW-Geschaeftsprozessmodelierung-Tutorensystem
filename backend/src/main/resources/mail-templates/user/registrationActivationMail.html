@@ -1,27 +1,3 @@
-<!-- OLD -->
-
-<!-- <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-
-<body>
-    <p>Hallo,</p>
-    <p>Sie haben sich im Tutorensystem registriert.</p>
-    <p>Um ihr Konto zu aktivieren, klicken Sie bitte auf den nachfolgenden Link.</p>
-    <a th:href="${link}">Konto aktivieren</a></p>
-    <p th:if="${!isFirstRegisterMail}">Der zuvor gesendete Link ist nicht mehr gültig.</p>
-    <p>Mit freundlichen Grüßen<br />
-        Ihr Tutorsystem</p>
-</body>
-
-</html> -->
-
-<!-- New -->
-
-
 <!DOCTYPE html>
 
 <html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
@@ -105,11 +81,6 @@
 </td>
 <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
 <table border="0" cellpadding="0" cellspacing="0" class="image_block" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-<tr>
-<td style="width:100%;padding-right:0px;padding-left:0px;padding-top:5px;padding-bottom:5px;">
-<div align="center" style="line-height:10px"><img src="/Email-Template_Registrierung/images/DHBW_MA_Logo.jpg" style="display: block; height: auto; border: 0; width: 160px; max-width: 100%;" width="160"/></div>
-</td>
-</tr>
 </table>
 </td>
 </tr>
@@ -180,11 +151,6 @@
 <tr>
 <td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 0px; padding-bottom: 0px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
 <table border="0" cellpadding="0" cellspacing="0" class="image_block" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-<tr>
-<td style="width:100%;padding-right:0px;padding-left:0px;">
-<div align="center" style="line-height:10px"><img src="/Email-Template_Registrierung/images/burnout_student.jpg" style="display: block; height: auto; border: 0; width: 352px; max-width: 100%;" width="352"/></div>
-</td>
-</tr>
 </table>
 </td>
 </tr>
@@ -218,7 +184,7 @@
 <td style="padding-bottom:15px;padding-left:40px;padding-right:40px;padding-top:13px;">
 <div style="font-family: sans-serif">
 <div style="font-size: 14px; mso-line-height-alt: 25.2px; color: #555555; line-height: 1.8; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
-<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi <span th:utext=${firstname}>Vorname</span> <span th:utext=${lastname}>Nachname</span>,</span></p>
+<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi <span th:text=${firstname}>Vorname</span> <span th:text=${lastname}>Nachname</span>,</span></p>
 <p style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style="">vielen Dank, dass Du dich als StudentIn bei uns registriert hast.</span></p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"><span style=""> Um in Zukunft an Tutorien teilnehmen zu können, bitten wir dich Deine Email-Adresse zu bestätigen. <span th:if="${!isFirstRegisterMail}">Die zuvor gesendete Email ist nicht mehr gültig.</span></span></p>

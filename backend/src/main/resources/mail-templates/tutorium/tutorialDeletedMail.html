@@ -72,7 +72,7 @@
 <td style="padding-bottom:20px;padding-right:20px;padding-top:20px;">
 <div style="font-family: sans-serif">
 <div style="font-size: 12px; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif; mso-line-height-alt: 14.399999999999999px; color: #555555; line-height: 1.2;">
-<p style="margin: 0; font-size: 14px; text-align: left;"><span style="font-size:13px;color:#8c9497;">  support@dhbw-mannheim.de</span></p>
+<p style="margin: 0; font-size: 14px; text-align: left;"><span style="font-size:13px;color:#8c9497;">support@dhbw-mannheim.de</span></p>
 </div>
 </div>
 </td>
@@ -81,11 +81,7 @@
 </td>
 <td class="column column-2" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="25%">
 <table border="0" cellpadding="0" cellspacing="0" class="image_block" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-<tr>
-<td style="width:100%;padding-right:0px;padding-left:0px;padding-top:5px;padding-bottom:5px;">
-<div align="center" style="line-height:10px"><img src="images/DHBW_MA_Logo.jpg" style="display: block; height: auto; border: 0; width: 160px; max-width: 100%;" width="160"/></div>
-</td>
-</tr>
+
 </table>
 </td>
 </tr>
@@ -171,13 +167,13 @@
 <td style="padding-bottom:15px;padding-left:40px;padding-right:40px;padding-top:13px;">
 <div style="font-family: sans-serif">
 <div style="font-size: 14px; mso-line-height-alt: 25.2px; color: #555555; line-height: 1.8; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
-<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hallo <span th:utext=${firstname}>Vorname</span> <span th:utext=${lastname}>Nachname</span>,</span></p>
+<p style="margin: 0; font-size: 14px; text-align: center;"><span style="">Hi <span th:text=${firstname}>Vorname</span> <span th:text=${lastname}>Nachname</span>, </span></p>
 <p style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;"> </p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">Das von Ihnen erstellte Tutorium <span th:utext=${tutorialtitle}>Tutorialtitle</span> wurde aus dem Portal entfernt.</p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"> Sollten Sie diesbezüglich Fragen haben,</p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">wenden Sie sich bitte an den/die verantwortliche(n) StudiengangsleiterIn *Name des Studiengangsleiter der/die das Tutorium gelöscht hat*.</p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">leider müssen wir dir mitteilen, dass dein Tutorium "<span th:text=${tutorialtitle}>Tutorialtitle</span>" aus dem Portal entfernt wurde.</p>
+<p style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 25.2px;" th:if="${reason != ''"}>Grund hierfür ist: <span th:text=${reason}> Begründung</span></p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;"> Solltest du diesbezüglich Fragen haben, wende dich bitte an deine(n) StudiengangsleiterIn.</p>
 <p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">Viele Grüße</p>
-<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">Ihr Support-Team</p>
+<p dir="ltr" style="margin: 0; font-size: 14px; text-align: center;">Dein Support-Team</p>
 </div>
 </div>
 </td>
@@ -266,8 +262,6 @@
 <!--[if !vml]><!-->
 <table cellpadding="0" cellspacing="0" class="icons-inner" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;">
 <!--<![endif]-->
-<tr>
-</tr>
 </table>
 </td>
 </tr>
