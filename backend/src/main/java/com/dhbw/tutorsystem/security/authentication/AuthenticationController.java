@@ -285,8 +285,7 @@ public class AuthenticationController {
         }
         // get user for better interaction
         User user = optionalUser.get();
-        // recreate hash an
-       d check if it is vaild
+        // recreate hash and check if it is vaild
         if (isHashClaimValid(verifyRequest.getHash(), user.getEmail(), user.getLastPasswordAction().toString())) {
             // hash is valid: activate user and return jwt
             user.setEnabled(true);
