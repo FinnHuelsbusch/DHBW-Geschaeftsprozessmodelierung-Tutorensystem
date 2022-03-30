@@ -26,3 +26,10 @@ export interface RegisterRequest {
     lastName: string,
     specialisationCourseId?: number
 }
+
+export interface UpdateUserInfo {
+    email?: string,
+    firstName: string,
+    lastName: string,
+    specialisationCourseId?: number
+}
