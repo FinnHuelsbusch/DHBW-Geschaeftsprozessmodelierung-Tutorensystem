@@ -3,7 +3,7 @@ import moment from 'moment';
 import { CourseWithTitleAndLeaders, CourseWithTitleAndSpecialisations } from '../types/Course';
 import { ErrorCode, RequestError } from '../types/RequestError';
 import { mapTutorialFromResponse, Tutorial, TutorialData, TutorialFilter, TutorialFilterResponse, TutorialRequest } from '../types/Tutorial';
-import { RegisterRequest, User, UserWithMailAndNameAndId } from '../types/User';
+import { RegisterRequest, UpdateUserInfo, User, UserWithMailAndNameAndId } from '../types/User';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -251,6 +251,14 @@ export const updateTutorial = (tutorialId: number, updatedTutorial: TutorialData
 
 export const deleteTutorial = (tutorialId: number, reason?: string): Promise<number> => {
     return api.post(`/tutorials/delete/${tutorialId}`, { reason: reason })
+        .then(res => {
+            const data = res.data;
+            return data.id;
+        });
+}
+
+export const updateUser = (updatedUser: UpdateUserInfo): Promise<number> => {
+    return api.post(`users/update`, updatedUser)
         .then(res => {
             const data = res.data;
             return data.id;
