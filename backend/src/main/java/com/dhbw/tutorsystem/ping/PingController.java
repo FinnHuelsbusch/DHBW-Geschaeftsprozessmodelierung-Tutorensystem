@@ -1,5 +1,8 @@
 package com.dhbw.tutorsystem.ping;
 
+import com.dhbw.tutorsystem.exception.TSExceptionResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +29,12 @@ public class PingController {
         return ResponseEntity.ok("Pong");
     }
 
-    @Operation(summary = "Ping backend for admin students", tags = { "ping" })
+    @Operation(summary = "Ping backend for students",
+            tags = { "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to students"),
-            @ApiResponse(responseCode = "401", description = "The user is not allowed to access routes only available to students")
+            @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to students."),
+            @ApiResponse(responseCode = "401", description = "No user is logged in."),
+            @ApiResponse(responseCode = "500", description = "The user is not allowed to access routes only available to students.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @GetMapping("/ping/auth-student")
@@ -38,11 +43,12 @@ public class PingController {
         return ResponseEntity.ok("Pong Student");
     }
 
-    @Operation(summary = "Ping backend for admin routes", tags = {
-            "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
+    @Operation(summary = "Ping backend for admins",
+            tags = {"ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to admins"),
-            @ApiResponse(responseCode = "401", description = "The user is not allowed to access routes only available to admins")
+            @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to admins."),
+            @ApiResponse(responseCode = "401", description = "No user is logged in."),
+            @ApiResponse(responseCode = "500", description = "The user is not allowed to access routes only available to admins.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/ping/auth-admin")
@@ -51,11 +57,12 @@ public class PingController {
         return ResponseEntity.ok("Pong Admin");
     }
 
-    @Operation(summary = "Ping backend for admin directors", tags = {
-            "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
+    @Operation(summary = "Ping backend for directors",
+            tags = {"ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to directors"),
-            @ApiResponse(responseCode = "401", description = "The user is not allowed to access routes only available to directors")
+            @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to directors."),
+            @ApiResponse(responseCode = "401", description = "No user is logged in."),
+            @ApiResponse(responseCode = "500", description = "The user is not allowed to access routes only available to directors.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     @GetMapping("/ping/auth-director")

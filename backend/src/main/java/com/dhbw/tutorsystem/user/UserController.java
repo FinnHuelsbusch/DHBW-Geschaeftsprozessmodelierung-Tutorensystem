@@ -2,8 +2,11 @@ package com.dhbw.tutorsystem.user;
 
 import java.util.List;
 
+import com.dhbw.tutorsystem.exception.TSExceptionResponse;
 import com.dhbw.tutorsystem.user.dto.UserWithEmailAndNameAndId;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,7 @@ public class UserController {
             "users" }, description = "Get all Users except Admin users", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All users are returned."),
+            @ApiResponse(responseCode = "500", description = "User does not have required role (ROLE_DIRECTOR or ROLE_STUDENT required) or is not logged in.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
