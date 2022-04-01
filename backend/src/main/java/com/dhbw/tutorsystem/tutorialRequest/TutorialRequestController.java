@@ -36,7 +36,7 @@ public class TutorialRequestController {
 
     // create a Tutorial Request by a student
     @Operation(tags = {
-            "tutorialRequest" }, summary = "Create new TutorialRequest.", description = "Creates a new TutorialRequest for the logged that must be a student.", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorialRequest" }, summary = "Create new TutorialRequest.", description = "Create a new TutorialRequest for the logged in user who must be a student.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successful creation."),
             @ApiResponse(responseCode = "401", description = "No student was logged in.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),

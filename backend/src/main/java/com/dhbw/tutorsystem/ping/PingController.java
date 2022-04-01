@@ -19,9 +19,9 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 @SecurityScheme(name = "jwt-auth", type = SecuritySchemeType.HTTP, scheme = "bearer")
 public class PingController {
 
-    @Operation(summary = "Ping backend ", tags = { "ping" })
+    @Operation(summary = "Ping backend.", tags = { "ping" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "The backend is reachable"),
+            @ApiResponse(responseCode = "200", description = "The backend is reachable."),
     })
     @GetMapping("/ping")
     // a ping to test if backend is alive
@@ -29,7 +29,7 @@ public class PingController {
         return ResponseEntity.ok("Pong");
     }
 
-    @Operation(summary = "Ping backend for students",
+    @Operation(summary = "Ping backend for students.",
             tags = { "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to students."),
@@ -37,13 +37,13 @@ public class PingController {
             @ApiResponse(responseCode = "500", description = "The user is not allowed to access routes only available to students.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasRole('ROLE_STUDENT')")
-    @GetMapping("/ping/auth-student")
+    @GetMapping("/ping/auth-student.")
     // a ping to test if backend is alive (only available for students)
     public ResponseEntity<String> pingAuthStudent() {
         return ResponseEntity.ok("Pong Student");
     }
 
-    @Operation(summary = "Ping backend for admins",
+    @Operation(summary = "Ping backend for admins.",
             tags = {"ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to admins."),
@@ -57,7 +57,7 @@ public class PingController {
         return ResponseEntity.ok("Pong Admin");
     }
 
-    @Operation(summary = "Ping backend for directors",
+    @Operation(summary = "Ping backend for directors.",
             tags = {"ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to directors."),

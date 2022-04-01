@@ -104,7 +104,7 @@ public class AuthenticationController {
     // and email is returned
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response.", content = @Content(schema = @Schema(implementation = JwtResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged in by using the token in the response.", content = @Content(schema = @Schema(implementation = JwtResponse.class))),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/login")
@@ -401,11 +401,12 @@ public class AuthenticationController {
     }
 
     // logged-in user wants to change his password
-    @Operation(summary = "Change a password while being logged in.", description = "Change the password into a new password when being logged in. Only Students and Directors can reset their passwords.", tags = {
+    @Operation(summary = "Change a password while logged in.", description = "Change the password when logged in. Only Students and Directors can reset their passwords.", tags = {
             "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was changed successfully. The user will be directly logged in using the token in the response."),
-            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Logged in user does not have required role (ROLE_STUDENT or ROLE_DIRECTOR required).", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
     @PostMapping("/changePassword")

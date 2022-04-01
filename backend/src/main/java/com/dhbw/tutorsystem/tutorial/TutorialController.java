@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.mail.MessagingException;
 import javax.persistence.EntityManagerFactory;
@@ -61,7 +59,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -124,13 +121,13 @@ public class TutorialController {
 
 
     // add a student as participant to a tutorial (tutorial is specified by path variable)
-    @Operation(summary = "Participate in tutorial.", description = "Participate in a tutorial by id.", tags = {
+    @Operation(summary = "Participate in tutorial.", description = "Lets the currently logged in user participate in a tutorial by id.", tags = {
             "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Participation was successful."),
             @ApiResponse(responseCode = "400", description = "Path variable was not an integer or student is already participating.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
             @ApiResponse(responseCode = "404", description = "Requested tutorial was not found.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Information email could not be sent.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "500", description = "Information email could not be sent or logged in user does not have needed role (ROLE_STUDENT required).", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     @PutMapping("/participate/{id}")
@@ -162,7 +159,7 @@ public class TutorialController {
 
 
     // remove a student as participant from a tutorial (tutorial is specified by path variable)
-    @Operation(summary = "Remove participation in tutorial.", description = "Remove participation in a tutorial by id.", tags = {
+    @Operation(summary = "Remove participation in tutorial.", description = "Removes the participation in the tutorial for the currently logged in user.", tags = {
             "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Participation was successfully removed."),
@@ -198,8 +195,8 @@ public class TutorialController {
     }
 
     // user marks tutorial 
-    @Operation(summary = "Mark a tutorial.", description = "Mark a tutorial that you are interested in using the id.", tags = {
-            "tutorials" })
+    @Operation(summary = "Marks a tutorial.", description = "Marks a tutorial in which the currently logged in user is interested in using the id.", tags = {
+            "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Marking was successful."),
             @ApiResponse(responseCode = "400", description = "Path variable was not an integer or tutorial is already marked.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
@@ -240,8 +237,8 @@ public class TutorialController {
         return ResponseEntity.ok(null);
     }
 
-    @Operation(summary = "Unmark a tutorial.", description = "Unmark a tutorial that you are not anymore interested in using the id.", tags = {
-            "tutorials" })
+    @Operation(summary = "Unmark a tutorial.", description = "Unmarks a tutorial that the currently logged in user is not interested in anymore using the id.", tags = {
+            "tutorials" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Unmarking was successful."),
             @ApiResponse(responseCode = "400", description = "Path variable was not an integer.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
@@ -276,10 +273,10 @@ public class TutorialController {
 
 
     // get all tutorials filtered and ordered
-    @Operation(summary = "Query tutorials with filter", description = "Query tutorials by supplying a specified paging configuration and a filter, that contains text, specialisation courses and a time range for the start date.", tags = {
+    @Operation(summary = "Query tutorials with filter.", description = "Query tutorials by supplying a specified paging configuration and a filter, that contains text, specialisation courses and a time range for the start date.", tags = {
             "tutorials" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "All courses matching the filter criteria are returned"),
+            @ApiResponse(responseCode = "200", description = "All courses matching the filter criteria are returned."),
             @ApiResponse(responseCode = "400", description = "Request body was not formatted correctly."),
     })
     @PostMapping("/findWithFilter")
@@ -440,8 +437,8 @@ public class TutorialController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Returns the created tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
-            @ApiResponse(responseCode = "404", description = "One of the specialisation courses does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Tried to create a Tutorial without needed roles.", content =  @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "404", description = "One of the specialisation courses does not exist.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Tried to create a Tutorial without needed roles (ROLE_DIRECTOR required).", content =  @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
         })
     @PutMapping
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
@@ -518,7 +515,7 @@ public class TutorialController {
     }
 
     @Operation(tags = {
-            "tutorials" }, summary = "Update a tutorial.", description = "Update a new tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorials" }, summary = "Update a tutorial.", description = "Update a tutorial and get it as return.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Returns the updated tutorial."),
             @ApiResponse(responseCode = "400", description = "One of the parameters was not set correctly.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
@@ -602,10 +599,10 @@ public class TutorialController {
 
     // Delete a tutorial 
     @Operation(tags = {
-            "tutorials" }, summary = "Delete a tutorial.", description = "Delete a tutorial by tutorial ID. ", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorials" }, summary = "Delete a tutorial.", description = "Delete a tutorial using its id. ", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tutorial was deleted"),
-            @ApiResponse(responseCode = "404", description = "A tutorial with the given ID does not exist", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Tutorial was deleted."),
+            @ApiResponse(responseCode = "404", description = "A tutorial with the given ID does not exist.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
             @ApiResponse(responseCode = "500", description = "User does not have required role (ROLE_DIRECTOR required).", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/delete/{id}")

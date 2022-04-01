@@ -32,8 +32,8 @@ public class UserController {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
-    @Operation(summary = "Get Users", tags = {
-            "users" }, description = "Get all Users except Admin users", security = @SecurityRequirement(name = "jwt-auth"))
+    @Operation(summary = "Get Users.", tags = {
+            "users" }, description = "Get all users except admin users.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All users are returned."),
             @ApiResponse(responseCode = "500", description = "User does not have required role (ROLE_DIRECTOR or ROLE_STUDENT required) or is not logged in.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
