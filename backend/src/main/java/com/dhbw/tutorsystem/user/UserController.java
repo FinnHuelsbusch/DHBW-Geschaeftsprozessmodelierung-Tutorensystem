@@ -32,7 +32,7 @@ public class UserController {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
-    @Operation(summary = "Get Users.", tags = {
+    @Operation(summary = "Get Users. (ROLE_STUDENT or ROLE_DIRECTOR required)", tags = {
             "users" }, description = "Get all users except admin users.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "All users are returned."),

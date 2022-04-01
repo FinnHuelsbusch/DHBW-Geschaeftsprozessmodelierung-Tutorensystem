@@ -401,7 +401,7 @@ public class AuthenticationController {
     }
 
     // logged-in user wants to change his password
-    @Operation(summary = "Change a password while logged in.", description = "Change the password when logged in. Only Students and Directors can reset their passwords.", tags = {
+    @Operation(summary = "Change a password while logged in. (ROLE_STUDENT or ROLE_DIRECTOR required)", description = "Change the password when logged in. Only Students and Directors can reset their passwords.", tags = {
             "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was changed successfully. The user will be directly logged in using the token in the response."),

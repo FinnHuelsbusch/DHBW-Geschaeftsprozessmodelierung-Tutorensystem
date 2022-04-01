@@ -29,7 +29,7 @@ public class PingController {
         return ResponseEntity.ok("Pong");
     }
 
-    @Operation(summary = "Ping backend for students.",
+    @Operation(summary = "Ping backend for students. (ROLE_STUDENT required)",
             tags = { "ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to students."),
@@ -43,7 +43,7 @@ public class PingController {
         return ResponseEntity.ok("Pong Student");
     }
 
-    @Operation(summary = "Ping backend for admins.",
+    @Operation(summary = "Ping backend for admins. (ROLE_ADMIN required)",
             tags = {"ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to admins."),
@@ -57,7 +57,7 @@ public class PingController {
         return ResponseEntity.ok("Pong Admin");
     }
 
-    @Operation(summary = "Ping backend for directors.",
+    @Operation(summary = "Ping backend for directors. (ROLE_DIRECTOR required)",
             tags = {"ping" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user is allowed to access routes only available to directors."),
