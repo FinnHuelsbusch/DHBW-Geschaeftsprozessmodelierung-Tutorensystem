@@ -29,6 +29,12 @@ public class MvcTestUtils {
         this.basePath = basePath;
     }
 
+    public MvcResult perform(RequestType requestType, String relativePath, HttpStatus expectedHttpResponseValue)
+            throws Exception {
+        return performRequest(getRequestBuilder(requestType, basePath + relativePath), null,
+                expectedHttpResponseValue);
+    }
+
     public MvcResult perform(RequestType requestType, String relativePath, Object request,
             HttpStatus expectedHttpResponseValue)
             throws Exception {
