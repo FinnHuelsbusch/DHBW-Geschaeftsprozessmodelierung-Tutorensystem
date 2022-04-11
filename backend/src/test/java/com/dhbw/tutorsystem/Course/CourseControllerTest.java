@@ -1,18 +1,19 @@
 package com.dhbw.tutorsystem.Course;
 
 import static com.dhbw.tutorsystem.utils.RequestType.GET;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.dhbw.tutorsystem.course.CourseRepository;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.TutorialRepository;
+import com.dhbw.tutorsystem.utils.JsonPayloadTestUtils;
 import com.dhbw.tutorsystem.utils.MvcTestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,16 +43,18 @@ class CourseControllerTest {
     private static final String withTitleAndSpecialisations = "[{\"id\":1,\"title\":\"Wirtschaftsinformatik\",\"abbreviation\":\"WI\",\"specialisationCourses\":[{\"id\":2,\"title\":\"Sales and Consulting\",\"abbreviation\":\"SC\"},{\"id\":1,\"title\":\"Software Engineering\",\"abbreviation\":\"SE\"}]},{\"id\":2,\"title\":\"Maschinenbau\",\"abbreviation\":\"MB\",\"specialisationCourses\":[{\"id\":3,\"title\":\"Allgemeiner Maschinenbau\",\"abbreviation\":\"AMB\"}]}]";
 
     private MvcTestUtils mvcUtils;
+    private JsonPayloadTestUtils jsonUtils;
 
     @BeforeAll
     private void init() {
         mvcUtils = new MvcTestUtils("/courses", mvc, objectMapper);
+        jsonUtils = new JsonPayloadTestUtils("/Course", objectMapper);
     }
 
     @Test
     void getCoursesWithTitleAndLeadersNotLoggedIn() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndLeaders", OK);
-        assertEquals(withTitleAndLeaders, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("test1.json", result.getResponse().getContentAsString());
     }
 
     @Test
