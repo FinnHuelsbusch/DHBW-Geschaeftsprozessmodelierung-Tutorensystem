@@ -10,24 +10,11 @@ export type Props = {
     noRegexValidation?: boolean
 }
 
-type ValidationState = {
-    validateStatus: ValidateStatus | undefined,
-    message: string | undefined
-}
-
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
 
 const PasswordInput: React.FC<Props> = ({ disabled = false, customLabel, withConfirmForm, noRegexValidation = false }) => {
 
-    const [passwordInfo, setPasswordInfo] = useState<ValidationState>({
-        validateStatus: undefined,
-        message: undefined
-    });
-
-    const [passwordConfirmInfo, setPasswordConfirmInfo] = useState<ValidationState>({
-        validateStatus: undefined,
-        message: undefined
-    });
+    const [passwordValidationStatus, setPasswordValidationStatus] = useState<ValidateStatus | undefined>();
 
     const passwordsMatch = (password: string, passwordConfirm: string): boolean => {
         return (
@@ -38,48 +25,27 @@ const PasswordInput: React.FC<Props> = ({ disabled = false, customLabel, withCon
 
     const validatePassword = (rule: any, value: string, callback: any) => {
         if (!value || value === "") {
-            setPasswordInfo({
-                validateStatus: 'error',
-                message: validateMessages.required
-            });
-            return;
+            setPasswordValidationStatus('error');
+            return Promise.reject(validateMessages.required)
         }
         if (!noRegexValidation && !value.match(passwordRegex)) {
-            setPasswordInfo({
-                validateStatus: 'error',
-                message: validateMessages.pattern.password.notFulfillingRegex
-            });
-            return;
+            setPasswordValidationStatus('error');
+            return Promise.reject(validateMessages.pattern.password.notFulfillingRegex)
         }
-        setPasswordInfo({
-            validateStatus: undefined,
-            message: undefined
-        });
-        callback();
+        setPasswordValidationStatus(undefined);
+        return Promise.resolve()
     };
 
     const validatePasswordConfirm = (rule: any, value: string, callback: any) => {
         if (!withConfirmForm) return;
         const { password, passwordConfirm } = withConfirmForm.getFieldsValue();
         if (!passwordsMatch(password, passwordConfirm)) {
-            setPasswordConfirmInfo({
-                validateStatus: 'error',
-                message: validateMessages.pattern.password.notMatching
-            });
-            return;
+            return Promise.reject(validateMessages.pattern.password.notMatching);
         }
         if (!noRegexValidation && !value.match(passwordRegex)) {
-            setPasswordConfirmInfo({
-                validateStatus: 'error',
-                message: validateMessages.pattern.password.notFulfillingRegex
-            });
-            return;
+            return Promise.reject(validateMessages.pattern.password.notFulfillingRegex);
         }
-        setPasswordConfirmInfo({
-            validateStatus: undefined,
-            message: undefined
-        });
-        callback();
+        return Promise.resolve();
     };
 
     return (
@@ -87,8 +53,7 @@ const PasswordInput: React.FC<Props> = ({ disabled = false, customLabel, withCon
             <Form.Item
                 label={customLabel ?? "Passwort"}
                 name="password"
-                validateStatus={passwordInfo.validateStatus}
-                help={passwordInfo.message}
+                validateStatus={passwordValidationStatus}
                 rules={[{ required: true, validator: validatePassword }]}>
                 <Input.Password
                     disabled={disabled}
@@ -98,8 +63,7 @@ const PasswordInput: React.FC<Props> = ({ disabled = false, customLabel, withCon
                 <Form.Item
                     label={`${customLabel ?? "Passwort"} wiederholen`}
                     name="passwordConfirm"
-                    validateStatus={passwordConfirmInfo.validateStatus}
-                    help={passwordConfirmInfo.message}
+                    validateStatus={passwordValidationStatus}
                     rules={[{ required: true, validator: validatePasswordConfirm }]}>
                     <Input.Password
                         disabled={disabled}
