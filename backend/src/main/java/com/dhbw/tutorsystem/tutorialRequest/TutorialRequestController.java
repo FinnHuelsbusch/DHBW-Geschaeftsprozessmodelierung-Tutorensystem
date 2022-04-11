@@ -34,16 +34,17 @@ public class TutorialRequestController {
     private final TutorialRequestRepository tutorialRequestRepository;
     private final StudentService studentService;
 
-    // create a Tutorial Offer by a student 
+    // create a Tutorial Request by a student
     @Operation(tags = {
-            "tutorialRequest" }, summary = "Create new TutorialRequest.", description = "Creates a new TutorialRequest for the logged that must be a student.", security = @SecurityRequirement(name = "jwt-auth"))
+            "tutorialRequest" }, summary = "Create new TutorialRequest. (ROLE_STUDENT required)", description = "Create a new TutorialRequest for the logged in user who must be a student.", security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successful creation."),
             @ApiResponse(responseCode = "401", description = "No student was logged in.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "500", description = "User does not have required role (ROLE_STUDENT required).", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PutMapping
     @PreAuthorize("hasRole('ROLE_STUDENT')")
-    public ResponseEntity<Void> createTutorialOffer(
+    public ResponseEntity<Void> createTutorialRequest(
             @RequestBody @Valid CreateTutorialRequestRequest createTutorialRequestRequest) {
         // find out which user executes this operation
         Student student = studentService.getLoggedInStudent();

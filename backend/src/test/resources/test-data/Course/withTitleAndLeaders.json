@@ -1,0 +1,31 @@
+[
+    {
+        "id": 1,
+        "title": "Wirtschaftsinformatik",
+        "abbreviation": "WI",
+        "leadBy": [
+            {
+                "firstName": "Dirk",
+                "lastName": "Director",
+                "email": "dirk.director@dhbw-mannheim.de"
+            },
+            {
+                "firstName": "Daniel",
+                "lastName": "Director",
+                "email": "daniel.director@dhbw-mannheim.de"
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Maschinenbau",
+        "abbreviation": "MB",
+        "leadBy": [
+            {
+                "firstName": "Doris",
+                "lastName": "Director",
+                "email": "doris.director@dhbw-mannheim.de"
+            }
+        ]
+    }
+]
