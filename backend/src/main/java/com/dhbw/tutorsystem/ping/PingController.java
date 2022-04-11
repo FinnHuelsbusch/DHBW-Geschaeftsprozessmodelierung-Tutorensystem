@@ -37,7 +37,7 @@ public class PingController {
             @ApiResponse(responseCode = "500", description = "The user is not allowed to access routes only available to students.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasRole('ROLE_STUDENT')")
-    @GetMapping("/ping/auth-student.")
+    @GetMapping("/ping/auth-student")
     // a ping to test if backend is alive (only available for students)
     public ResponseEntity<String> pingAuthStudent() {
         return ResponseEntity.ok("Pong Student");
