@@ -29,18 +29,7 @@ class CourseControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private SpecialisationCourseRepository specialisationCourseRepository;
-
-    @Autowired
-    private TutorialRepository tutorialRepository;
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String withTitleAndLeaders = "[{\"id\":1,\"title\":\"Wirtschaftsinformatik\",\"abbreviation\":\"WI\",\"leadBy\":[{\"firstName\":\"Dirk\",\"lastName\":\"Director\",\"email\":\"dirk.director@dhbw-mannheim.de\"},{\"firstName\":\"Daniel\",\"lastName\":\"Director\",\"email\":\"daniel.director@dhbw-mannheim.de\"}]},{\"id\":2,\"title\":\"Maschinenbau\",\"abbreviation\":\"MB\",\"leadBy\":[{\"firstName\":\"Doris\",\"lastName\":\"Director\",\"email\":\"doris.director@dhbw-mannheim.de\"}]}]"; 
-    private static final String withTitleAndSpecialisations = "[{\"id\":1,\"title\":\"Wirtschaftsinformatik\",\"abbreviation\":\"WI\",\"specialisationCourses\":[{\"id\":2,\"title\":\"Sales and Consulting\",\"abbreviation\":\"SC\"},{\"id\":1,\"title\":\"Software Engineering\",\"abbreviation\":\"SE\"}]},{\"id\":2,\"title\":\"Maschinenbau\",\"abbreviation\":\"MB\",\"specialisationCourses\":[{\"id\":3,\"title\":\"Allgemeiner Maschinenbau\",\"abbreviation\":\"AMB\"}]}]";
 
     private MvcTestUtils mvcUtils;
     private JsonPayloadTestUtils jsonUtils;
@@ -54,69 +43,54 @@ class CourseControllerTest {
     @Test
     void getCoursesWithTitleAndLeadersNotLoggedIn() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndLeaders", OK);
-        jsonUtils.assertPayloadMatches("test1.json", result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndLeaders.json", result.getResponse().getContentAsString());
     }
 
     @Test
     void getCoursesWithTitleAndSpecialisationsNotLoggedIn() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndSpecialisations", OK);
-        assertEquals(withTitleAndSpecialisations, result.getResponse().getContentAsString());
-    }
-
-    @Test
-    void getCoursesWithTitleAndLeadersNotLoggedInEmpty() throws Exception {
-        tutorialRepository.deleteAll();
-        specialisationCourseRepository.deleteAll();
-        courseRepository.deleteAll();
-        MvcResult result =  mvcUtils.perform(GET, "/withTitleAndLeaders", OK);
-        assertEquals(withTitleAndLeaders, result.getResponse().getContentAsString());
-    }
-
-    @Test
-    void getCoursesWithTitleAndSpecialisationsNotLoggedInEmpty() throws Exception {
-        MvcResult result =  mvcUtils.perform(GET, "/withTitleAndSpecialisations", OK);
-        assertEquals(withTitleAndSpecialisations, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndSpecialisations.json", result.getResponse().getContentAsString());
     }
 
     @Test
     @WithMockUser(username = "s111111@student.dhbw-mannheim.de", password = "1234", roles = "STUDENT")
     void getCoursesWithTitleAndLeadersAsStudent() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndLeaders", OK);
-        assertEquals(withTitleAndLeaders, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndLeaders.json", result.getResponse().getContentAsString());
     }
 
     @Test
     @WithMockUser(username = "s111111@student.dhbw-mannheim.de", password = "1234", roles = "STUDENT")
     void getCoursesWithTitleAndSpecialisationsAsStudent() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndSpecialisations", OK);
-        assertEquals(withTitleAndSpecialisations, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndSpecialisations.json", result.getResponse().getContentAsString());
     }
 
     @Test
     @WithMockUser(username = "adam.admin@dhbw-mannheim.de", password = "1234", roles = "ADMIN")
     void getCoursesWithTitleAndLeadersAsAdmin() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndLeaders", OK);
-        assertEquals(withTitleAndLeaders, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndLeaders.json", result.getResponse().getContentAsString());
     }
 
     @Test
     @WithMockUser(username = "adam.admin@dhbw-mannheim.de", password = "1234", roles = "ADMIN")
     void getCoursesWithTitleAndSpecialisationsAsAdmin() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndSpecialisations", OK);
-        assertEquals(withTitleAndSpecialisations, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndSpecialisations.json", result.getResponse().getContentAsString());
     }
 
     @Test
     @WithMockUser(username = "dirk.director@dhbw-mannheim.de", password = "1234", roles = "DIRECTOR")
     void getCoursesWithTitleAndLeadersAsDirector() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndLeaders", OK);
-        assertEquals(withTitleAndLeaders, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndLeaders.json", result.getResponse().getContentAsString());
     }
 
     @Test
     @WithMockUser(username = "dirk.director@dhbw-mannheim.de", password = "1234", roles = "DIRECTOR")
     void getCoursesWithTitleAndSpecialisationsAsDirector() throws Exception {
         MvcResult result =  mvcUtils.perform(GET, "/withTitleAndSpecialisations", OK);
-        assertEquals(withTitleAndSpecialisations, result.getResponse().getContentAsString());
+        jsonUtils.assertPayloadMatches("withTitleAndSpecialisations.json", result.getResponse().getContentAsString());
     }
 }

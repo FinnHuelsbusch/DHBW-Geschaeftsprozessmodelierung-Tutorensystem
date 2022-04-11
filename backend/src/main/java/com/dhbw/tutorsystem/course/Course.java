@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
@@ -42,5 +43,6 @@ public class Course {
     @Getter
     @Setter
     @OneToMany(fetch = FetchType.LAZY)
+    @OrderBy("abbreviation")
     private Set<SpecialisationCourse> specialisationCourses;
 }
