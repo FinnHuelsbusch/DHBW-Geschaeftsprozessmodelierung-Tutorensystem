@@ -17,12 +17,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class TutorsystemApplication {
+public class TutorsystemApplication extends SpringBootServletInitializer{
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+       return application.sources(TutorsystemApplication.class);
+    }
 
     public static void main(String[] args) {
-        SpringApplication.run(TutorsystemApplication.class, args);
+       SpringApplication.run(TutorsystemApplication.class, args);
     }
 
     @Bean
