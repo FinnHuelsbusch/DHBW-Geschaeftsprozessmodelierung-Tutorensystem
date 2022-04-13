@@ -12,7 +12,7 @@ import com.dhbw.tutorsystem.role.Role;
 import com.dhbw.tutorsystem.role.RoleRepository;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
 import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
-import com.dhbw.tutorsystem.tutorial.CreateTutorialRequest;
+//import com.dhbw.tutorsystem.tutorial.CreateTutorialRequest;
 import com.dhbw.tutorsystem.tutorial.Tutorial;
 import com.dhbw.tutorsystem.tutorial.TutorialRepository;
 import com.dhbw.tutorsystem.tutorialRequest.TutorialRequest;
@@ -32,15 +32,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DevDataManager {
 
-    private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
-    private final PasswordEncoder encoder;
-    private final DirectorRepository directorRepository;
-    private final StudentRepository studentRepository;
-    private final TutorialRepository tutorialRepository;
-    private final TutorialRequestRepository tutorialRequestRepository;
-    private final CourseRepository courseRepository;
-    private final SpecialisationCourseRepository specialisationCourseRepository;
+    private RoleRepository roleRepository;
+    private UserRepository userRepository;
+    private PasswordEncoder encoder;
+    private DirectorRepository directorRepository;
+    private StudentRepository studentRepository;
+    private TutorialRepository tutorialRepository;
+    private TutorialRequestRepository tutorialRequestRepository;
+    private CourseRepository courseRepository;
+    private SpecialisationCourseRepository specialisationCourseRepository;
 
     private User uAdmin;
     private Director uDirector1, uDirector2, uDirector3;
