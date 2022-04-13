@@ -32,15 +32,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DevDataManager {
 
-    private RoleRepository roleRepository;
-    private UserRepository userRepository;
-    private PasswordEncoder encoder;
-    private DirectorRepository directorRepository;
-    private StudentRepository studentRepository;
-    private TutorialRepository tutorialRepository;
-    private TutorialRequestRepository tutorialRequestRepository;
-    private CourseRepository courseRepository;
-    private SpecialisationCourseRepository specialisationCourseRepository;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
+    private final DirectorRepository directorRepository;
+    private final StudentRepository studentRepository;
+    private final TutorialRepository tutorialRepository;
+    private final TutorialRequestRepository tutorialRequestRepository;
+    private final CourseRepository courseRepository;
+    private final SpecialisationCourseRepository specialisationCourseRepository;
 
     private User uAdmin;
     private Director uDirector1, uDirector2, uDirector3;
@@ -369,7 +369,7 @@ public class DevDataManager {
 
     private void insertTutorialRequests(){
         createTutorielRequest(
-            Set.of(specialisationCourseSE),
+            specialisationCourseSE,
             "Hey, ich bin gerade im 3. Semester und habe Finanzbuchhaltung bei Herr Heiduk. Ich habe meine Schwierigkeiten mit den Grundlagen und der " +
                     "korrekten Buchung von Geschäftsfällen. Brauche dringend Unterstützung!",
             "Tutoriums-Anfrage für Finanzbuchhaltung",
@@ -378,7 +378,7 @@ public class DevDataManager {
         );
 
         createTutorielRequest(
-            Set.of(specialisationCourseSE),
+            specialisationCourseSE,
             "Hallo, ich bin im vierten Semester. Ich habe Herr Pagnia in Verteilte Systeme. Seine Folien sind sehr umfangreich " +
                     "aber ich komme bei dem Stoff nicht wirklich mit und brächte deshalb unbedingt Hilde bei seinen Beispielaufgaben.",
             "Tutoriums-Anfrage für Verteilte Systeme",
@@ -387,7 +387,7 @@ public class DevDataManager {
         );
         
         createTutorielRequest(
-            Set.of(specialisationCourseSE),
+            specialisationCourseSE,
             "Hey, ich bin gerade im 2. Semester und habe Probleme bei dem Modul Betriebs- und Kommunikationssysteme. " +
                     "Die Klausur steht in zwei Wochen an und ich verstehe die Beispielaufgaben aus dem Skript nicht.",
             "Tutoriums-Anfrage für Betriebs- und Kommunikationssysteme",
@@ -422,9 +422,9 @@ public class DevDataManager {
         return t;
     }
 
-    private TutorialRequest createTutorielRequest(Set<SpecialisationCourse> course, String description, String title, Set<Student> interestedStudents, Student createdBy){
+    private TutorialRequest createTutorielRequest(SpecialisationCourse course, String description, String title, Set<Student> interestedStudents, Student createdBy){
         TutorialRequest tutorialRequest = new TutorialRequest();
-        tutorialRequest.setSpecialisationCourses(course);
+        tutorialRequest.setSpecialisationCourse(course);
         tutorialRequest.setDescription(description);
         tutorialRequest.setTitle(title);
         tutorialRequest.setInterestedStudents(interestedStudents);

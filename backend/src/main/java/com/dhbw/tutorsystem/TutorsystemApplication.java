@@ -6,6 +6,7 @@ import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourseRepository;
 import com.dhbw.tutorsystem.tutorial.Tutorial;
 import com.dhbw.tutorsystem.tutorial.TutorialRepository;
 import com.dhbw.tutorsystem.tutorial.dto.TutorialForDisplay;
+import com.dhbw.tutorsystem.tutorialRequest.TutorialRequestRepository;
 import com.dhbw.tutorsystem.user.UserRepository;
 import com.dhbw.tutorsystem.user.director.DirectorRepository;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
@@ -55,11 +56,12 @@ public class TutorsystemApplication extends SpringBootServletInitializer{
             DirectorRepository directorRepository,
             StudentRepository studentRepository,
             TutorialRepository tutorialRepository,
+            TutorialRequestRepository tutorialRequestRepository,
             CourseRepository courseRepository,
             SpecialisationCourseRepository specialisationCourseRepository) {
         return (args) -> {
             new DevDataManager(roleRepository, userRepository, encoder, directorRepository, studentRepository,
-                    tutorialRepository, courseRepository, specialisationCourseRepository)
+                    tutorialRepository, tutorialRequestRepository, courseRepository, specialisationCourseRepository)
                     .initDatabaseForDevelopment();
         };
     }
