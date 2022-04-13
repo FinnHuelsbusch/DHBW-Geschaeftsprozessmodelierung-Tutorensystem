@@ -104,7 +104,7 @@ public class AuthenticationController {
     // and email is returned
     @Operation(summary = "Login a user based on email and password.", tags = { "authentication" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged by using the token in the response.", content = @Content(schema = @Schema(implementation = JwtResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Login was successful. User is logged in by using the token in the response.", content = @Content(schema = @Schema(implementation = JwtResponse.class))),
             @ApiResponse(responseCode = "400", description = "Login was not successful.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PostMapping("/login")
@@ -191,7 +191,7 @@ public class AuthenticationController {
 
                 // resend mail after update
                 try {
-                    sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), false);
+                    sendRegisterMail(user.getFirstName(), user.getLastName(),  user.getEmail(), user.getLastPasswordAction(), false);
                 } catch (NoSuchAlgorithmException | MessagingException e) {
                     logger.error("Unauthorized error: {}", e.getMessage());
                     throw new TSInternalServerException();
@@ -239,7 +239,7 @@ public class AuthenticationController {
 
             // send registration mail
             try {
-                sendRegisterMail(user.getEmail(), user.getLastPasswordAction(), true);
+                sendRegisterMail(registerRequest.getFirstName(), registerRequest.getLastName(), user.getEmail(), user.getLastPasswordAction(), true);
             } catch (NoSuchAlgorithmException | MessagingException e) {
                 logger.error("Unauthorized error: {}", e.getMessage());
                 throw new TSInternalServerException();
@@ -337,7 +337,7 @@ public class AuthenticationController {
             // refresh last password action for user and send mail
             LocalDateTime newLastPasswordAction = LocalDateTime.now();
             sendResetPasswordMail(user.getEmail(), newLastPasswordAction,
-                    requestPasswordResetRequest.getNewPassword());
+                    requestPasswordResetRequest.getNewPassword(), user);
             user.setLastPasswordAction(newLastPasswordAction);
 
             // just set the temp password in case person b resets the password for person a,
@@ -401,11 +401,12 @@ public class AuthenticationController {
     }
 
     // logged-in user wants to change his password
-    @Operation(summary = "Change a password while being logged in.", description = "Change the password into a new password when being logged in. Only Students and Directors can reset their passwords.", tags = {
+    @Operation(summary = "Change a password while logged in. (ROLE_STUDENT or ROLE_DIRECTOR required)", description = "Change the password when logged in. Only Students and Directors can reset their passwords.", tags = {
             "authentication" }, security = @SecurityRequirement(name = "jwt-auth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password was changed successfully. The user will be directly logged in using the token in the response."),
-            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
+            @ApiResponse(responseCode = "400", description = "Error in processing defined by error message and error code in response.", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Logged in user does not have required role (ROLE_STUDENT or ROLE_DIRECTOR required).", content = @Content(schema = @Schema(implementation = TSExceptionResponse.class)))
     })
     @PreAuthorize("hasAnyRole('ROLE_STUDENT','ROLE_DIRECTOR')")
     @PostMapping("/changePassword")
@@ -447,7 +448,7 @@ public class AuthenticationController {
                 user.getEmail()));
     }
 
-    private void sendRegisterMail(String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
+    private void sendRegisterMail(String firstname, String lastname, String userMail, LocalDateTime lastPasswordAction, boolean isFirstRegisterMail)
             throws NoSuchAlgorithmException, MessagingException {
         try {
             // create hash of mail and lastpasswordAction
@@ -455,7 +456,9 @@ public class AuthenticationController {
             // send mail
             emailSenderService.sendMail(userMail, MailType.REGISTRATION, Map.of(
                     "hashBase64", hashBase64,
-                    "isFirstRegisterMail", isFirstRegisterMail));
+                    "isFirstRegisterMail", isFirstRegisterMail, 
+                    "firstname", firstname, 
+                    "lastname", lastname));
         } catch (NoSuchAlgorithmException | MessagingException e) {
             logger.error("Unauthorized error: {}", e.getMessage());
             e.printStackTrace();
@@ -463,14 +466,18 @@ public class AuthenticationController {
         }
     }
 
-    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword)
+    private void sendResetPasswordMail(String userMail, LocalDateTime lastPasswordAction, String newPassword, User user)
             throws NoSuchAlgorithmException, MessagingException {
         try {
             // create hash of mail and lastpasswordAction and password
             String hashBase64 = createBase64VerificationHash(userMail, lastPasswordAction.toString(), newPassword);
+            // Mail args
+            Map<String, Object> arguments = Map.of(
+                    "hashBase64", hashBase64, 
+                    "firstname", user.getFirstName(), 
+                    "lastname", user.getLastName()); 
             // send mail
-            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, Map.of(
-                    "hashBase64", hashBase64));
+            emailSenderService.sendMail(userMail, MailType.RESET_PASSWORD, arguments);
         } catch (NoSuchAlgorithmException | MessagingException e) {
             logger.error("Unauthorized error: {}", e.getMessage());
             e.printStackTrace();

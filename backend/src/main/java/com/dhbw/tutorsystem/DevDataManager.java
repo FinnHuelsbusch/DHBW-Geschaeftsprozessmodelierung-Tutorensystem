@@ -105,6 +105,7 @@ public class DevDataManager {
         uStudent1.setEnabled(true);
         uStudent1.setFirstName("Leon");
         uStudent1.setLastName("Bauer");
+        uStudent1.setLastPasswordAction(LocalDateTime.now().minusMinutes(5));
         uStudent1 = studentRepository.save(uStudent1);
 
         uStudent2 = new Student("s222222@student.dhbw-mannheim.de", "1234");
@@ -113,6 +114,7 @@ public class DevDataManager {
         uStudent2.setEnabled(true);
         uStudent2.setFirstName("Elon");
         uStudent2.setLastName("Musk");
+        uStudent2.setLastPasswordAction(LocalDateTime.now().minusMinutes(5));
         uStudent2 = studentRepository.save(uStudent2);
 
         uTutor = new Student("s000002@student.dhbw-mannheim.de", "1234");

@@ -25,9 +25,9 @@ public class CourseController {
     private final ModelMapper modelMapper;
     private final CourseRepository courseRepository;
 
-    @Operation(summary = "Get Courses with Title and Leaders", tags = { "courses" })
+    @Operation(summary = "Get courses with title and leaders.", tags = { "courses" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = " Courses with Title and Leaders are returned as list."),
+            @ApiResponse(responseCode = "200", description = "Courses with title and leaders are returned as list."),
     })
     @GetMapping("/withTitleAndLeaders")
     // get all Courses with title and leaders by getting all Courses from the DB and converting them before returning 
@@ -36,9 +36,9 @@ public class CourseController {
                 CourseWithTitleAndLeaders.convertToDto(modelMapper, courseRepository.findAll()), HttpStatus.OK);
     }
 
-    @Operation(summary = "Get Courses with Title and Specialisations", tags = { "courses" })
+    @Operation(summary = "Get courses with title and specialisations.", tags = { "courses" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Courses with Title and Specialisations are returned as list."),
+            @ApiResponse(responseCode = "200", description = "Courses with title and specialisations are returned as list."),
     })
     @GetMapping("/withTitleAndSpecialisations")
     // get all Courses with title and specialistationcourse by getting all Courses from the DB and converting before returning 
