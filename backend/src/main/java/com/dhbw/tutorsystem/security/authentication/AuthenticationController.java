@@ -198,44 +198,43 @@ public class AuthenticationController {
                 }
 
                 // save user to db
-                saveUserSubtype(user);
+                userService.saveUserSubtype(user);
             }
         } else {
-            // new user registration: encode password and save new user
-            String encodedPassword = encoder.encode(registerRequest.getPassword());
-
-            // create new user
-            user = new User(
-                    registerRequest.getFirstName(), registerRequest.getLastName(),
-                    registerRequest.getEmail(), encodedPassword);
-            user.setEnabled(false);
-            user.setLastPasswordAction(LocalDateTime.now());
-
-            // get roles by email
-            Optional<Role> role = Optional.empty();
-            if (User.isStudentMail(user.getEmail())) {
-                Student student = new Student(user.getEmail(), user.getPassword());
+            // new user registration: create student or director object
+            if (User.isStudentMail(registerRequest.getEmail())) {
+                // students must have a specialisation course
+                user = new Student();
                 Optional<SpecialisationCourse> specialisationCourse = specialisationCourseRepository
                         .findById(registerRequest.getSpecialisationCourseId());
                 if (specialisationCourse.isEmpty()) {
                     throw new SpecialisationCourseNotFoundException();
                 }
-                student.setSpecialisationCourse(specialisationCourse.get());
-                user = student;
-                role = roleRepository.findByName(ERole.ROLE_STUDENT);
-            } else if (User.isDirectorMail(user.getEmail())) {
-                user = new Director(user.getEmail(), user.getPassword());
-                role = roleRepository.findByName(ERole.ROLE_DIRECTOR);
+                ((Student) user).setSpecialisationCourse(specialisationCourse.get());
+            } else if (User.isDirectorMail(registerRequest.getEmail())) {
+                user = new Director();
             }
 
-            // role might not be available in DB
-            if (role.isEmpty()) {
+            // must encode password
+            String encodedPassword = encoder.encode(registerRequest.getPassword());
+
+            user.setFirstName(registerRequest.getFirstName());
+            user.setLastName(registerRequest.getLastName());
+            user.setEmail(registerRequest.getEmail());
+            user.setPassword(encodedPassword);
+            user.setEnabled(false);
+            user.setLastPasswordAction(LocalDateTime.now());
+
+            // get role by email
+            Role role = null;
+            try {
+                role = userService.getUserRole(registerRequest.getEmail());
+            } catch(RoleNotFoundException e) {
                 logger.error("User ({}) found with no valid role", user.getEmail());
-                throw new RoleNotFoundException();
-            } else {
-                // set roles for the created user
-                user.setRoles(Set.of(role.get()));
+                throw e;
             }
+            // set roles for the created user
+            user.setRoles(Set.of(role));
 
             // send registration mail
             try {
@@ -246,21 +245,9 @@ public class AuthenticationController {
             }
 
             // save user based on Subtype for choosing the correct repo
-            saveUserSubtype(user);
+            userService.saveUserSubtype(user);
         }
         return ResponseEntity.ok(null);
-    }
-
-    // saves a user in the correct repo
-    private User saveUserSubtype(User user) throws InvalidUserTypeException {
-        // check the type of the provided user
-        if (user instanceof Student) {
-            return studentRepository.save((Student) user);
-        } else if (user instanceof Director) {
-            return directorRepository.save((Director) user);
-        } else {
-            throw new InvalidUserTypeException();
-        }
     }
 
     // enable an account by clicking on the link in the email

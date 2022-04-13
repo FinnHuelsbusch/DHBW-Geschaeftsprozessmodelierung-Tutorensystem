@@ -36,6 +36,7 @@ import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterRequest;
 import com.dhbw.tutorsystem.tutorial.payload.FindTutorialsWithFilterResponse;
 import com.dhbw.tutorsystem.user.User;
 import com.dhbw.tutorsystem.user.UserRepository;
+import com.dhbw.tutorsystem.user.UserService;
 import com.dhbw.tutorsystem.user.student.Student;
 import com.dhbw.tutorsystem.user.student.StudentRepository;
 import com.dhbw.tutorsystem.user.student.StudentService;
@@ -86,7 +87,7 @@ public class TutorialController {
     private final EntityManagerFactory entityManagerFactory;
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
-
+    private final UserService userService;
 
     // get tutorial by ID as path Variable
     @Operation(summary = "Find tutorial by id.", description = "Find a tutorial by its id.", tags = {
@@ -498,9 +499,10 @@ public class TutorialController {
                     throw new TSInternalServerException();
                 }
             } else {
-                // create a user only with email and notfiy him that he was added as tutor although he was not registered
-                user = new User();
+                // create a student user only with email and notfiy him that he was added as tutor although he was not registered
+                user = new Student();
                 user.setEmail(tutorEmail);
+                user.setRoles(Set.of(userService.getUserRole(tutorEmail)));
                 try {
                     emailSenderService.sendMail(user.getEmail(),
                             MailType.UNREGISTERED_TUTORIAL_TUTOR_ADDED,
@@ -511,7 +513,7 @@ public class TutorialController {
             }
             usersToReturn.add(user);
         }
-        return new HashSet<>(userRepository.saveAll(usersToReturn));
+        return new HashSet<>(userService.saveAllUserSubtypes(usersToReturn));
     }
 
     @Operation(tags = {

@@ -19,17 +19,20 @@ const TutorialOfferModal: React.FC<Props> = ({ isModalVisible, setIsTutorialOffe
     const [form] = useForm();
     const [courses, setCourses] = useState<CourseWithTitleAndLeaders[]>([]);
 
-    const onFinish = (values: any) => {
+    const onFinish = (values: any) => {        
         const mailBodyString = `Name:${values.firstname} ${values.lastname}%0D%0A
         Hochschule/Universität: ${values.university}%0D%0A
         Studiengang: ${values.ownCourse}%0D%0A
         Semester: ${values.semester}%0D%0A
         Zeitraum: ${moment(values.timerange[0]).format("DD.MM.YYYY")} bis  ${values.timerange[1].format("DD.MM.YYYY")}%0D%0A
+        Angebotene Studiengänge: ${values.offeredCourses}%0D%0A
         Beschreibung: ${values.description}`;
+
+        const mailSubject = 'Tutoriumsangebot';
 
         //get Emailadresses of the directors by the selected Courses
         const mailEmailsString = values.offeredCourses.map((course: String) => courses.find(innerCourse => course === innerCourse.title)?.leadBy.map((user: User) => user.email)).flat().join(";");
-        window.location.href = "mailto:" + mailEmailsString + "?body=" + mailBodyString;
+        window.location.href = "mailto:" + mailEmailsString + "?body=" + mailBodyString + "&subject=" + mailSubject;
         setIsTutorialOfferModalVisible(false);
         form.resetFields();
     };

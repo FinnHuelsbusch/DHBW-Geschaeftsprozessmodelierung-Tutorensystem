@@ -81,12 +81,12 @@ public class EmailSenderService {
                 sendTutorialChanged(mailTo, arguments);
                 break;
             default:
-                // throw exception when an illegal argument is given   
+                // throw exception when an illegal argument is given
                 throw new IllegalArgumentException("MailType is not known.");
         }
     }
 
-    // send mail for all mailadresses in the set 
+    // send mail for all mailadresses in the set
     public void sendMails(Set<String> mailsTo, MailType mailType, Map<String, Object> arguments)
             throws MessagingException {
         for (String mailTo : mailsTo) {
@@ -95,12 +95,12 @@ public class EmailSenderService {
     }
 
     private void sendRegistrationMail(String mailTo, Map<String, Object> arguments) throws MessagingException {
-        // get variables from the arguments set 
+        // get variables from the arguments set
         String hashBase64 = (String) arguments.get("hashBase64");
         boolean isFirstRegisterMail = (boolean) arguments.get("isFirstRegisterMail");
         String linkUrl = frontendUrl + "/verifyRegistration?h=" + hashBase64 + "&e=" + mailTo;
 
-        // initialize thymeleaf 
+        // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
         thymeleafContext.setVariable("isFirstRegisterMail", isFirstRegisterMail);
@@ -121,7 +121,7 @@ public class EmailSenderService {
         String hashBase64 = (String) arguments.get("hashBase64");
         String linkUrl = frontendUrl + "/verifyResetPassword?h=" + hashBase64 + "&e=" + mailTo;
 
-        // initialize thymeleaf 
+        // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("link", linkUrl);
 
@@ -144,7 +144,7 @@ public class EmailSenderService {
         Integer tutorialId = (Integer) arguments.get("tutorialId");
         String tutorialLinkUrl = frontendUrl + "/tutorials/" + tutorialId;
 
-        // initialize thymeleaf 
+        // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
         thymeleafContext.setVariable("tutorialLinkUrl", tutorialLinkUrl);
@@ -162,11 +162,11 @@ public class EmailSenderService {
 
     private void sendTutorialParticipationStudentRemovalMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
-                
+
         // get variables from the arguments set and create new ones
         String tutorialTitle = (String) arguments.get("tutorialTitle");
 
-        // initialize thymeleaf 
+        // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
 
@@ -183,24 +183,49 @@ public class EmailSenderService {
 
     private void sendUnregisterdUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
-
+        // send mail by creating mime message
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("sendUnregisterdUserAddedToTutorialAsTutorMail");
+        helper.setText("Dies ist eine nicht implementierte E-Mail", true);
+        sendMimeMessage(helper.getMimeMessage());
     }
 
     private void sendUserAddedToTutorialAsTutorMail(String mailTo, Map<String, Object> arguments)
             throws MessagingException {
-
+        // send mail by creating mime message
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("sendUserAddedToTutorialAsTutorMail");
+        helper.setText("Dies ist eine nicht implementierte E-Mail", true);
+        sendMimeMessage(helper.getMimeMessage());
     }
 
     private void sendUTutorialDelete(String mailTo, Map<String, Object> arguments) throws MessagingException {
-
+        // send mail by creating mime message
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("sendUTutorialDelete");
+        helper.setText("Dies ist eine nicht implementierte E-Mail", true);
+        sendMimeMessage(helper.getMimeMessage());
     }
 
     private void sendUserRemovedAsTutor(String mailTo, Map<String, Object> arguments) throws MessagingException {
-
+        // send mail by creating mime message
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("sendUserRemovedAsTutor");
+        helper.setText("Dies ist eine nicht implementierte E-Mail", true);
+        sendMimeMessage(helper.getMimeMessage());
     }
 
     private void sendTutorialChanged(String mailTo, Map<String, Object> arguments) throws MessagingException {
-
+        // send mail by creating mime message
+        MimeMessageHelper helper = new MimeMessageHelper(getMimeMessage(), true, "utf-8");
+        helper.setTo(mailTo);
+        helper.setSubject("sendTutorialChanged");
+        helper.setText("Dies ist eine nicht implementierte E-Mail", true);
+        sendMimeMessage(helper.getMimeMessage());
     }
 
 }
