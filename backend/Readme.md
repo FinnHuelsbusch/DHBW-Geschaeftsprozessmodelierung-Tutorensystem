@@ -14,14 +14,15 @@
 
 Siehe [Backend Setup](./Setup.md).
 
-Für die Entwicklung kann ein Dev-Container verwendet werden, um Kompatibilitätsproblemen Entgegen zu wirken. Bevorzugte Entwicklungsumgebung ist demnach VSCode. Alternativ kann das Backend auch lokal gestartet werden, hierbei muss nur eine postgres erreichbar sein. 
+Für die Entwicklung kann ein Dev-Container verwendet werden, um Kompatibilitätsproblemen entgegen zu wirken. Bevorzugte Entwicklungsumgebung ist demnach VSCode. Alternativ kann das Backend auch lokal gestartet werden, hierbei muss nur eine postgres DB erreichbar sein. 
 
 ## Architektur
 
 Das Projekt verwendet folgende Technologien:
 
 - SpringBoot
-- Lombok 
+- Lombok
+- ThymeLeaf (templating engine)
 
 ## Ordnerstruktur
 
@@ -30,8 +31,8 @@ Die Ordnerstruktur folgt generell der durch den `Spring Initializer` erstellten 
 | Packages / Klassen              | Inhalt                                                       |
 | ------------------------------- | ------------------------------------------------------------ |
 | `course`                        | Entität der Studiengänge                                     |
-| `exception`                     | Alle Klassen zu gesonderten Exception behandlung innerhalb des Projekts |
-| `mails`                         | Implementierung des E-Mail versands                          |
+| `exception`                     | Alle Klassen zur gesonderten Exception-Behandlung innerhalb des Projekts |
+| `mails`                         | Implementierung des E-Mail Versands                          |
 | `ping`                          | Ping routen zum testen                                       |
 | `role`                          | Rollen der User                                              |
 | `security`                      | Zugriffsrechte und sicherheitsrelevante Einstellungen        |
@@ -39,18 +40,18 @@ Die Ordnerstruktur folgt generell der durch den `Spring Initializer` erstellten 
 | `tutorial`                      | Entität der Tutorien                                         |
 | `tutorialRequest`               | Entität der Tutoriumsanfragen                                |
 | `user`                          | Entität der Benutzer                                         |
-| `DevDataManager.java`           | Methoden zum erstellen von Demodaten zum leichteren debuggen |
+| `DevDataManager.java`           | Methoden zum Erstellen von Demodaten |
 | `TutorensystemApplication.java` | Root-Klasse, von der das Programm startet                    |
 
 ## Weitere Struktur
 
 ### Entitäten 
 
-Die Entitäten enthalten einen Controller, in dem die Routen und ihre Logik enthalten sind, ein Repository für den Datenbankzugriff und eine Klasse, in der die Entität und ihre Beziehungen definiert sind. Um nur die nötigsten Daten ans Frontend zu übermitteln werden Data Transfer Objects verwendet. Jedes DTO enthält Methoden, um die Hauptentität in das DTO zu konvertieren. 
+Die Entitäten enthalten einen Controller, in dem die Routen und ihre Logik enthalten sind, ein Repository für den Datenbankzugriff und eine Klasse, in der die Entität und ihre Beziehungen definiert sind. Um nur die nötigsten Daten ans Frontend zu übermitteln werden Data Transfer Objects (DTOs) verwendet. Jedes DTO enthält Methoden, um die Hauptentität in das DTO zu konvertieren. 
 
 ### mails
 
-E-Mails werden über den EmailSenderService versendet. Dieser Bietet Methoden zum versenden einzelner oder mehrer E-Mails unter Angabe der E-Mailadresse, dem E-Mailtypen welcher aus dem entsprechenden E-Num stammen muss, sowie die für die E-Mail benötigten Argumente als Map. 
+E-Mails werden über den EmailSenderService versendet. Dieser bietet Methoden zum Versenden einzelner oder mehrerer E-Mails unter Angabe der E-Mailadresse, dem E-Mailtypen (welcher aus dem entsprechenden Enum stammen muss), sowie die für die E-Mail benötigten Argumente als Map. 
 
 ### role
 
@@ -58,22 +59,22 @@ Beinhaltet, die den Benutzern zuweisbaren Rollen. Ein Benutzer kann mehrere Roll
 
 ### exception
 
-Alle Exceptions des Systems `RestResponseEntityExceptionHandler` behandelt. Hierbei wird in drei Kategorien unterschieden: 
+Alle Exceptions des Systems werden in `RestResponseEntityExceptionHandler` behandelt. Hierbei wird in drei Kategorien unterschieden: 
 
-- javax validation Error
-  Feher, die dadurch auftreten, dass die Parameter, die bei einem Request im Body mitgegeben wurden nicht den Ansprüchen der Annotationen genügt. 
+- javax validation Error:
+  Fehler, die dadurch auftreten, dass die Parameter, die bei einem Request im Body mitgegeben wurden nicht den Ansprüchen der Annotationen genügen. 
 - eigene Exceptions
-  Exceptions, die bewusst geschmissen werden, müssen zwangsläufig von der TSBaseException erben. Diese Exceptions sind mit korrekten Fehlernachrichten und Fehlercodes ausgestattet und können am Frontend weiterverarbeitet werden 
+  Exceptions, die bewusst erzeugt werden, müssen zwangsläufig von der TSBaseException erben. Diese Exceptions sind mit korrekten Fehlernachrichten und Fehlercodes ausgestattet und können am Frontend weiterverarbeitet werden 
 - alle anderen Exceptions
-  Wird eine Exception geschmissen, die nicht behandelt wird, wird diese Gefangen und durch eine InternelServerError Exception ersetzt, um keine weiteren Informationen nach außen zu geben. 
+  Wird eine Exception geschmissen, die nicht behandelt wird, wird diese gefangen und durch eine InternelServerError Exception ersetzt, um keine weiteren Informationen nach außen zu geben. 
 
+### security
+Alle Requests werden mithilfe von JSON Web Tokens (JWTs) abgesichert. Welche Routen öffentlich verfügbar sind, und welche Routen eine bestimmte Autorisierung mittels einer Nutzerrolle benötigen, ist an zwei Stellen festgelegt. Einerseits direkt im Code, zum Beispiel in den Controller-Klassen als `@PreAuthorize` Anweisung des Spring-Frameworks. Andererseits wird in WebSecurityConfig.java festgelegt, dass alle Routen ohne eine genauere Spezifizierung einer Autorisierung bedürfen. Die Spezifikation mit `@PreAuthorize` über einer Methode hat stets höhere Priorität.
 
+Passwörter werden in der DB als Hash gespeichert, sodass der Klartext nicht bekannt wird.
 
 ## Besonderheiten
 
 ### user
 
-Der user hat weiter Spezialisierungen in Form vom Student und director, dies wird über Vererbung dargestellt. In der DB ist diese Vererbung über eine Indikatiorenspalte gelöst. 
-
-
-
+Der user hat weiter Spezialisierungen in Form eines Student und eines Director, dies wird über Vererbung dargestellt. In der DB ist diese Vererbung über eine Indikatorenspalte gelöst. 
