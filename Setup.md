@@ -13,12 +13,13 @@
 1. Clone the repository 
 2. Start frontend
    1. Open the root project in VSCode
-   2. Press `strg+shift+p execute` Remote-Containers: Open Folder in Container... and select frontend
+   2. Press `strg+shift+p` execute` Remote-Containers: Open Folder in Container...` and select frontend
    3. wait until the installation is done 
    4. execute `npm start`
 3. Start backend
    1. Open the root project  VSCode  
    2.  Press strg+shift+p execute Remote-Containers: Open Folder in Container... and select backend
    3. wait until the installation is done 
+   3. In `src/main/resources`  a file called applications.properties must be created. If the backend was started in a  Dev-Container you can use `application.properties.docker` as a template. If the backend was started locally use `application.properties.local` as a template. 
    4. execute `mvn spring-boot:run`
 
