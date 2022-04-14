@@ -43,9 +43,6 @@ const TutorialDetails: React.FC = () => {
         fetchTutorial();
     }, [tutorialId]);
 
-
-
-
     const TutorialDetailsPage = (tutorial: Tutorial) => {
 
         const getDetailsRow = (label: string, content: any) => {
@@ -164,19 +161,19 @@ const TutorialDetails: React.FC = () => {
                 // directors' view: only show delete button
                 return (
                     <>
-                    <Button
-                        danger
-                        disabled={loading}
-                        onClick={e => onDeleteClick()}>
-                        <DeleteOutlined /> Tutorium löschen
-                    </Button>
-                    <Button
-                        type='primary'
-                        disabled={loading}
-                        onClick={e => onEditClick()}>
-                        <EditOutlined /> Tutorium bearbeiten
-                    </Button>
-                    
+                        <Button
+                            danger
+                            disabled={loading}
+                            onClick={e => onDeleteClick()}>
+                            <DeleteOutlined /> Tutorium löschen
+                        </Button>
+                        <Button
+                            type='primary'
+                            disabled={loading}
+                            onClick={e => onEditClick()}>
+                            <EditOutlined /> Tutorium bearbeiten
+                        </Button>
+
                     </>
                 );
             } else {
@@ -221,7 +218,12 @@ const TutorialDetails: React.FC = () => {
                 <PageHeader
                     ghost={false}
                     title={tutorial.title}
-                    onBack={() => navigate(-1)}
+                    onBack={
+                        window.history.state.idx > 0
+                            // history is available: navigate back
+                            ? () => navigate(-1)
+                            : undefined
+                    }
                     extra={[TutorialActions()]}
                 >
                     <Typography style={{ marginTop: '16px' }}>
@@ -237,7 +239,7 @@ const TutorialDetails: React.FC = () => {
                             {getDetailsRow("Anzahl Teilnehmer",
                                 tutorial.numberOfParticipants)}
                             {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
-                                tutorial.tutors.length > 1
+                                tutorial.tutors.length > 0
                                     ? tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
                                         .reduce((prev, curr) => `${prev} ${curr}`)
                                     : "Noch kein Tutor eingetragen")}
@@ -255,20 +257,22 @@ const TutorialDetails: React.FC = () => {
                     </Typography>
                     <TutorialDeleteModal
                         isModalVisible={isTutorialDeleteModalVisible}
-                        setIsTutorialDeleteModalVisible={(visible: boolean, deleted: boolean) =>{
+                        setIsTutorialDeleteModalVisible={(visible: boolean, deleted: boolean) => {
                             setIsTutorialDeleteModalVisible(visible);
-                           if(deleted){
-                            navigate(-1);
-                           }}}
-                        tutorial={tutorial}                
+                            if (deleted) {
+                                navigate(-1);
+                            }
+                        }}
+                        tutorial={tutorial}
                     />
-                    <TutorialCreateModal 
-                        isModalVisible={isTutorialCreateModalVisible} 
-                        setIsTutorialCreateModalVisible={(visible: boolean, isUpdated: boolean) =>{
+                    <TutorialCreateModal
+                        isModalVisible={isTutorialCreateModalVisible}
+                        setIsTutorialCreateModalVisible={(visible: boolean, isUpdated: boolean) => {
                             setIsTutorialCreateModalVisible(visible);
-                           if(isUpdated){
-                            fetchTutorial();
-                           }}}
+                            if (isUpdated) {
+                                fetchTutorial();
+                            }
+                        }}
                         existingTutorial={tutorial}
                     />
                 </PageHeader>
