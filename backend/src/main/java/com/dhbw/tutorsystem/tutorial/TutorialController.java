@@ -465,19 +465,23 @@ public class TutorialController {
         }
 
         Tutorial tutorial = new Tutorial();
+        // save tutorial to DB to get id
+        tutorial = tutorialRepository.save(tutorial);
 
         // invite Tutors and create Users for emails that are not registered
         Set<User> tutors = handleAddedTutors(createTutorialRequest.getTutorEmails(),
                 Map.of(
+                        "tutorialId", tutorial.getId(),
                         "tutorialTitle", createTutorialRequest.getTitle(),
                         "tutorialDescription", createTutorialRequest.getDescription(),
                         "tutorialStart", createTutorialRequest.getStart(),
                         "tutorialEnd", createTutorialRequest.getEnd(),
                         "tutorialDurationMinutes", createTutorialRequest.getDurationMinutes(),
                         "tutorialTutorEmails", createTutorialRequest.getTutorEmails()));
-        mapCreateTutorialRequestToTutorial(createTutorialRequest, tutors, tutorial);
 
-        // save tutorial to DB
+        mapCreateTutorialRequestToTutorial(createTutorialRequest, tutors, tutorial);
+        
+        // update tutorial with the tutors
         tutorial = tutorialRepository.save(tutorial);
 
         // Return Tutorial as body
