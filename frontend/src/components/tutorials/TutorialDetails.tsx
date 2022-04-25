@@ -239,8 +239,11 @@ const TutorialDetails: React.FC = () => {
                             {getDetailsRow("Anzahl Teilnehmer",
                                 tutorial.numberOfParticipants)}
                             {getDetailsRow(tutorial.tutors.length > 1 ? "Tutoren" : "Tutor",
-                                tutorial.tutors.length > 0
-                                    ? tutorial.tutors.map(t => `${t.firstName} ${t.lastName}`)
+                                // first, check that at least one tutor with a full name exists
+                                tutorial.tutors.filter(t => t.firstName !== null && t.lastName !== null).length > 0
+                                    ? tutorial.tutors
+                                        .filter(t => t.firstName !== null && t.lastName !== null)
+                                        .map(t => `${t.firstName} ${t.lastName}`)
                                         .reduce((prev, curr) => `${prev} ${curr}`)
                                     : "Noch kein Tutor eingetragen")}
                         </Paragraph>

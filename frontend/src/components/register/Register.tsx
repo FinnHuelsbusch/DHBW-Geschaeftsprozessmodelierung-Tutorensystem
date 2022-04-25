@@ -33,9 +33,7 @@ const Register: React.FC = () => {
         });
     }, []);
 
-    const onSubmit = (values: any) => {
-        console.log("subm");
-        
+    const onSubmit = (values: any) => {        
         setLoading(true);
         const specialisationCourseId = isDirectorRegistration ? undefined : parseInt(values.specialisationCourse);
         register({

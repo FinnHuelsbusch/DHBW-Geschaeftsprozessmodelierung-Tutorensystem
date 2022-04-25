@@ -54,6 +54,7 @@ const Navigation: React.FC = () => {
         AdminOverview: '3',
         DirectorOverview: '4',
         Login: '5',
+        Register: '7',
         Profile: {
             Main: '6',
             Settings: '6 1',
@@ -81,6 +82,9 @@ const Navigation: React.FC = () => {
             case AppRoutes.Main.Subroutes.Login:
                 return MenuKeys.Login;
 
+            case AppRoutes.Main.Subroutes.Register:
+                return MenuKeys.Login;
+
             case AppRoutes.Main.Subroutes.Settings:
                 return MenuKeys.Profile.Main;
 
@@ -88,9 +92,6 @@ const Navigation: React.FC = () => {
                 return MenuKeys.Overview;
         }
     };
-
-    console.log(getSelectedMenuKey());
-
 
     return (
         <Menu

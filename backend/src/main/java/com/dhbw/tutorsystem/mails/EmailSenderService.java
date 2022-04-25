@@ -178,7 +178,7 @@ public class EmailSenderService {
         // initialize thymeleaf
         Context thymeleafContext = new Context();
         thymeleafContext.setVariable("tutorialTitle", tutorialTitle);
-        thymeleafContext.setVariable("tutorialLinkUrl", tutorialLinkUrl);
+        thymeleafContext.setVariable("link", tutorialLinkUrl);
         thymeleafContext.setVariable("firstname", firstname);
         thymeleafContext.setVariable("lastname", lastname);
 
