@@ -112,14 +112,14 @@ public class DevDataManager {
         uStudent2.setRoles(Set.of(rStudent));
         uStudent2.setPassword(encoder.encode(uStudent2.getPassword()));
         uStudent2.setEnabled(true);
-        uStudent2.setFirstName("Elon");
-        uStudent2.setLastName("Musk");
+        uStudent2.setFirstName("Max");
+        uStudent2.setLastName("Engel");
         uStudent2.setLastPasswordAction(LocalDateTime.now().minusMinutes(5));
         uStudent2 = studentRepository.save(uStudent2);
 
         uTutor = new Student("s000002@student.dhbw-mannheim.de", "1234");
-        uTutor.setFirstName("Amanda");
-        uTutor.setLastName("Huginkiss");
+        uTutor.setFirstName("Daniel");
+        uTutor.setLastName("Klein");
         uTutor.setRoles(Set.of(rStudent));
         uTutor.setPassword(encoder.encode(uTutor.getPassword()));
         uTutor.setEnabled(true);
@@ -128,7 +128,7 @@ public class DevDataManager {
 
         uTutor1 = new Student("s000003@student.dhbw-mannheim.de", "1234");
         uTutor1.setFirstName("Tim");
-        uTutor1.setLastName("Cook");
+        uTutor1.setLastName("Bächle");
         uTutor1.setRoles(Set.of(rStudent));
         uTutor1.setPassword(encoder.encode(uTutor1.getPassword()));
         uTutor1.setEnabled(true);
@@ -145,8 +145,8 @@ public class DevDataManager {
         uTutor2 = studentRepository.save(uTutor2);
 
         uTutor3 = new Student("s000005@student.dhbw-mannheim.de", "1234");
-        uTutor3.setFirstName("Sundar");
-        uTutor3.setLastName("Pichai");
+        uTutor3.setFirstName("Malte");
+        uTutor3.setLastName("Heil");
         uTutor3.setRoles(Set.of(rStudent));
         uTutor3.setPassword(encoder.encode(uTutor3.getPassword()));
         uTutor3.setEnabled(true);
@@ -154,8 +154,8 @@ public class DevDataManager {
         uTutor3 = studentRepository.save(uTutor3);
 
         uTutor4 = new Student("s000006@student.dhbw-mannheim.de", "1234");
-        uTutor4.setFirstName("Steve");
-        uTutor4.setLastName("Jobs");
+        uTutor4.setFirstName("Steven");
+        uTutor4.setLastName("Richter");
         uTutor4.setRoles(Set.of(rStudent));
         uTutor4.setPassword(encoder.encode(uTutor4.getPassword()));
         uTutor4.setEnabled(true);
@@ -172,8 +172,8 @@ public class DevDataManager {
         uTutor5 = studentRepository.save(uTutor5);
 
         uTutor6 = new Student("s000008@student.dhbw-mannheim.de", "1234");
-        uTutor6.setFirstName("Brad");
-        uTutor6.setLastName("Pitt");
+        uTutor6.setFirstName("Matthias");
+        uTutor6.setLastName("Ernst");
         uTutor6.setRoles(Set.of(rStudent));
         uTutor6.setPassword(encoder.encode(uTutor6.getPassword()));
         uTutor6.setEnabled(true);
@@ -199,8 +199,8 @@ public class DevDataManager {
         uTutor8 = studentRepository.save(uTutor8);
 
         uTutor9 = new Student("s000011@student.dhbw-mannheim.de", "1234");
-        uTutor9.setFirstName("Deez");
-        uTutor9.setLastName("Nuts");
+        uTutor9.setFirstName("Sebastian");
+        uTutor9.setLastName("Müller");
         uTutor9.setRoles(Set.of(rStudent));
         uTutor9.setPassword(encoder.encode(uTutor9.getPassword()));
         uTutor9.setEnabled(true);
@@ -208,8 +208,8 @@ public class DevDataManager {
         uTutor9 = studentRepository.save(uTutor9);
 
         uTutor10 = new Student("s000012@student.dhbw-mannheim.de", "1234");
-        uTutor10.setFirstName("Gayview");
-        uTutor10.setLastName("Mahat");
+        uTutor10.setFirstName("Robin");
+        uTutor10.setLastName("Moser");
         uTutor10.setRoles(Set.of(rStudent));
         uTutor10.setPassword(encoder.encode(uTutor10.getPassword()));
         uTutor10.setEnabled(true);
@@ -217,8 +217,8 @@ public class DevDataManager {
         uTutor10 = studentRepository.save(uTutor10);
 
         uTutor11 = new Student("s000013@student.dhbw-mannheim.de", "1234");
-        uTutor11.setFirstName("Gavit");
-        uTutor11.setLastName("Awaii");
+        uTutor11.setFirstName("Benedikt");
+        uTutor11.setLastName("Schneider");
         uTutor11.setRoles(Set.of(rStudent));
         uTutor11.setPassword(encoder.encode(uTutor11.getPassword()));
         uTutor11.setEnabled(true);
@@ -226,8 +226,8 @@ public class DevDataManager {
         uTutor11 = studentRepository.save(uTutor11);
 
         uTutor12 = new Student("s000014@student.dhbw-mannheim.de", "1234");
-        uTutor12.setFirstName("Sumwun");
-        uTutor12.setLastName("Speshal");
+        uTutor12.setFirstName("Hektor");
+        uTutor12.setLastName("Wolf");
         uTutor12.setRoles(Set.of(rStudent));
         uTutor12.setPassword(encoder.encode(uTutor12.getPassword()));
         uTutor12.setEnabled(true);
@@ -253,8 +253,8 @@ public class DevDataManager {
         uTutor14 = studentRepository.save(uTutor14);
 
         uTutor15 = new Student("s000017@student.dhbw-mannheim.de", "1234");
-        uTutor15.setFirstName("Hugh");
-        uTutor15.setLastName("Jass");
+        uTutor15.setFirstName("Manuela");
+        uTutor15.setLastName("Richter");
         uTutor15.setRoles(Set.of(rStudent));
         uTutor15.setPassword(encoder.encode(uTutor15.getPassword()));
         uTutor15.setEnabled(true);
