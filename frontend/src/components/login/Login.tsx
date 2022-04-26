@@ -1,13 +1,15 @@
-import { Button, Checkbox, Divider, Form, Input, message, Modal, } from 'antd';
+import { Button, Checkbox, Divider, Form, Input, message, } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
-import Paragraph from 'antd/lib/typography/Paragraph';
 import Title from 'antd/lib/typography/Title';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getRequestError, login, requestPasswordReset, resetPassword } from '../../api/api';
+import { getRequestError, login } from '../../api/api';
 import { AuthContext } from '../../context/UserContext';
 import { AppRoutes } from '../../types/AppRoutes';
+import { getErrorMessageString } from '../../types/RequestError';
 import EmailFormInput from '../inputs/EmailFormInput';
+import PasswordInput from '../inputs/PasswordInput';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 
 const Login: React.FC = () => {
@@ -18,20 +20,20 @@ const Login: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-
     const LoginForm = () => {
-
         const [form] = useForm();
 
         const onSubmit = (values: any) => {
             setLoading(true);
             login(values.email, values.password)
                 .then(user => {
-                    authContext.login(user);
-                    message.success("Login erfolgreich", 2);
                     navigate(AppRoutes.Main.Path);
+                    authContext.login(user, values.rememberLogin);
+                    message.success("Login erfolgreich", 2);
+                    setLoading(false);
                 }).catch(err => {
-                    message.error("Login fehlgeschlagen");
+                    const reqErr = getRequestError(err);
+                    message.error(getErrorMessageString(reqErr.errorCode));
                     setLoading(false);
                 });
         };
@@ -42,21 +44,28 @@ const Login: React.FC = () => {
                 wrapperCol={{ span: 10 }}
                 form={form}
                 onFinish={onSubmit}>
-                <EmailFormInput />
+
+                <EmailFormInput required disabled={loading} />
+
+                <PasswordInput
+                    noRegexValidation
+                    disabled={loading}
+                />
+
                 <Form.Item
-                    label="Passwort"
-                    name="password"
-                    rules={[{ required: true, message: 'Pflichtfeld' }]}>
-                    <Input.Password />
+                    name="rememberLogin"
+                    initialValue={false}
+                    valuePropName="checked"
+                    wrapperCol={{ offset: 8, span: 10 }}>
+                    <Checkbox disabled={loading}>Anmeldung speichern</Checkbox>
                 </Form.Item>
-                <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
-                    <Checkbox>Anmeldung speichern</Checkbox>
-                </Form.Item>
+
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <a onClick={e => setShowForgotPasswordModal(true)}>
                         Passwort vergessen?
                     </a>
                 </Form.Item>
+
                 <Form.Item wrapperCol={{ offset: 8, span: 10 }}>
                     <Button loading={loading} htmlType='submit' type='primary'>
                         Anmelden
@@ -66,50 +75,8 @@ const Login: React.FC = () => {
                         registrieren.
                     </a>
                 </Form.Item>
+
             </Form>
-        )
-    };
-
-    const ForgotPasswordModal = () => {
-
-        const [form] = useForm();
-
-        const onFormSubmit = (values: any) => {
-            console.log(values);
-            requestPasswordReset(values.email)
-                .then(res => {
-                    message.success("E-Mail wurde zugesendet");
-                    setShowForgotPasswordModal(false);
-                }, err => {
-                    const reqErr = getRequestError(err);
-                    message.error(`${reqErr.reason}`);
-                });
-        }
-
-        return (
-            <Modal
-                title="Passwort vergessen?"
-                visible={showForgotPasswordModal}
-                onCancel={e => setShowForgotPasswordModal(false)}
-                footer={[
-                    <Button type='primary' onClick={e => form.submit()}>
-                        Passwort zurücksetzen
-                    </Button>
-                ]}
-            >
-                <Form
-                    name="login"
-                    form={form}
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 14 }}
-                    onFinish={onFormSubmit}>
-                    <Paragraph>
-                        Geben Sie ihre E-Mail Addresse an, um für Ihr bestehendes
-                        Konto ein neues Passwort zu erhalten.
-                    </Paragraph>
-                    <EmailFormInput />
-                </Form>
-            </Modal>
         )
     };
 
@@ -119,7 +86,9 @@ const Login: React.FC = () => {
                 Anmeldung
             </Title>
             <LoginForm />
-            {showForgotPasswordModal && <ForgotPasswordModal />}
+            <ForgotPasswordModal
+                visible={showForgotPasswordModal}
+                onClose={() => setShowForgotPasswordModal(false)} />
         </>
     )
 }

@@ -1,0 +1,23 @@
+spring.datasource.url=jdbc:postgresql://dbtest:5432/tutorensystem-dhbw-test
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.auto_quote_keyword=true
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=create-drop
+
+server.error.include-stacktrace=never
+
+spring.thymeleaf.prefix=classpath:/mail-templates/
+
+backend.app.jwtSecret=1234
+backend.app.jwtExpirationMs=60000000
+backend.app.frontendUrl=http://localhost:3001/
+backend.app.minutesBetweenPasswordActions=0
+
+spring.mail.host=localhost
+spring.mail.port=2525
+spring.mail.properties.mail.smtp.auth=false
+spring.mail.properties.mail.smtp.starttls.enable=true

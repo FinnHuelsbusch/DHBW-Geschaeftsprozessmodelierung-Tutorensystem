@@ -7,8 +7,11 @@ export const AppRoutes = {
             Settings: "/settings",
             AdminOverview: "/adminOverview",
             DirectorOverview: "/directorOverview",
+            Tutorials: "/tutorials",
+            TutorialDetails: "/tutorials/:tutorialId"
         }
     },
-    Verify: '/verify',
+    VerifyRegistration: '/verifyRegistration',
+    VerifyResetPassword: 'verifyResetPassword',
     Unauthorized: '/unauthorized'
 }

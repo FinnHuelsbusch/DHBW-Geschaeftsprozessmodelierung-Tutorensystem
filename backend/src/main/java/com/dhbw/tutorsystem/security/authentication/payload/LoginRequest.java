@@ -1,14 +1,15 @@
 package com.dhbw.tutorsystem.security.authentication.payload;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
-@AllArgsConstructor
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
+
 public class LoginRequest {
-    @NotBlank
+
+    @ValidEmail
     @Getter
     @Setter
     private String email;
@@ -16,6 +17,7 @@ public class LoginRequest {
     @NotBlank
     @Getter
     @Setter
+    // intentionally do not check password regex here to not expose details
     private String password;
 
 }

@@ -1,6 +1,5 @@
 package com.dhbw.tutorsystem.user;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,12 +11,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.dhbw.tutorsystem.course.Course;
 import com.dhbw.tutorsystem.role.Role;
-import com.dhbw.tutorsystem.tutorial.Tutorial;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,10 +24,18 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 public class User {
+
     @JsonIgnore
-    private static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
+    public static final String studentMailRegex = "^s[0-9]{6}@student\\.dhbw-mannheim\\.de$";
+
     @JsonIgnore
-    private static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+    public static final String directorMailRegex = "^[a-z]*\\.[a-z]*@dhbw-mannheim\\.de$";
+
+    @JsonIgnore
+    public static final String validEmailRegex = studentMailRegex + "|" + directorMailRegex;
+
+    @JsonIgnore
+    public static final String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,22 +66,16 @@ public class User {
 
     @Getter
     @Setter
+    private String tempPassword;
+
+    @Getter
+    @Setter
     private boolean enabled;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Role> roles = new HashSet<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Getter
-    @Setter
-    private Course course;
-
-    @ManyToMany
-    @Getter
-    @Setter
-    private Set<Tutorial> participates;
 
     public User() {
 
@@ -95,12 +93,12 @@ public class User {
         this.password = password;
     }
 
-    public boolean isStudentMail() {
-        return StringUtils.isNotBlank(this.email) && Pattern.matches(studentMailRegex, this.email);
+    public static boolean isStudentMail(String email) {
+        return StringUtils.isNotBlank(email) && Pattern.matches(studentMailRegex, email);
     }
 
-    public boolean isDirectorMail() {
-        return StringUtils.isNotBlank(this.email) && Pattern.matches(directorMailRegex, this.email);
+    public static boolean isDirectorMail(String email) {
+        return StringUtils.isNotBlank(email) && Pattern.matches(directorMailRegex, email);
     }
 
     public static boolean isValidEmail(String email) {

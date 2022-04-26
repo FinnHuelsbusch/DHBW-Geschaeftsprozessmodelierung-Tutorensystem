@@ -11,3 +11,18 @@ export interface User {
     roles: Array<UserRole>,
     loginExpirationDate: Date
 }
+
+export interface UserWithMailAndNameAndId {
+    id: number,
+    email: string,
+    firstName: string,
+    lastName: string
+}
+
+export interface RegisterRequest {
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    specialisationCourseId?: number
+}

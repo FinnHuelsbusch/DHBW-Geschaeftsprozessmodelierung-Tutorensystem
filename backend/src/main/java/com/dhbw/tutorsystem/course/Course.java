@@ -1,10 +1,18 @@
 package com.dhbw.tutorsystem.course;
 
+import java.util.Set;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
+
+import com.dhbw.tutorsystem.specialisationCourse.SpecialisationCourse;
+import com.dhbw.tutorsystem.user.director.Director;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,21 +29,20 @@ public class Course {
 
     @Getter
     @Setter
-    private String description;
+    private String title;
 
     @Getter
     @Setter
-    private int year;
+    private String abbreviation;
 
     @Getter
     @Setter
-    private String specialization;
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<Director> leadBy;
 
     @Getter
     @Setter
-    private String courseOfDegree;
-
-    @Getter
-    @Setter
-    private char block;
+    @OneToMany(fetch = FetchType.LAZY)
+    @OrderBy("abbreviation")
+    private Set<SpecialisationCourse> specialisationCourses;
 }

@@ -12,7 +12,7 @@ public class WebSecurityConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedMethods("POST", "PUT", "GET");
+        registry.addMapping("/**").allowedMethods("POST", "PUT", "GET", "DELETE");
     }
 
     @Bean

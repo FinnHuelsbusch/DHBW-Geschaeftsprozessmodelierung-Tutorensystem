@@ -4,11 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidEmail;
+import com.dhbw.tutorsystem.security.authentication.annotation.ValidPassword;
 
 public class RegisterRequest {
 
-    @NotBlank
+    @ValidEmail
     @Getter
     private String email;
 
@@ -16,10 +18,23 @@ public class RegisterRequest {
         this.email = email.trim();
     }
 
-    @NotBlank
-    @Size(min = 6, max = 40)
+    @ValidPassword
     @Getter
     @Setter
     private String password;
+
+    @NotBlank
+    @Getter
+    @Setter
+    private String firstName;
+
+    @NotBlank
+    @Getter
+    @Setter
+    private String lastName;
+
+    @Getter
+    @Setter
+    private Integer specialisationCourseId;
 
 }

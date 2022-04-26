@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
+// this error is thrown when a route is accessed with insufficient rights or no jwt token 
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
@@ -18,7 +20,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             AuthenticationException authException) throws IOException {
-        logger.error("Unauthorized error: {}", authException.getMessage());
+        logger.warn("Unauthorized error: {}", authException.getMessage());
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
     }
 }
