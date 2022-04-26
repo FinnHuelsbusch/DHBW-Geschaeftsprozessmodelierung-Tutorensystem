@@ -48,5 +48,5 @@
     "@types/node-sass": "^4.11.2",
     "node-sass": "^7.0.1"
   },
-  "homepage": "./"
+  "homepage": "/"
 }
